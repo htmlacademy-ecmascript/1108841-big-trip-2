@@ -5,18 +5,20 @@ const createNewPointButtonTemplate = () => `
 `;
 
 export default class NewPointButtonView {
+  #element = null;
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.getTemplate());
+    }
+    return this.#element;
+  }
+
   getTemplate() {
     return createNewPointButtonTemplate();
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
