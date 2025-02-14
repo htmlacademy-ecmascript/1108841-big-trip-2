@@ -15,8 +15,6 @@ const mockService = {
   trips: points
 };
 
-console.log('Mock Service:', mockService); // Для отладки
-
 const siteTripMainElement = document.querySelector('.trip-main');
 const siteFiltersElement = siteTripMainElement.querySelector('.trip-controls__filters');
 const siteTripEventsElement = document.querySelector('.trip-events');
@@ -24,12 +22,6 @@ const siteTripEventsElement = document.querySelector('.trip-events');
 const destinationsModel = new DestinationsModel(mockService);
 const offersModel = new OffersModel(mockService);
 const tripsModel = new TripsModel(mockService);
-
-console.log('Models:', { // Для отладки
-  destinations: destinationsModel.destinations,
-  offers: offersModel.offers,
-  trips: tripsModel.trips
-});
 
 const boardPresenter = new BoardPresenter({
   container: siteTripEventsElement,

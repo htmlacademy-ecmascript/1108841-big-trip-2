@@ -23,14 +23,10 @@ export default class BoardPresenter {
     const destinations = this.#destinationsModel.destinations;
     const offers = this.#offersModel.offers;
 
-    console.log('BoardPresenter init:', { points, destinations, offers }); // Для отладки
-
     render(new SortView(), this.#container);
     render(this.#boardComponent, this.#container);
 
-    // Отображаем форму редактирования для первой точки
     if (points.length > 0) {
-      console.log('Rendering first point:', points[0]); // Для отладки
       render(
         new PointEditView(
           points[0],
@@ -41,9 +37,7 @@ export default class BoardPresenter {
       );
     }
 
-    // Отображаем остальные точки
     for (let i = 1; i < points.length; i++) {
-      console.log('Rendering point:', points[i]); // Для отладки
       render(
         new PointView(
           points[i],
