@@ -10,12 +10,75 @@ export default class BoardPresenter {
   #destinationsModel = null;
   #offersModel = null;
   #tripsModel = null;
+  #pointEditComponent = null;
+  #pointComponents = new Map();
 
   constructor({ container, destinationsModel, offersModel, tripsModel }) {
     this.#container = container;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
     this.#tripsModel = tripsModel;
+  }
+
+  #handleEscKeyDown = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#replaceFormToPoint();
+      document.removeEventListener('keydown', this.#handleEscKeyDown);
+    }
+  };
+
+  #handlePointClick = (point) => {
+    this.#replacePointToForm(point);
+  };
+
+  #handleFormSubmit = () => {
+    this.#replaceFormToPoint();
+  };
+
+  #handleFormRollupClick = () => {
+    this.#replaceFormToPoint();
+  };
+
+  #replacePointToForm(point) {
+    if (this.#pointEditComponent) {
+      this.#replaceFormToPoint();
+    }
+
+    const pointComponent = this.#pointComponents.get(point.id);
+
+    this.#pointEditComponent = new PointEditView({
+      point,
+      destinations: this.#destinationsModel.destinations,
+      offers: this.#offersModel.offers,
+      onSubmit: this.#handleFormSubmit,
+      onRollupClick: this.#handleFormRollupClick
+    });
+
+    this.#boardComponent.element.replaceChild(
+      this.#pointEditComponent.element,
+      pointComponent.element
+    );
+
+    this.#pointEditComponent.setEventListeners();
+    document.addEventListener('keydown', this.#handleEscKeyDown);
+  }
+
+  #replaceFormToPoint() {
+    if (this.#pointEditComponent === null) {
+      return;
+    }
+
+    const point = this.#pointEditComponent.point;
+    const pointComponent = this.#pointComponents.get(point.id);
+
+    this.#boardComponent.element.replaceChild(
+      pointComponent.element,
+      this.#pointEditComponent.element
+    );
+
+    this.#pointEditComponent = null;
+    document.removeEventListener('keydown', this.#handleEscKeyDown);
   }
 
   init() {
@@ -26,26 +89,17 @@ export default class BoardPresenter {
     render(new SortView(), this.#container);
     render(this.#boardComponent, this.#container);
 
-    if (points.length > 0) {
-      render(
-        new PointEditView(
-          points[0],
-          destinations,
-          offers
-        ),
-        this.#boardComponent.element
-      );
-    }
+    points.forEach((point) => {
+      const pointComponent = new PointView({
+        point,
+        destinations,
+        offers,
+        onClick: () => this.#handlePointClick(point)
+      });
 
-    for (let i = 1; i < points.length; i++) {
-      render(
-        new PointView(
-          points[i],
-          destinations,
-          offers
-        ),
-        this.#boardComponent.element
-      );
-    }
+      this.#pointComponents.set(point.id, pointComponent);
+      render(pointComponent, this.#boardComponent.element);
+      pointComponent.setEventListeners();
+    });
   }
 }
