@@ -20,23 +20,23 @@ export default class BoardPresenter {
     this.#tripsModel = tripsModel;
   }
 
-  #handleEscKeyDown = (evt) => {
+  #onDocumentEscKeydown = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
       this.#replaceFormToPoint();
-      document.removeEventListener('keydown', this.#handleEscKeyDown);
+      document.removeEventListener('keydown', this.#onDocumentEscKeydown);
     }
   };
 
-  #handlePointClick = (point) => {
+  #onPointClick = (point) => {
     this.#replacePointToForm(point);
   };
 
-  #handleFormSubmit = () => {
+  #onFormSubmit = () => {
     this.#replaceFormToPoint();
   };
 
-  #handleFormRollupClick = () => {
+  #onFormRollupClick = () => {
     this.#replaceFormToPoint();
   };
 
@@ -51,8 +51,8 @@ export default class BoardPresenter {
       point,
       destinations: this.#destinationsModel.destinations,
       offers: this.#offersModel.offers,
-      onSubmit: this.#handleFormSubmit,
-      onRollupClick: this.#handleFormRollupClick
+      onSubmit: this.#onFormSubmit,
+      onRollupClick: this.#onFormRollupClick
     });
 
     this.#boardComponent.element.replaceChild(
@@ -61,7 +61,7 @@ export default class BoardPresenter {
     );
 
     this.#pointEditComponent.setEventListeners();
-    document.addEventListener('keydown', this.#handleEscKeyDown);
+    document.addEventListener('keydown', this.#onDocumentEscKeydown);
   }
 
   #replaceFormToPoint() {
@@ -78,7 +78,7 @@ export default class BoardPresenter {
     );
 
     this.#pointEditComponent = null;
-    document.removeEventListener('keydown', this.#handleEscKeyDown);
+    document.removeEventListener('keydown', this.#onDocumentEscKeydown);
   }
 
   init() {
@@ -94,7 +94,7 @@ export default class BoardPresenter {
         point,
         destinations,
         offers,
-        onClick: () => this.#handlePointClick(point)
+        onClick: () => this.#onPointClick(point)
       });
 
       this.#pointComponents.set(point.id, pointComponent);
