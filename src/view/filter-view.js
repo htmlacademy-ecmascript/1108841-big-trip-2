@@ -1,5 +1,4 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { FilterType } from '../const.js';
 
 export default class FilterView extends AbstractView {
   #filters = null;
