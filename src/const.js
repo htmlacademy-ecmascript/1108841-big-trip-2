@@ -19,4 +19,43 @@ const DateFormat = {
   FULL: 'FULL',
 };
 
-export { POINT_TYPES, DateFormat, MINUTES_IN_HOUR, MINUTES_IN_DAY };
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past',
+};
+
+const SortType = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFER: 'offer'
+};
+
+const SortTypeEnabled = {
+  [SortType.DAY]: true,
+  [SortType.EVENT]: false,
+  [SortType.TIME]: true,
+  [SortType.PRICE]: true,
+  [SortType.OFFER]: false
+};
+
+const EmptyListMessage = {
+  [FilterType.EVERYTHING]: 'Click New Event to create your first point',
+  [FilterType.PAST]: 'There are no past events now',
+  [FilterType.PRESENT]: 'There are no present events now',
+  [FilterType.FUTURE]: 'There are no future events now',
+};
+
+export {
+  POINT_TYPES,
+  DateFormat,
+  MINUTES_IN_HOUR,
+  MINUTES_IN_DAY,
+  FilterType,
+  EmptyListMessage,
+  SortType,
+  SortTypeEnabled
+};
