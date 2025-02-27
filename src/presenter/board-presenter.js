@@ -2,7 +2,7 @@ import PointEditView from '../view/point-edit-view.js';
 import BoardView from '../view/board-view.js';
 import PointView from '../view/point-view.js';
 import SortView from '../view/sort-view.js';
-import { render } from '../render.js';
+import { render, replace } from '../framework/render.js';
 
 export default class BoardPresenter {
   #boardComponent = new BoardView();
@@ -55,11 +55,7 @@ export default class BoardPresenter {
       onRollupClick: this.#onFormRollupClick
     });
 
-    this.#boardComponent.element.replaceChild(
-      this.#pointEditComponent.element,
-      pointComponent.element
-    );
-
+    replace(this.#pointEditComponent, pointComponent);
     this.#pointEditComponent.setEventListeners();
     document.addEventListener('keydown', this.#onDocumentEscKeydown);
   }
@@ -72,11 +68,7 @@ export default class BoardPresenter {
     const point = this.#pointEditComponent.point;
     const pointComponent = this.#pointComponents.get(point.id);
 
-    this.#boardComponent.element.replaceChild(
-      pointComponent.element,
-      this.#pointEditComponent.element
-    );
-
+    replace(pointComponent, this.#pointEditComponent);
     this.#pointEditComponent = null;
     document.removeEventListener('keydown', this.#onDocumentEscKeydown);
   }
