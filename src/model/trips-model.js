@@ -8,4 +8,15 @@ export default class TripsModel {
   getRandomTrip() {
     return getRandomArrayElement(this.trips);
   }
+
+  updateTrip(updatedPoint) {
+    const index = this.trips.findIndex((trip) => trip.id === updatedPoint.id);
+
+    if (index === -1) {
+      return false;
+    }
+
+    this.trips[index] = updatedPoint;
+    return true;
+  }
 }
