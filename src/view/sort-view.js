@@ -31,9 +31,10 @@ export default class SortView extends AbstractView {
         type="radio"
         name="trip-sort"
         value="sort-${sortType}"
+        data-sort-type="${sortType}"
         ${checked}
         ${disabled}>
-      <label class="trip-sort__btn" for="sort-${sortType}">${this.#getSortLabel(sortType)}</label>
+      <label class="trip-sort__btn" for="sort-${sortType}" data-sort-type="${sortType}">${this.#getSortLabel(sortType)}</label>
     </div>`;
   }
 
@@ -60,6 +61,6 @@ export default class SortView extends AbstractView {
     }
 
     evt.preventDefault();
-    this.#handleSortTypeChange(evt.target.value.replace('sort-', ''));
+    this.#handleSortTypeChange(evt.target.getAttribute('data-sort-type'));
   };
 }

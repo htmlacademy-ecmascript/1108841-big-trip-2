@@ -39,7 +39,8 @@ export default class BoardPresenter {
 
   #handlePointChange = (updatedPoint) => {
     if (this.#tripsModel.updateTrip(updatedPoint)) {
-      this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
+      this.#clearBoard();
+      this.#renderBoard(this.points);
     }
   };
 
@@ -51,7 +52,7 @@ export default class BoardPresenter {
     this.#sortModel.setSortType(sortType);
     this.#currentSortType = sortType;
     this.#clearPointsList();
-    this.#renderPoints();
+    this.#renderPoints(this.points);
   };
 
   get points() {
@@ -59,8 +60,8 @@ export default class BoardPresenter {
     const points = this.#tripsModel.trips;
     const filteredPoints = filter[filterType](points);
     const sortType = this.#sortModel.sortType;
-
-    return sort[sortType](filteredPoints);
+    const sortedPoints = sort[sortType](filteredPoints);
+    return sortedPoints;
   }
 
   #renderEmptyList() {
@@ -84,8 +85,7 @@ export default class BoardPresenter {
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 
-  #renderPoints() {
-    const points = this.points;
+  #renderPoints(points) {
     points.forEach((point) => this.#renderPoint(point));
   }
 
@@ -98,9 +98,7 @@ export default class BoardPresenter {
     render(this.#sortComponent, this.#container);
   }
 
-  #renderBoard() {
-    const points = this.points;
-
+  #renderBoard(points) {
     if (points.length === 0) {
       this.#renderEmptyList();
       return;
@@ -108,7 +106,7 @@ export default class BoardPresenter {
 
     this.#renderSort();
     render(this.#boardComponent, this.#container);
-    this.#renderPoints();
+    this.#renderPoints(points);
   }
 
   #clearPointsList() {
@@ -132,6 +130,6 @@ export default class BoardPresenter {
 
   init() {
     this.#clearBoard();
-    this.#renderBoard();
+    this.#renderBoard(this.points);
   }
 }
