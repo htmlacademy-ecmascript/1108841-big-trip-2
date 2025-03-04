@@ -2,7 +2,7 @@ const points = [
   {
     id: '1',
     basePrice: 1100,
-    dateFrom: '2024-01-10T22:55:56.845Z',
+    dateFrom: '2024-01-10T17:23:44.845Z',
     dateTo: '2024-01-11T11:22:13.375Z',
     destination: '1',
     isFavorite: false,
@@ -29,6 +29,16 @@ const points = [
     offers: ['1', '2'],
     type: 'ship',
   },
+  {
+    id: '4',
+    basePrice: 900,
+    dateFrom: '2024-01-13T12:11:51.845Z',
+    dateTo: '2024-01-20T21:41:12.375Z',
+    destination: '2',
+    isFavorite: false,
+    offers: ['1'],
+    type: 'train',
+  }
 ];
 
 export { points };
