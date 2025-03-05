@@ -1,6 +1,6 @@
-import FilterView from './view/filter-view.js';
 import NewPointButtonView from './view/new-point-button-view.js';
 import BoardPresenter from './presenter/board-presenter.js';
+import FilterPresenter from './presenter/filter-presenter.js';
 import DestinationsModel from './model/destinations-model.js';
 import OffersModel from './model/offers-model.js';
 import TripsModel from './model/trips-model.js';
@@ -10,7 +10,6 @@ import { render } from './framework/render.js';
 import { destinations } from './mock/destinations-data.js';
 import { offers } from './mock/offers-data.js';
 import { points } from './mock/points-data.js';
-import { generateFilters } from './utils.js';
 
 const mockService = {
   destinations,
@@ -28,8 +27,6 @@ const tripsModel = new TripsModel(mockService);
 const filterModel = new FilterModel();
 const sortModel = new SortModel();
 
-const filtersData = generateFilters(tripsModel.trips);
-
 const boardPresenter = new BoardPresenter({
   container: siteTripEventsElement,
   destinationsModel,
@@ -39,18 +36,21 @@ const boardPresenter = new BoardPresenter({
   sortModel
 });
 
-const handleFilterTypeChange = (filterType) => {
-  filterModel.setFilterType(filterType);
-  boardPresenter.init();
+const filterPresenter = new FilterPresenter({
+  container: siteFiltersElement,
+  filterModel,
+  tripsModel,
+  boardPresenter
+});
+
+const handleNewPointButtonClick = () => {
+  boardPresenter.createPoint();
 };
 
-render(new FilterView({
-  filters: filtersData,
-  currentFilterType: filterModel.filterType,
-  onFilterTypeChange: handleFilterTypeChange
-}), siteFiltersElement);
-
-render(new NewPointButtonView(), siteTripMainElement);
+render(new NewPointButtonView({
+  onClick: handleNewPointButtonClick
+}), siteTripMainElement);
 
 boardPresenter.init();
+filterPresenter.init();
 
