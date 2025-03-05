@@ -41,10 +41,6 @@ const filterPresenter = new FilterPresenter({
 
 let newPointButtonComponent = null;
 
-const handleNewPointFormClose = () => {
-  newPointButtonComponent.element.disabled = false;
-};
-
 const handleNewPointButtonClick = () => {
   boardPresenter.createPoint();
   newPointButtonComponent.element.disabled = true;

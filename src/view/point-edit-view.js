@@ -240,8 +240,8 @@ export default class PointEditView extends AbstractStatefulView {
     </section>`;
   }
 
-  #createOffersTemplate(type) {
-    const allOffersByType = this.#offers.find((offer) => offer.type === type);
+  #createOffersTemplate(eventType) {
+    const allOffersByType = this.#offers.find((offer) => offer.type === eventType);
 
     if (!allOffersByType || !allOffersByType.offers || allOffersByType.offers.length === 0) {
       return '';
@@ -273,16 +273,14 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   get template() {
-    const { type } = this._state;
-
-    const pointTypesTemplate = POINT_TYPES.map((type) => `
+    const pointTypesTemplate = POINT_TYPES.map((pointType) => `
       <div class="event__type-item">
-        <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${this._state.type === type ? 'checked' : ''}>
+        <input id="event-type-${pointType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${pointType}" ${this._state.type === pointType ? 'checked' : ''}>
         <label
-          class="event__type-label event__type-label--${type}"
-          for="event-type-${type}-1"
+          class="event__type-label event__type-label--${pointType}"
+          for="event-type-${pointType}-1"
         >
-          ${type}
+          ${pointType}
         </label>
       </div>
     `).join('');
