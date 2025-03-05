@@ -77,7 +77,36 @@ export default class PointPresenter {
   resetView() {
     if (this.#pointEditComponent && this.#pointEditComponent.element &&
         this.#pointEditComponent.element.parentElement) {
-      this.#replaceFormToPoint();
+
+      // Используем прямой подход без вызова ModeChange
+      const prevPointComponent = this.#pointComponent;
+
+      // Создаем новый компонент точки
+      this.#pointComponent = new PointView({
+        point: this.#point,
+        destinations: this.#destinations,
+        offers: this.#offers,
+        onClick: this.#handlePointClick,
+        onFavoriteClick: this.#handleFavoriteClick
+      });
+
+      // Заменяем форму на точку
+      replace(this.#pointComponent, this.#pointEditComponent);
+      this.#pointComponent.setEventListeners();
+
+      // Удаляем старый компонент
+      if (prevPointComponent) {
+        remove(prevPointComponent);
+      }
+
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
+    }
+
+    // Убедимся, что точка отображается
+    if (this.#pointComponent && !this.#pointComponent.element.parentElement &&
+        this.#point) {
+      render(this.#pointComponent, this.#container);
+      this.#pointComponent.setEventListeners();
     }
   }
 
@@ -85,25 +114,37 @@ export default class PointPresenter {
     replace(this.#pointEditComponent, this.#pointComponent);
     this.#pointEditComponent.setEventListeners();
     document.addEventListener('keydown', this.#escKeyDownHandler);
+
+    // Вызываем handleModeChange для уведомления о редактировании точки
     this.#handleModeChange(this.#point.id);
   }
 
-  #replaceFormToPoint() {
-    if (this.#pointComponent && this.#pointEditComponent) {
-      replace(this.#pointComponent, this.#pointEditComponent);
-      this.#pointComponent.setEventListeners();
-    }
-
+  #handleFormRollupClick = () => {
+    // Закрываем форму
+    replace(this.#pointComponent, this.#pointEditComponent);
+    this.#pointComponent.setEventListeners();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
-  }
+
+    // Уведомляем BoardPresenter о закрытии формы
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      this.#point
+    );
+  };
 
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
-      this.#replaceFormToPoint();
+      // Закрываем форму
+      replace(this.#pointComponent, this.#pointEditComponent);
+      this.#pointComponent.setEventListeners();
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
+
+      // Уведомляем BoardPresenter о закрытии формы
       this.#handleDataChange(
         UserAction.UPDATE_POINT,
-        UpdateType.FORCE,
+        UpdateType.MINOR,
         this.#point
       );
     }
@@ -134,15 +175,6 @@ export default class PointPresenter {
     );
   };
 
-  #handleFormRollupClick = () => {
-    this.#replaceFormToPoint();
-    this.#handleDataChange(
-      UserAction.UPDATE_POINT,
-      UpdateType.FORCE,
-      this.#point
-    );
-  };
-
   #handleDeleteClick = (point) => {
     this.#handleDataChange(
       UserAction.DELETE_POINT,
@@ -150,4 +182,54 @@ export default class PointPresenter {
       point
     );
   };
+
+  // Метод для установки состояния "Сохранение"
+  setSaving() {
+    if (this.#pointEditComponent) {
+      // Проверяем, что форма еще присутствует в DOM
+      if (this.#pointEditComponent.element.parentElement) {
+        this.#pointEditComponent.updateElement({
+          isSaving: true,
+          isDisabled: true
+        });
+      } else {
+        throw new Error('Form is not in DOM');
+      }
+    }
+  }
+
+  // Метод для установки состояния "Удаление"
+  setDeleting() {
+    if (this.#pointEditComponent) {
+      // Проверяем, что форма еще присутствует в DOM
+      if (this.#pointEditComponent.element.parentElement) {
+        this.#pointEditComponent.updateElement({
+          isDeleting: true,
+          isDisabled: true
+        });
+      } else {
+        throw new Error('Form is not in DOM');
+      }
+    }
+  }
+
+  // Метод для сброса состояния формы при ошибке
+  setAborting() {
+    const resetFormState = () => {
+      if (this.#pointEditComponent) {
+        // Проверяем, что форма еще присутствует в DOM
+        if (this.#pointEditComponent.element.parentElement) {
+          this.#pointEditComponent.updateElement({
+            isDisabled: false,
+            isSaving: false,
+            isDeleting: false
+          });
+        }
+      } else if (this.#pointComponent) {
+        this.#pointComponent.shake();
+      }
+    };
+
+    this.#pointComponent.shake(resetFormState);
+  }
 }

@@ -6,24 +6,21 @@ import OffersModel from './model/offers-model.js';
 import TripsModel from './model/trips-model.js';
 import FilterModel from './model/filter-model.js';
 import SortModel from './model/sort-model.js';
+import PointsApiService from './api/api-service.js';
 import { render } from './framework/render.js';
-import { destinations } from './mock/destinations-data.js';
-import { offers } from './mock/offers-data.js';
-import { points } from './mock/points-data.js';
 
-const mockService = {
-  destinations,
-  offers,
-  trips: points
-};
+const AUTHORIZATION = 'Basic dXNlcjphcGFzc3dvcmQ=';
+const END_POINT = 'https://23.objects.htmlacademy.pro/big-trip';
 
 const siteTripMainElement = document.querySelector('.trip-main');
 const siteFiltersElement = siteTripMainElement.querySelector('.trip-controls__filters');
 const siteTripEventsElement = document.querySelector('.trip-events');
 
-const destinationsModel = new DestinationsModel(mockService);
-const offersModel = new OffersModel(mockService);
-const tripsModel = new TripsModel(mockService);
+const apiService = new PointsApiService(END_POINT, AUTHORIZATION);
+
+const destinationsModel = new DestinationsModel(apiService);
+const offersModel = new OffersModel(apiService);
+const tripsModel = new TripsModel(apiService);
 const filterModel = new FilterModel();
 const sortModel = new SortModel();
 
@@ -47,10 +44,38 @@ const handleNewPointButtonClick = () => {
   boardPresenter.createPoint();
 };
 
-render(new NewPointButtonView({
-  onClick: handleNewPointButtonClick
-}), siteTripMainElement);
+let newPointButtonComponent = null;
 
-boardPresenter.init();
-filterPresenter.init();
+// Функция для создания кнопки New Point
+const createNewPointButton = () => {
+  if (newPointButtonComponent) {
+    return;
+  }
 
+  newPointButtonComponent = new NewPointButtonView({
+    onClick: handleNewPointButtonClick
+  });
+
+  render(newPointButtonComponent, siteTripMainElement);
+};
+
+// Инициализация приложения
+boardPresenter.init(); // Показать индикатор загрузки
+
+Promise.all([
+  destinationsModel.init(),
+  offersModel.init(),
+  tripsModel.init()
+])
+  .then(() => {
+    boardPresenter.setIsLoading(false);
+    createNewPointButton();
+    boardPresenter.init();
+    filterPresenter.init();
+  })
+  .catch((err) => {
+    boardPresenter.setIsLoading(false);
+    // eslint-disable-next-line no-console
+    console.error('Ошибка инициализации приложения:', err);
+    boardPresenter.renderError('Не удалось загрузить данные. Пожалуйста, попробуйте позже.');
+  });

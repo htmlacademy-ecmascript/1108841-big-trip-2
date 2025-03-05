@@ -1,6 +1,7 @@
 import { SortType } from '../const.js';
+import Observable from '../framework/observable.js';
 
-export default class SortModel {
+export default class SortModel extends Observable {
   #sortType = SortType.DAY;
 
   get sortType() {
@@ -9,5 +10,6 @@ export default class SortModel {
 
   setSortType(sortType) {
     this.#sortType = sortType;
+    this._notify(sortType);
   }
 }

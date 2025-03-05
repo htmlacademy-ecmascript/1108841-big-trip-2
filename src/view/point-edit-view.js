@@ -28,11 +28,24 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   #parsePointToState(point) {
-    return {...point};
+    return {
+      ...point,
+      isSaving: false,
+      isDeleting: false,
+      isDisabled: false
+    };
   }
 
   #parseStateToPoint() {
-    return {...this._state};
+    // Вернём копию всего состояния
+    const point = {...this._state};
+
+    // Убедимся, что у нас есть все необходимые поля
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+
+    return point;
   }
 
   setEventListeners() {
@@ -347,9 +360,13 @@ export default class PointEditView extends AbstractStatefulView {
               >
             </div>
 
-            <button class="event__save-btn btn btn--blue" type="submit">Save</button>
-            <button class="event__reset-btn" type="reset">Delete</button>
-            <button class="event__rollup-btn" type="button">
+            <button class="event__save-btn btn btn--blue" type="submit" ${this._state.isDisabled ? 'disabled' : ''}>
+              ${this._state.isSaving ? 'Saving...' : 'Save'}
+            </button>
+            <button class="event__reset-btn" type="reset" ${this._state.isDisabled ? 'disabled' : ''}>
+              ${this._state.isDeleting ? 'Deleting...' : 'Delete'}
+            </button>
+            <button class="event__rollup-btn" type="button" ${this._state.isDisabled ? 'disabled' : ''}>
               <span class="visually-hidden">Open event</span>
             </button>
           </header>
