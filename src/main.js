@@ -1,34 +1,31 @@
-import NewPointButtonView from './view/new-point-button-view.js';
+import PointsApiService from './api/api-service.js';
 import BoardPresenter from './presenter/board-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
+import TripsModel from './model/trips-model.js';
 import DestinationsModel from './model/destinations-model.js';
 import OffersModel from './model/offers-model.js';
-import TripsModel from './model/trips-model.js';
 import FilterModel from './model/filter-model.js';
 import SortModel from './model/sort-model.js';
+import NewPointButtonView from './view/new-point-button-view.js';
 import { render } from './framework/render.js';
-import { destinations } from './mock/destinations-data.js';
-import { offers } from './mock/offers-data.js';
-import { points } from './mock/points-data.js';
 
-const mockService = {
-  destinations,
-  offers,
-  trips: points
-};
+const END_POINT = 'https://23.objects.htmlacademy.pro/big-trip';
+const AUTHORIZATION = 'Basic kTy9gIdsz2317rD';
 
-const siteTripMainElement = document.querySelector('.trip-main');
-const siteFiltersElement = siteTripMainElement.querySelector('.trip-controls__filters');
-const siteTripEventsElement = document.querySelector('.trip-events');
+const tripEventsElement = document.querySelector('.trip-events');
+const filterElement = document.querySelector('.trip-controls__filters');
+const newPointButtonContainer = document.querySelector('.trip-main');
 
-const destinationsModel = new DestinationsModel(mockService);
-const offersModel = new OffersModel(mockService);
-const tripsModel = new TripsModel(mockService);
+const apiService = new PointsApiService(END_POINT, AUTHORIZATION);
+
+const destinationsModel = new DestinationsModel(apiService);
+const offersModel = new OffersModel(apiService);
+const tripsModel = new TripsModel(apiService);
 const filterModel = new FilterModel();
 const sortModel = new SortModel();
 
 const boardPresenter = new BoardPresenter({
-  container: siteTripEventsElement,
+  container: tripEventsElement,
   destinationsModel,
   offersModel,
   tripsModel,
@@ -37,20 +34,42 @@ const boardPresenter = new BoardPresenter({
 });
 
 const filterPresenter = new FilterPresenter({
-  container: siteFiltersElement,
+  container: filterElement,
   filterModel,
-  tripsModel,
-  boardPresenter
+  tripsModel
 });
+
+let newPointButtonComponent = null;
 
 const handleNewPointButtonClick = () => {
   boardPresenter.createPoint();
+  newPointButtonComponent.element.disabled = true;
 };
 
-render(new NewPointButtonView({
-  onClick: handleNewPointButtonClick
-}), siteTripMainElement);
+const renderNewPointButton = () => {
+  newPointButtonComponent = new NewPointButtonView({
+    onClick: handleNewPointButtonClick
+  });
+  render(newPointButtonComponent, newPointButtonContainer);
+};
 
-boardPresenter.init();
-filterPresenter.init();
+(async () => {
+  boardPresenter.init();
+  filterPresenter.init();
 
+  try {
+    await Promise.all([
+      destinationsModel.init(),
+      offersModel.init(),
+      tripsModel.init()
+    ]);
+
+    boardPresenter.setIsLoading(false);
+    renderNewPointButton();
+  } catch (err) {
+    boardPresenter.setIsLoading(false);
+    boardPresenter.renderError('Не удалось загрузить данные. Пожалуйста, попробуйте позже.');
+    // eslint-disable-next-line no-console
+    console.error('Ошибка при инициализации приложения:', err);
+  }
+})();

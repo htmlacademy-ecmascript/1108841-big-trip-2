@@ -1,6 +1,7 @@
 import { FilterType } from '../const.js';
+import Observable from '../framework/observable.js';
 
-export default class FilterModel {
+export default class FilterModel extends Observable {
   #filterType = FilterType.EVERYTHING;
 
   get filterType() {
@@ -9,5 +10,6 @@ export default class FilterModel {
 
   setFilterType(filterType) {
     this.#filterType = filterType;
+    this._notify(filterType);
   }
 }

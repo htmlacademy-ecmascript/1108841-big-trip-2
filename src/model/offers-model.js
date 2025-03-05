@@ -1,9 +1,28 @@
+import { adaptToClient } from '../api/adapter.js';
+
 export default class OffersModel {
-  constructor(service) {
-    this.offers = service.offers;
+  #offers = [];
+  #apiService = null;
+
+  constructor(apiService) {
+    this.#apiService = apiService;
+  }
+
+  async init() {
+    try {
+      const offers = await this.#apiService.getOffers();
+      this.#offers = adaptToClient.offers(offers);
+    } catch (err) {
+      this.#offers = [];
+      throw new Error('Не удалось загрузить предложения');
+    }
+  }
+
+  get offers() {
+    return this.#offers;
   }
 
   getOffersByType(type) {
-    return this.offers.find((offer) => offer.type === type)?.offers;
+    return this.#offers.find((offer) => offer.type === type)?.offers;
   }
 }

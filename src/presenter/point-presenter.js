@@ -77,7 +77,31 @@ export default class PointPresenter {
   resetView() {
     if (this.#pointEditComponent && this.#pointEditComponent.element &&
         this.#pointEditComponent.element.parentElement) {
-      this.#replaceFormToPoint();
+
+      const prevPointComponent = this.#pointComponent;
+
+      this.#pointComponent = new PointView({
+        point: this.#point,
+        destinations: this.#destinations,
+        offers: this.#offers,
+        onClick: this.#handlePointClick,
+        onFavoriteClick: this.#handleFavoriteClick
+      });
+
+      replace(this.#pointComponent, this.#pointEditComponent);
+      this.#pointComponent.setEventListeners();
+
+      if (prevPointComponent) {
+        remove(prevPointComponent);
+      }
+
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
+    }
+
+    if (this.#pointComponent && !this.#pointComponent.element.parentElement &&
+        this.#point) {
+      render(this.#pointComponent, this.#container);
+      this.#pointComponent.setEventListeners();
     }
   }
 
@@ -85,25 +109,32 @@ export default class PointPresenter {
     replace(this.#pointEditComponent, this.#pointComponent);
     this.#pointEditComponent.setEventListeners();
     document.addEventListener('keydown', this.#escKeyDownHandler);
+
     this.#handleModeChange(this.#point.id);
   }
 
-  #replaceFormToPoint() {
-    if (this.#pointComponent && this.#pointEditComponent) {
-      replace(this.#pointComponent, this.#pointEditComponent);
-      this.#pointComponent.setEventListeners();
-    }
-
+  #handleFormRollupClick = () => {
+    replace(this.#pointComponent, this.#pointEditComponent);
+    this.#pointComponent.setEventListeners();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
-  }
+
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      this.#point
+    );
+  };
 
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
-      this.#replaceFormToPoint();
+      replace(this.#pointComponent, this.#pointEditComponent);
+      this.#pointComponent.setEventListeners();
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
+
       this.#handleDataChange(
         UserAction.UPDATE_POINT,
-        UpdateType.FORCE,
+        UpdateType.MINOR,
         this.#point
       );
     }
@@ -134,15 +165,6 @@ export default class PointPresenter {
     );
   };
 
-  #handleFormRollupClick = () => {
-    this.#replaceFormToPoint();
-    this.#handleDataChange(
-      UserAction.UPDATE_POINT,
-      UpdateType.FORCE,
-      this.#point
-    );
-  };
-
   #handleDeleteClick = (point) => {
     this.#handleDataChange(
       UserAction.DELETE_POINT,
@@ -150,4 +172,52 @@ export default class PointPresenter {
       point
     );
   };
+
+  setSaving() {
+    if (this.#pointEditComponent) {
+      if (this.#pointEditComponent.element.parentElement) {
+        this.#pointEditComponent.updateElement({
+          isSaving: true,
+          isDisabled: true
+        });
+      } else {
+        throw new Error('Form is not in DOM');
+      }
+    }
+  }
+
+  setDeleting() {
+    if (this.#pointEditComponent) {
+      if (this.#pointEditComponent.element.parentElement) {
+        this.#pointEditComponent.updateElement({
+          isDeleting: true,
+          isDisabled: true
+        });
+      } else {
+        throw new Error('Form is not in DOM');
+      }
+    }
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      if (this.#pointEditComponent) {
+        if (this.#pointEditComponent.element.parentElement) {
+          this.#pointEditComponent.updateElement({
+            isDisabled: false,
+            isSaving: false,
+            isDeleting: false
+          });
+        }
+      } else if (this.#pointComponent) {
+        this.#pointComponent.shake();
+      }
+    };
+
+    if (this.#pointEditComponent && this.#pointEditComponent.element.parentElement) {
+      this.#pointEditComponent.shake(resetFormState);
+    } else {
+      this.#pointComponent.shake(resetFormState);
+    }
+  }
 }
