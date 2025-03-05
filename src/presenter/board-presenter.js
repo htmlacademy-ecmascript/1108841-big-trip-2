@@ -38,7 +38,12 @@ export default class BoardPresenter {
   };
 
   #handlePointChange = (updatedPoint) => {
-    if (this.#tripsModel.updateTrip(updatedPoint)) {
+    try {
+      if (this.#tripsModel.updateTrip(updatedPoint)) {
+        this.#clearBoard();
+        this.#renderBoard(this.points);
+      }
+    } catch (error) {
       this.#clearBoard();
       this.#renderBoard(this.points);
     }
@@ -58,6 +63,11 @@ export default class BoardPresenter {
   get points() {
     const filterType = this.#filterModel.filterType;
     const points = this.#tripsModel.trips;
+
+    if (!Array.isArray(points) || points.length === 0) {
+      return [];
+    }
+
     const filteredPoints = filter[filterType](points);
     const sortType = this.#sortModel.sortType;
     const sortedPoints = sort[sortType](filteredPoints);
@@ -99,7 +109,7 @@ export default class BoardPresenter {
   }
 
   #renderBoard(points) {
-    if (points.length === 0) {
+    if (!Array.isArray(points) || points.length === 0) {
       this.#renderEmptyList();
       return;
     }
@@ -130,6 +140,7 @@ export default class BoardPresenter {
 
   init() {
     this.#clearBoard();
-    this.#renderBoard(this.points);
+    const points = this.points;
+    this.#renderBoard(points);
   }
 }

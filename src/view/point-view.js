@@ -44,18 +44,16 @@ export default class PointView extends AbstractView {
 
   get template() {
     const destination = this.#destinations.find((dest) => dest.id === this.#point.destination);
-    const pointOffers = this.#offers
-      .find((offer) => offer.type === this.#point.type)?.offers
-      .filter((offer) => this.#point.offers.includes(offer.id)) || [];
+    const pointTypeOffers = this.#offers.find((offer) => offer.type === this.#point.type)?.offers || [];
+    const selectedOffers = pointTypeOffers.filter((offer) => this.#point.offers.includes(offer.id));
 
-    const offersTemplate = pointOffers
-      .map((offer) => `
-        <li class="event__offer">
-          <span class="event__offer-title">${offer.title}</span>
-          &plus;&euro;&nbsp;
-          <span class="event__offer-price">${offer.price}</span>
-        </li>
-      `).join('');
+    const offersTemplate = selectedOffers.map((offer) => `
+      <li class="event__offer">
+        <span class="event__offer-title">${offer.title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${offer.price}</span>
+      </li>
+    `).join('');
 
     return `
       <li class="trip-events__item">

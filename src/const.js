@@ -17,6 +17,8 @@ const DateFormat = {
   DAY: 'DAY',
   HOURS_MINUTES: 'HOURS_MINUTES',
   FULL: 'FULL',
+  DATE_PICKER: 'd/m/y H:i',
+  DATE_DISPLAY: 'DD/MM/YY HH:mm',
 };
 
 const FilterType = {
