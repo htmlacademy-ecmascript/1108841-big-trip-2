@@ -23,8 +23,6 @@ export default class PointEditView extends AbstractStatefulView {
     this.#onDeleteClick = onDeleteClick;
 
     this._state = this.#parsePointToState(point);
-    // Не вызываем _restoreHandlers здесь, так как элемент еще не создан
-    // Вместо этого, _restoreHandlers будет вызван из setEventListeners
   }
 
   #parsePointToState(point) {
@@ -32,15 +30,14 @@ export default class PointEditView extends AbstractStatefulView {
       ...point,
       isSaving: false,
       isDeleting: false,
-      isDisabled: false
+      isDisabled: false,
+      isError: false
     };
   }
 
   #parseStateToPoint() {
-    // Вернём копию всего состояния
     const point = {...this._state};
 
-    // Убедимся, что у нас есть все необходимые поля
     delete point.isDisabled;
     delete point.isSaving;
     delete point.isDeleting;
@@ -49,7 +46,6 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   setEventListeners() {
-    // Перенаправляем на метод _restoreHandlers для настройки всех обработчиков
     this._restoreHandlers();
   }
 
@@ -71,7 +67,6 @@ export default class PointEditView extends AbstractStatefulView {
       availableOffers.addEventListener('change', this.#offersChangeHandler);
     }
 
-    // Внешние обработчики
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#onRollupButtonClickAction);
 
@@ -81,7 +76,6 @@ export default class PointEditView extends AbstractStatefulView {
     this.element.querySelector('form')
       .addEventListener('submit', this.#onFormSubmitHandler);
 
-    // Восстанавливаем датапикеры
     this.#setDatepickers();
   }
 
@@ -198,104 +192,92 @@ export default class PointEditView extends AbstractStatefulView {
 
     return `<div class="event__field-group  event__field-group--destination">
       <label class="event__label  event__type-output" for="event-destination-1">
-        ${destination?.type ?? ''}
+        ${this._state.type}
       </label>
-      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination?.name ?? ''}" list="destination-list-1">
+      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this.#getDestinationName(destination)}" list="destination-list-1">
       <datalist id="destination-list-1">
-        ${destinationsList.map((city) => `<option value="${city}"></option>`).join('')}
+        ${destinationsList.map((item) => `<option value="${item}"></option>`).join('')}
       </datalist>
     </div>`;
   }
 
+  #getDestinationName(destinationId) {
+    const destination = this.#destinations.find((item) => item.id === destinationId);
+    return destination ? destination.name : '';
+  }
+
   #createBaseDetailsTemplate() {
-    const { basePrice } = this._state;
+    const { destination, type } = this._state;
+    const destinationData = this.#destinations.find((item) => item.id === destination);
 
-    return `<div class="event__details">
-          <div class="event__field-group  event__field-group--price">
-            <label class="event__label" for="event-price-1">
-              <span class="visually-hidden">Price</span>
-              &euro;
-            </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="number" min="1" name="event-price" value="${basePrice ?? ''}">
-          </div>
-          ${this.#createOffersTemplate()}
-          ${this.#createDestinationDescriptionTemplate()}
-        </div>`;
-  }
-
-  #createOffersTemplate() {
-    const { type, offers: selectedOffers } = this._state;
-    const typeOffers = this.#offers.find((offer) => offer.type === type)?.offers || [];
-
-    if (typeOffers.length === 0) {
+    if (!destinationData) {
       return '';
     }
 
-    const offersTemplate = typeOffers.map((offer) => {
-      const isChecked = selectedOffers?.includes(offer.id) ? 'checked' : '';
+    const { description, pictures } = destinationData;
 
-      return `<div class="event__offer-selector">
-        <input class="event__offer-checkbox visually-hidden" id="event-offer-${offer.id}-1" type="checkbox" name="event-offer-${offer.id}" ${isChecked}>
-        <label class="event__offer-label" for="event-offer-${offer.id}-1">
-          <span class="event__offer-title">${offer.title}</span>
-          &plus;&euro;&nbsp;
-          <span class="event__offer-price">${offer.price}</span>
-        </label>
-      </div>`;
-    }).join('');
-
-    return `<section class="event__section event__section--offers">
-      <h3 class="event__section-title event__section-title--offers">Offers</h3>
-      <div class="event__available-offers">
-        ${offersTemplate}
-      </div>
-    </section>`;
-  }
-
-  #createDestinationDescriptionTemplate() {
-    const { destination: destinationId } = this._state;
-    const destination = this.#destinations.find((dest) => dest.id === destinationId);
-
-    if (!destination) {
-      return '';
-    }
-
-    const { description, pictures } = destination;
-
-    if (!description && (!pictures || pictures.length === 0)) {
-      return '';
-    }
-
-    const picturesTemplate = pictures?.map((picture) =>
-      `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
-    ).join('') || '';
-
-    const photosContainerTemplate = pictures?.length
+    const picturesTemplate = pictures && pictures.length > 0
       ? `<div class="event__photos-container">
           <div class="event__photos-tape">
-            ${picturesTemplate}
+            ${pictures.map((pic) => `<img class="event__photo" src="${pic.src}" alt="${pic.description}">`).join('')}
           </div>
         </div>`
       : '';
 
-    return `<section class="event__section event__section--destination">
-      <h3 class="event__section-title event__section-title--destination">Destination</h3>
-      <p class="event__destination-description">${description}</p>
-      ${photosContainerTemplate}
+    const descriptionTemplate = description
+      ? `<p class="event__destination-description">${description}</p>`
+      : '';
+
+    const offersTemplate = this.#createOffersTemplate(type);
+
+    return `<section class="event__details">
+      ${offersTemplate}
+      <section class="event__section  event__section--destination">
+        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+        ${descriptionTemplate}
+        ${picturesTemplate}
+      </section>
     </section>`;
   }
 
+  #createOffersTemplate(type) {
+    const allOffersByType = this.#offers.find((offer) => offer.type === type);
+
+    if (!allOffersByType || !allOffersByType.offers || allOffersByType.offers.length === 0) {
+      return '';
+    }
+
+    const { offers } = allOffersByType;
+
+    return `<section class="event__section  event__section--offers">
+      <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+      <div class="event__available-offers">
+        ${offers.map((offer) => this.#createOfferTemplate(offer)).join('')}
+      </div>
+    </section>`;
+  }
+
+  #createOfferTemplate(offer) {
+    const { id, title, price } = offer;
+    const checked = this._state.offers.includes(id) ? 'checked' : '';
+    const disabled = this._state.isDisabled ? 'disabled' : '';
+
+    return `<div class="event__offer-selector">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${id}-1" type="checkbox" name="event-offer-${id}" ${checked} ${disabled}>
+      <label class="event__offer-label" for="event-offer-${id}-1">
+        <span class="event__offer-title">${title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${price}</span>
+      </label>
+    </div>`;
+  }
+
   get template() {
+    const { type } = this._state;
+
     const pointTypesTemplate = POINT_TYPES.map((type) => `
       <div class="event__type-item">
-        <input
-          id="event-type-${type}-1"
-          class="event__type-input visually-hidden"
-          type="radio"
-          name="event-type"
-          value="${type}"
-          ${this._state.type === type ? 'checked' : ''}
-        >
+        <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${this._state.type === type ? 'checked' : ''}>
         <label
           class="event__type-label event__type-label--${type}"
           for="event-type-${type}-1"

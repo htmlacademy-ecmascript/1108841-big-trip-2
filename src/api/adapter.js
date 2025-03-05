@@ -14,7 +14,7 @@ export const adaptToClient = {
     dateTo: point.date_to,
     destination: point.destination,
     isFavorite: point.is_favorite,
-    offers: point.offers ?? [],
+    offers: point.offers,
     type: point.type
   }),
 
@@ -30,21 +30,40 @@ export const adaptToClient = {
    * @param {Object} destination - Пункт назначения в формате сервера
    * @returns {Object} - Пункт назначения в формате приложения
    */
-  destination: (destination) => destination,
+  destination: (destination) => ({
+    id: destination.id,
+    description: destination.description,
+    name: destination.name,
+    pictures: destination.pictures
+  }),
 
   /**
    * Преобразует массив пунктов назначения из формата сервера в формат приложения
    * @param {Array} destinations - Массив пунктов назначения в формате сервера
    * @returns {Array} - Массив пунктов назначения в формате приложения
    */
-  destinations: (destinations) => destinations,
+  destinations: (destinations) => destinations.map(adaptToClient.destination),
 
   /**
-   * Преобразует предложения из формата сервера в формат приложения
-   * @param {Array} offers - Предложения в формате сервера
-   * @returns {Array} - Предложения в формате приложения
+   * Преобразует предложение из формата сервера в формат приложения
+   * @param {Object} offer - Предложение в формате сервера
+   * @returns {Object} - Предложение в формате приложения
    */
-  offers: (offers) => offers,
+  offer: (offer) => ({
+    id: offer.id,
+    title: offer.title,
+    price: offer.price
+  }),
+
+  /**
+   * Преобразует массив предложений из формата сервера в формат приложения
+   * @param {Array} offers - Массив предложений в формате сервера
+   * @returns {Array} - Массив предложений в формате приложения
+   */
+  offers: (offers) => offers.map((offerGroup) => ({
+    type: offerGroup.type,
+    offers: offerGroup.offers.map(adaptToClient.offer)
+  }))
 };
 
 /**
@@ -57,23 +76,25 @@ export const adaptToServer = {
    * @returns {Object} - Точка маршрута в формате сервера
    */
   point: (point) => {
-    // Убедимся, что basePrice - это число
-    const basePrice = typeof point.basePrice === 'string'
-      ? parseInt(point.basePrice, 10)
-      : point.basePrice;
-
-    // Убедимся, что offers - это массив
-    const offers = Array.isArray(point.offers) ? point.offers : [];
-
-    return {
+    const adaptedPoint = {
       'id': point.id,
-      'base_price': Number(basePrice),
+      'base_price': parseInt(point.basePrice, 10),
       'date_from': point.dateFrom,
       'date_to': point.dateTo,
       'destination': point.destination,
-      'is_favorite': Boolean(point.isFavorite),
-      'offers': offers,
+      'is_favorite': point.isFavorite,
+      'offers': point.offers || [],
       'type': point.type
     };
+
+    if (isNaN(adaptedPoint.base_price)) {
+      adaptedPoint.base_price = 0;
+    }
+
+    if (!Array.isArray(adaptedPoint.offers)) {
+      adaptedPoint.offers = [];
+    }
+
+    return adaptedPoint;
   },
 };

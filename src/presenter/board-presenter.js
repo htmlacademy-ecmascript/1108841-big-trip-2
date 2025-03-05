@@ -64,9 +64,6 @@ export default class BoardPresenter {
           // Получаем все точки напрямую из модели без фильтрации
           const allPoints = this.#tripsModel.trips;
 
-          // Сохраняем текущие презентеры точек
-          const currentPresenters = new Map(this.#pointPresenters);
-
           // Очищаем список точек
           this.#clearPointsList();
 
@@ -94,7 +91,7 @@ export default class BoardPresenter {
 
     try {
       switch (actionType) {
-        case UserAction.UPDATE_POINT:
+        case UserAction.UPDATE_POINT: {
           // Найдем презентер точки, которую обновляем
           const pointPresenter = this.#pointPresenters.get(update.id);
           if (pointPresenter) {
@@ -103,12 +100,14 @@ export default class BoardPresenter {
               pointPresenter.setSaving();
             } catch (error) {
               // Если форма уже закрыта, просто продолжаем с обновлением
+              // eslint-disable-next-line no-console
               console.log('Форма уже закрыта, продолжаем с обновлением');
             }
           }
           await this.#tripsModel.updateTrip(updateType, update);
           break;
-        case UserAction.ADD_POINT:
+        }
+        case UserAction.ADD_POINT: {
           // Покажем состояние загрузки при добавлении
           if (this.#newPointComponent) {
             this.#newPointComponent.updateElement({ isSaving: true });
@@ -116,7 +115,8 @@ export default class BoardPresenter {
           await this.#tripsModel.addTrip(updateType, update);
           this.#handleNewPointFormClose();
           break;
-        case UserAction.DELETE_POINT:
+        }
+        case UserAction.DELETE_POINT: {
           // Найдем презентер точки, которую удаляем
           const deletePresenter = this.#pointPresenters.get(update.id);
           if (deletePresenter) {
@@ -125,6 +125,7 @@ export default class BoardPresenter {
           }
           await this.#tripsModel.deleteTrip(updateType, update.id);
           break;
+        }
       }
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -132,30 +133,36 @@ export default class BoardPresenter {
 
       // Обработка ошибок в зависимости от типа действия
       switch (actionType) {
-        case UserAction.UPDATE_POINT:
+        case UserAction.UPDATE_POINT: {
           // Вернем форму в нормальное состояние и покажем ошибку
           const pointPresenter = this.#pointPresenters.get(update.id);
           if (pointPresenter) {
             pointPresenter.setAborting();
           }
           break;
-        case UserAction.ADD_POINT:
+        }
+        case UserAction.ADD_POINT: {
           // Вернем форму создания в нормальное состояние
           if (this.#newPointComponent) {
             this.#newPointComponent.updateElement({
               isSaving: false,
+              isDisabled: false,
               isError: true,
               errorMessage: 'Не удалось создать точку маршрута'
             });
+            // Добавляем эффект "покачивания головой"
+            this.#newPointComponent.shake();
           }
           break;
-        case UserAction.DELETE_POINT:
+        }
+        case UserAction.DELETE_POINT: {
           // Вернем форму удаления в нормальное состояние
           const deletePresenter = this.#pointPresenters.get(update.id);
           if (deletePresenter) {
             deletePresenter.setAborting();
           }
           break;
+        }
       }
     }
   };
@@ -381,9 +388,6 @@ export default class BoardPresenter {
   }
 
   init() {
-    // Сохраняем текущие ID отображаемых точек
-    const currentPointIds = Array.from(this.#pointPresenters.keys());
-
     this.#clearBoard();
 
     if (this.#isLoading) {
