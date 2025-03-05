@@ -1,10 +1,9 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { POINT_TYPES } from '../const.js';
 import { formatDate } from '../utils.js';
 import { DateFormat } from '../const.js';
 
-export default class PointEditView extends AbstractView {
-  #point = null;
+export default class PointEditView extends AbstractStatefulView {
   #destinations = null;
   #offers = null;
   #onFormSubmit = null;
@@ -12,15 +11,21 @@ export default class PointEditView extends AbstractView {
 
   constructor({ point, destinations, offers, onSubmit, onRollupClick }) {
     super();
-    this.#point = point;
     this.#destinations = destinations;
     this.#offers = offers;
     this.#onFormSubmit = onSubmit;
     this.#onRollupButtonClick = onRollupClick;
+
+    this._state = this.#parsePointToState(point);
+    this.#setInnerHandlers();
   }
 
-  get point() {
-    return this.#point;
+  #parsePointToState(point) {
+    return {...point};
+  }
+
+  #parseStateToPoint() {
+    return {...this._state};
   }
 
   setEventListeners() {
@@ -31,9 +36,85 @@ export default class PointEditView extends AbstractView {
       .addEventListener('click', this.#onRollupButtonClickAction);
   }
 
+  _restoreHandlers() {
+    this.setEventListeners();
+    this.#setInnerHandlers();
+  }
+
+  #setInnerHandlers() {
+    this.element.querySelector('.event__type-group')
+      .addEventListener('change', this.#eventTypeChangeHandler);
+
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
+
+    this.element.querySelector('.event__input--price')
+      .addEventListener('input', this.#priceInputHandler);
+
+    const offersContainer = this.element.querySelector('.event__available-offers');
+    if (offersContainer) {
+      offersContainer.addEventListener('change', this.#offersChangeHandler);
+    }
+  }
+
+  #eventTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+    if (!evt.target.classList.contains('event__type-input')) {
+      return;
+    }
+
+    this.updateElement({
+      type: evt.target.value,
+      offers: []
+    });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    evt.preventDefault();
+    const selectedDestination = this.#destinations.find(
+      (destination) => destination.name === evt.target.value
+    );
+
+    if (selectedDestination) {
+      this.updateElement({
+        destination: selectedDestination.id
+      });
+    }
+  };
+
+  #offersChangeHandler = (evt) => {
+    evt.preventDefault();
+    if (!evt.target.classList.contains('event__offer-checkbox')) {
+      return;
+    }
+
+    const offerId = Number(evt.target.id.replace('event-offer-', ''));
+    const offers = [...this._state.offers];
+
+    if (evt.target.checked) {
+      offers.push(offerId);
+    } else {
+      const index = offers.indexOf(offerId);
+      if (index !== -1) {
+        offers.splice(index, 1);
+      }
+    }
+
+    this.updateElement({
+      offers
+    });
+  };
+
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({
+      basePrice: Number(evt.target.value)
+    });
+  };
+
   #onFormSubmitClick = (evt) => {
     evt.preventDefault();
-    this.#onFormSubmit();
+    this.#onFormSubmit(this.#parseStateToPoint());
   };
 
   #onRollupButtonClickAction = (evt) => {
@@ -42,8 +123,8 @@ export default class PointEditView extends AbstractView {
   };
 
   get template() {
-    const destination = this.#destinations.find((dest) => dest.id === this.#point.destination);
-    const typeOffers = this.#offers.find((offer) => offer.type === this.#point.type)?.offers || [];
+    const destination = this.#destinations.find((dest) => dest.id === this._state.destination);
+    const typeOffers = this.#offers.find((offer) => offer.type === this._state.type)?.offers || [];
 
     const pointTypesTemplate = POINT_TYPES.map((type) => `
       <div class="event__type-item">
@@ -53,7 +134,7 @@ export default class PointEditView extends AbstractView {
           type="radio"
           name="event-type"
           value="${type}"
-          ${this.#point.type === type ? 'checked' : ''}
+          ${this._state.type === type ? 'checked' : ''}
         >
         <label
           class="event__type-label event__type-label--${type}"
@@ -75,7 +156,7 @@ export default class PointEditView extends AbstractView {
           id="event-offer-${offer.id}"
           type="checkbox"
           name="event-offer-${offer.id}"
-          ${this.#point.offers.includes(offer.id) ? 'checked' : ''}
+          ${this._state.offers.includes(offer.id) ? 'checked' : ''}
         >
         <label class="event__offer-label" for="event-offer-${offer.id}">
           <span class="event__offer-title">${offer.title}</span>
@@ -108,7 +189,7 @@ export default class PointEditView extends AbstractView {
             <div class="event__type-wrapper">
               <label class="event__type event__type-btn" for="event-type-toggle-1">
                 <span class="visually-hidden">Choose event type</span>
-                <img class="event__type-icon" width="17" height="17" src="img/icons/${this.#point.type}.png" alt="Event type icon">
+                <img class="event__type-icon" width="17" height="17" src="img/icons/${this._state.type}.png" alt="Event type icon">
               </label>
               <input class="event__type-toggle visually-hidden" id="event-type-toggle-1" type="checkbox">
               <div class="event__type-list">
@@ -121,7 +202,7 @@ export default class PointEditView extends AbstractView {
 
             <div class="event__field-group event__field-group--destination">
               <label class="event__label event__type-output" for="event-destination-1">
-                ${this.#point.type}
+                ${this._state.type}
               </label>
               <input
                 class="event__input event__input--destination"
@@ -143,7 +224,7 @@ export default class PointEditView extends AbstractView {
                 id="event-start-time-1"
                 type="text"
                 name="event-start-time"
-                value="${formatDate(this.#point.dateFrom, DateFormat.FULL)}"
+                value="${formatDate(this._state.dateFrom, DateFormat.FULL)}"
               >
               &mdash;
               <label class="visually-hidden" for="event-end-time-1">To</label>
@@ -152,7 +233,7 @@ export default class PointEditView extends AbstractView {
                 id="event-end-time-1"
                 type="text"
                 name="event-end-time"
-                value="${formatDate(this.#point.dateTo, DateFormat.FULL)}"
+                value="${formatDate(this._state.dateTo, DateFormat.FULL)}"
               >
             </div>
 
@@ -166,7 +247,7 @@ export default class PointEditView extends AbstractView {
                 id="event-price-1"
                 type="text"
                 name="event-price"
-                value="${this.#point.basePrice}"
+                value="${this._state.basePrice}"
               >
             </div>
 
