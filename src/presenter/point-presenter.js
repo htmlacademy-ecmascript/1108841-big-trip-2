@@ -69,7 +69,8 @@ export default class PointPresenter {
   }
 
   resetView() {
-    if (this.#pointEditComponent.element.parentElement) {
+    if (this.#pointEditComponent && this.#pointEditComponent.element &&
+        this.#pointEditComponent.element.parentElement) {
       this.#replaceFormToPoint();
     }
   }
@@ -82,8 +83,11 @@ export default class PointPresenter {
   }
 
   #replaceFormToPoint() {
-    replace(this.#pointComponent, this.#pointEditComponent);
-    this.#pointComponent.setEventListeners();
+    if (this.#pointComponent && this.#pointEditComponent) {
+      replace(this.#pointComponent, this.#pointEditComponent);
+      this.#pointComponent.setEventListeners();
+    }
+
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
@@ -113,6 +117,7 @@ export default class PointPresenter {
   };
 
   #handleFormRollupClick = () => {
+    this.#handleDataChange(this.#point);
     this.#replaceFormToPoint();
   };
 }

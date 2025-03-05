@@ -2,12 +2,16 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { POINT_TYPES } from '../const.js';
 import { formatDate } from '../utils.js';
 import { DateFormat } from '../const.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 export default class PointEditView extends AbstractStatefulView {
   #destinations = null;
   #offers = null;
   #onFormSubmit = null;
   #onRollupButtonClick = null;
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   constructor({ point, destinations, offers, onSubmit, onRollupClick }) {
     super();
@@ -37,27 +41,80 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.setEventListeners();
     this.#setInnerHandlers();
   }
 
   #setInnerHandlers() {
-    this.element.querySelector('.event__type-group')
-      .addEventListener('change', this.#eventTypeChangeHandler);
+    this.element
+      .querySelector('.event__type-group')
+      .addEventListener('change', this.#typeChangeHandler);
 
-    this.element.querySelector('.event__input--destination')
+    this.element
+      .querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);
 
-    this.element.querySelector('.event__input--price')
+    this.element
+      .querySelector('.event__input--price')
       .addEventListener('input', this.#priceInputHandler);
 
-    const offersContainer = this.element.querySelector('.event__available-offers');
-    if (offersContainer) {
-      offersContainer.addEventListener('change', this.#offersChangeHandler);
+    if (this.element.querySelector('.event__available-offers')) {
+      this.element
+        .querySelector('.event__available-offers')
+        .addEventListener('change', this.#offersChangeHandler);
     }
+
+    this.element
+      .querySelector('.event--edit')
+      .addEventListener('submit', this.#onFormSubmitClick);
+
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#onRollupButtonClickAction);
+
+    this.#setDatepickers();
   }
 
-  #eventTypeChangeHandler = (evt) => {
+  #setDatepickers() {
+    const dateConfig = {
+      enableTime: true,
+      time24hr: true,
+      dateFormat: DateFormat.DATE_PICKER,
+    };
+
+    this.#datepickerFrom = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        ...dateConfig,
+        defaultDate: this._state.dateFrom,
+        onClose: this.#dateFromChangeHandler,
+        maxDate: this._state.dateTo,
+      }
+    );
+
+    this.#datepickerTo = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        ...dateConfig,
+        defaultDate: this._state.dateTo,
+        onClose: this.#dateToChangeHandler,
+        minDate: this._state.dateFrom,
+      }
+    );
+  }
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate,
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate,
+    });
+  };
+
+  #typeChangeHandler = (evt) => {
     evt.preventDefault();
     if (!evt.target.classList.contains('event__type-input')) {
       return;
@@ -224,7 +281,7 @@ export default class PointEditView extends AbstractStatefulView {
                 id="event-start-time-1"
                 type="text"
                 name="event-start-time"
-                value="${formatDate(this._state.dateFrom, DateFormat.FULL)}"
+                value="${formatDate(this._state.dateFrom, DateFormat.DATE_DISPLAY)}"
               >
               &mdash;
               <label class="visually-hidden" for="event-end-time-1">To</label>
@@ -233,7 +290,7 @@ export default class PointEditView extends AbstractStatefulView {
                 id="event-end-time-1"
                 type="text"
                 name="event-end-time"
-                value="${formatDate(this._state.dateTo, DateFormat.FULL)}"
+                value="${formatDate(this._state.dateTo, DateFormat.DATE_DISPLAY)}"
               >
             </div>
 
@@ -271,5 +328,19 @@ export default class PointEditView extends AbstractStatefulView {
         </form>
       </li>
     `;
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
   }
 }

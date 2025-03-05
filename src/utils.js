@@ -22,6 +22,8 @@ function formatDate(date, format) {
       return dayjs(date).format('HH:mm');
     case DateFormat.FULL:
       return dayjs(date).format('YYYY MMMM DD HH:mm');
+    case DateFormat.DATE_DISPLAY:
+      return dayjs(date).format('DD/MM/YY HH:mm');
     default:
       return date;
   }
