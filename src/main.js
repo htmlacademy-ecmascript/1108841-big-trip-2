@@ -1,6 +1,7 @@
 import PointsApiService from './api/api-service.js';
 import BoardPresenter from './presenter/board-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
+import TripInfoPresenter from './presenter/trip-info-presenter.js';
 import TripsModel from './model/trips-model.js';
 import DestinationsModel from './model/destinations-model.js';
 import OffersModel from './model/offers-model.js';
@@ -10,6 +11,7 @@ import NewPointButtonView from './view/new-point-button-view.js';
 import { render } from './framework/render.js';
 import { API_CONFIG } from './const.js';
 
+const tripMainElement = document.querySelector('.trip-main');
 const tripEventsElement = document.querySelector('.trip-events');
 const filterElement = document.querySelector('.trip-controls__filters');
 const newPointButtonContainer = document.querySelector('.trip-main');
@@ -21,6 +23,13 @@ const offersModel = new OffersModel(apiService);
 const tripsModel = new TripsModel(apiService);
 const filterModel = new FilterModel();
 const sortModel = new SortModel();
+
+const tripInfoPresenter = new TripInfoPresenter({
+  container: tripMainElement,
+  tripsModel,
+  destinationsModel,
+  offersModel
+});
 
 const boardPresenter = new BoardPresenter({
   container: tripEventsElement,
@@ -34,7 +43,8 @@ const boardPresenter = new BoardPresenter({
 const filterPresenter = new FilterPresenter({
   container: filterElement,
   filterModel,
-  tripsModel
+  tripsModel,
+  boardPresenter
 });
 
 let newPointButtonComponent = null;
@@ -64,6 +74,7 @@ const renderNewPointButton = () => {
 
     boardPresenter.setIsLoading(false);
     boardPresenter.init();
+    tripInfoPresenter.init();
     renderNewPointButton();
   } catch (err) {
     boardPresenter.setIsLoading(false);
