@@ -24,12 +24,6 @@ export default class TripsModel extends Observable {
     return this.#trips;
   }
 
-  /**
-   * Обновляет точку маршрута на сервере и в модели
-   * @param {UpdateType} updateType - Тип обновления
-   * @param {Object} updatedPoint - Обновленная точка маршрута
-   * @returns {Promise} - Промис, который разрешается после обновления точки
-   */
   async updateTrip(updateType, updatedPoint) {
     try {
       const response = await this.#apiService.updatePoint(adaptToServer.point(updatedPoint));
@@ -54,12 +48,6 @@ export default class TripsModel extends Observable {
     }
   }
 
-  /**
-   * Добавляет новую точку маршрута на сервер и в модель
-   * @param {UpdateType} updateType - Тип обновления
-   * @param {Object} trip - Новая точка маршрута
-   * @returns {Promise} - Промис, который разрешается после добавления точки
-   */
   async addTrip(updateType, trip) {
     try {
       const response = await this.#apiService.addPoint(adaptToServer.point(trip));
@@ -74,12 +62,6 @@ export default class TripsModel extends Observable {
     }
   }
 
-  /**
-   * Удаляет точку маршрута с сервера и из модели
-   * @param {UpdateType} updateType - Тип обновления
-   * @param {string} id - ID точки маршрута для удаления
-   * @returns {Promise} - Промис, который разрешается после удаления точки
-   */
   async deleteTrip(updateType, id) {
     try {
       await this.#apiService.deletePoint(id);

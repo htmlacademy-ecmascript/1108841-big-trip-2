@@ -11,6 +11,7 @@ const POINT_TYPES = [
 ];
 const MINUTES_IN_HOUR = 60;
 const MINUTES_IN_DAY = MINUTES_IN_HOUR * 24;
+const HOURS_IN_DAY = 24;
 
 const DateFormat = {
   MONTH: 'MONTH',
@@ -19,6 +20,52 @@ const DateFormat = {
   FULL: 'FULL',
   DATE_PICKER: 'd/m/y H:i',
   DATE_DISPLAY: 'DD/MM/YY HH:mm',
+};
+
+const DurationLabel = {
+  DAY: 'D',
+  HOUR: 'H',
+  MINUTE: 'M',
+};
+
+const TimeUnit = {
+  MINUTE: 'minute',
+};
+
+const RADIX = 36;
+const ID_LENGTH = 2;
+
+const POINT_ICON_SIZE = {
+  SMALL: 17,
+  MEDIUM: 28,
+  LARGE: 42,
+};
+
+const DEFAULT_PRICE = 0;
+const MIN_PRICE = 1;
+
+const DEFAULT_ERROR_MESSAGE = 'Something went wrong...';
+
+const API_CONFIG = {
+  END_POINT: 'https://23.objects.htmlacademy.pro/big-trip',
+  AUTHORIZATION: 'Basic dXNlcjEyMzpwYXNzMTIz'
+};
+
+const ApiErrorMessage = {
+  LOADING_POINTS: 'Не удалось загрузить точки маршрута',
+  LOADING_OFFERS: 'Не удалось загрузить предложения',
+  LOADING_DESTINATIONS: 'Не удалось загрузить пункты назначения',
+  UPDATING_POINT: 'Не удалось обновить точку маршрута',
+  ADDING_POINT: 'Не удалось добавить точку маршрута',
+  DELETING_POINT: 'Не удалось удалить точку маршрута'
+};
+
+const SortLabel = {
+  DAY: 'Day',
+  EVENT: 'Event',
+  TIME: 'Time',
+  PRICE: 'Price',
+  OFFER: 'Offers',
 };
 
 const FilterType = {
@@ -67,12 +114,24 @@ const UpdateType = {
 export {
   POINT_TYPES,
   DateFormat,
+  DurationLabel,
+  TimeUnit,
   MINUTES_IN_HOUR,
   MINUTES_IN_DAY,
+  HOURS_IN_DAY,
   FilterType,
   EmptyListMessage,
   SortType,
   SortTypeEnabled,
   UserAction,
-  UpdateType
+  UpdateType,
+  RADIX,
+  ID_LENGTH,
+  POINT_ICON_SIZE,
+  DEFAULT_PRICE,
+  MIN_PRICE,
+  DEFAULT_ERROR_MESSAGE,
+  SortLabel,
+  API_CONFIG,
+  ApiErrorMessage
 };

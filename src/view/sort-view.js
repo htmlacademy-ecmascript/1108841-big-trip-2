@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { SortType } from '../const.js';
+import { SortType, SortLabel } from '../const.js';
 
 export default class SortView extends AbstractView {
   #sortTypes = null;
@@ -41,15 +41,15 @@ export default class SortView extends AbstractView {
   #getSortLabel(sortType) {
     switch (sortType) {
       case SortType.DAY:
-        return 'Day';
+        return SortLabel.DAY;
       case SortType.EVENT:
-        return 'Event';
+        return SortLabel.EVENT;
       case SortType.TIME:
-        return 'Time';
+        return SortLabel.TIME;
       case SortType.PRICE:
-        return 'Price';
+        return SortLabel.PRICE;
       case SortType.OFFER:
-        return 'Offers';
+        return SortLabel.OFFER;
       default:
         return sortType;
     }

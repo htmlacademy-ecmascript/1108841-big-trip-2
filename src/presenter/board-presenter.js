@@ -6,11 +6,11 @@ import ErrorView from '../view/error-view.js';
 import PointPresenter from './point-presenter.js';
 import PointEditView from '../view/point-edit-view.js';
 import { render, remove } from '../framework/render.js';
-import { filter, sort } from '../utils.js';
-import { SortType, SortTypeEnabled, UserAction, UpdateType, FilterType, POINT_TYPES } from '../const.js';
+import { filter } from '../utils/filter.js';
+import { sort } from '../utils/sort.js';
+import { SortType, SortTypeEnabled, UserAction, UpdateType, FilterType, POINT_TYPES, RADIX, ID_LENGTH } from '../const.js';
 
-// Генерация уникального ID
-const generateId = () => Date.now().toString(36) + Math.random().toString(36).substring(2);
+const generateId = () => Date.now().toString(RADIX) + Math.random().toString(RADIX).substring(ID_LENGTH);
 
 export default class BoardPresenter {
   #boardComponent = new BoardView();
@@ -47,27 +47,20 @@ export default class BoardPresenter {
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        // Обновляем только конкретную точку
         this.#pointPresenters.get(data.id)?.init(data);
         break;
       case UpdateType.MINOR:
-        // Обновляем список точек
         this.init();
         break;
       case UpdateType.MAJOR:
-        // Полное обновление экрана
         this.init();
         break;
       case UpdateType.FORCE:
-        // Принудительная перерисовка без обновления всей доски
         {
-          // Получаем все точки напрямую из модели без фильтрации
           const allPoints = this.#tripsModel.trips;
 
-          // Очищаем список точек
           this.#clearPointsList();
 
-          // Отрисовываем все точки из модели без фильтрации
           allPoints.forEach((point) => this.#renderPoint(point));
         }
         break;
@@ -75,16 +68,13 @@ export default class BoardPresenter {
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
-    // Если это просто закрытие формы без изменений, обновляем только список
     if (actionType === UserAction.UPDATE_POINT && updateType === UpdateType.MINOR &&
         !document.querySelector('.event--edit')) {
-      // Перерисовываем список и обновляем презентер конкретной точки
       this.#clearPointsList();
       this.#renderPoints(this.points);
       return;
     }
 
-    // Если это просто закрытие формы без изменений с принудительным обновлением, ничего не делаем
     if (actionType === UserAction.UPDATE_POINT && updateType === UpdateType.FORCE) {
       return;
     }
@@ -92,23 +82,14 @@ export default class BoardPresenter {
     try {
       switch (actionType) {
         case UserAction.UPDATE_POINT: {
-          // Найдем презентер точки, которую обновляем
           const pointPresenter = this.#pointPresenters.get(update.id);
           if (pointPresenter) {
-            try {
-              // Покажем сообщение о загрузке в форме, только если форма есть
-              pointPresenter.setSaving();
-            } catch (error) {
-              // Если форма уже закрыта, просто продолжаем с обновлением
-              // eslint-disable-next-line no-console
-              console.log('Форма уже закрыта, продолжаем с обновлением');
-            }
+            pointPresenter.setSaving();
           }
           await this.#tripsModel.updateTrip(updateType, update);
           break;
         }
         case UserAction.ADD_POINT: {
-          // Покажем состояние загрузки при добавлении
           if (this.#newPointComponent) {
             this.#newPointComponent.updateElement({ isSaving: true });
           }
@@ -117,10 +98,8 @@ export default class BoardPresenter {
           break;
         }
         case UserAction.DELETE_POINT: {
-          // Найдем презентер точки, которую удаляем
           const deletePresenter = this.#pointPresenters.get(update.id);
           if (deletePresenter) {
-            // Покажем состояние удаления
             deletePresenter.setDeleting();
           }
           await this.#tripsModel.deleteTrip(updateType, update.id);
@@ -128,13 +107,8 @@ export default class BoardPresenter {
         }
       }
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('Ошибка при выполнении действия:', err);
-
-      // Обработка ошибок в зависимости от типа действия
       switch (actionType) {
         case UserAction.UPDATE_POINT: {
-          // Вернем форму в нормальное состояние и покажем ошибку
           const pointPresenter = this.#pointPresenters.get(update.id);
           if (pointPresenter) {
             pointPresenter.setAborting();
@@ -142,7 +116,6 @@ export default class BoardPresenter {
           break;
         }
         case UserAction.ADD_POINT: {
-          // Вернем форму создания в нормальное состояние
           if (this.#newPointComponent) {
             this.#newPointComponent.updateElement({
               isSaving: false,
@@ -150,13 +123,11 @@ export default class BoardPresenter {
               isError: true,
               errorMessage: 'Не удалось создать точку маршрута'
             });
-            // Добавляем эффект "покачивания головой"
             this.#newPointComponent.shake();
           }
           break;
         }
         case UserAction.DELETE_POINT: {
-          // Вернем форму удаления в нормальное состояние
           const deletePresenter = this.#pointPresenters.get(update.id);
           if (deletePresenter) {
             deletePresenter.setAborting();
@@ -168,15 +139,12 @@ export default class BoardPresenter {
   };
 
   #handleModeChange = (pointId) => {
-    // Закрываем форму создания новой точки, если она открыта
     if (this.#newPointComponent) {
       this.#handleNewPointFormClose();
     }
 
-    // Сбрасываем фильтр на "EVERYTHING" чтобы все точки были видны
     this.#filterModel.setFilterType(FilterType.EVERYTHING);
 
-    // Закрываем все формы, кроме текущей
     this.#pointPresenters.forEach((presenter) => {
       if (presenter && presenter !== this.#pointPresenters.get(pointId)) {
         presenter.resetView();
@@ -208,7 +176,6 @@ export default class BoardPresenter {
   };
 
   get points() {
-    // Если есть открытая форма редактирования, возвращаем все точки без фильтрации
     if (document.querySelector('.event--edit')) {
       return this.#tripsModel.trips;
     }
@@ -260,10 +227,8 @@ export default class BoardPresenter {
   }
 
   #renderBoard(points) {
-    // Сначала рендерим сортировку
     this.#renderSort();
 
-    // Затем рендерим доску
     if (!this.#boardComponent) {
       this.#boardComponent = new BoardView();
     }
@@ -274,12 +239,10 @@ export default class BoardPresenter {
       return;
     }
 
-    // Просто рендерим точки
     this.#renderPoints(points);
   }
 
   #clearPointsList() {
-    // Просто удаляем все презентеры
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
   }
@@ -315,11 +278,14 @@ export default class BoardPresenter {
     this.#filterModel.setFilterType(FilterType.EVERYTHING);
     this.resetSortType();
 
-    // Закрываем формы редактирования и восстанавливаем список точек
     this.#handleModeChange();
 
-    // Проверяем, нужно ли перерисовать список точек
-    if (this.#pointPresenters.size > 0 && !this.#boardComponent.element.querySelector('.trip-events__item:not(.trip-events__item--editing)')) {
+    if (!this.#boardComponent) {
+      this.#boardComponent = new BoardView();
+      render(this.#boardComponent, this.#container);
+    }
+
+    if (this.#pointPresenters.size > 0 && this.#boardComponent.element && !this.#boardComponent.element.querySelector('.trip-events__item:not(.trip-events__item--editing)')) {
       const points = this.points;
       this.#clearPointsList();
       this.#renderPoints(points);
@@ -331,7 +297,6 @@ export default class BoardPresenter {
 
     this.#isCreating = true;
 
-    // Создаём пустую точку маршрута
     const newPoint = {
       id: generateId(),
       basePrice: 0,
@@ -368,10 +333,8 @@ export default class BoardPresenter {
 
     document.removeEventListener('keydown', this.#escKeyDownHandler);
 
-    // Проверка, отображаются ли точки
     const points = this.points;
     if (points.length > 0 && this.#pointPresenters.size === 0) {
-      // Если точки есть, но не отображаются, отображаем их
       this.#renderPoints(points);
     }
   };
@@ -397,17 +360,13 @@ export default class BoardPresenter {
 
     const points = this.points;
 
-    // Проверка, есть ли данные для отображения
     if (points.length === 0 && !this.#isCreating) {
-      // Если точек нет и не создается новая, показываем пустой список
       this.#renderEmptyList();
       return;
     }
 
-    // Отрисовываем доску с точками
     this.#renderBoard(points);
 
-    // Проверяем, все ли точки отрисованы
     if (this.#pointPresenters.size === 0 && points.length > 0) {
       points.forEach((point) => this.#renderPoint(point));
     }
