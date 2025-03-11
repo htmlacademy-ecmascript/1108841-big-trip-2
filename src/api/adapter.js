@@ -38,7 +38,6 @@ const ToServerAdapter = {
     const adaptedPoint = {};
 
     adaptedPoint.id = point.id;
-    adaptedPoint['base_price'] = point.basePrice;
     adaptedPoint['date_from'] = point.dateFrom;
     adaptedPoint['date_to'] = point.dateTo;
     adaptedPoint.destination = point.destination;
@@ -46,9 +45,7 @@ const ToServerAdapter = {
     adaptedPoint.offers = point.offers || [];
     adaptedPoint.type = point.type;
 
-    if (isNaN(adaptedPoint['base_price']) || adaptedPoint['base_price'] < 0) {
-      adaptedPoint['base_price'] = 0;
-    }
+    adaptedPoint['base_price'] = isNaN(point.basePrice) || point.basePrice < 0 ? 0 : point.basePrice;
 
     return adaptedPoint;
   }
