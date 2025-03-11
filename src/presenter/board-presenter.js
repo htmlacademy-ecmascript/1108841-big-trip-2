@@ -8,7 +8,7 @@ import PointEditView from '../view/point-edit-view.js';
 import { render, remove } from '../framework/render.js';
 import { filter } from '../utils/filter.js';
 import { sort } from '../utils/sort.js';
-import { SortType, SortTypeEnabled, UserAction, UpdateType, FilterType, POINT_TYPES, RADIX, ID_LENGTH } from '../const.js';
+import { SortType, SortTypeEnabledMap, UserAction, UpdateType, FilterType, POINT_TYPES, RADIX, ID_LENGTH } from '../const.js';
 
 const generateId = () => Date.now().toString(RADIX) + Math.random().toString(RADIX).substring(ID_LENGTH);
 
@@ -226,7 +226,7 @@ export default class BoardPresenter {
 
   #renderSort() {
     this.#sortComponent = new SortView({
-      sortTypes: SortTypeEnabled,
+      sortTypes: SortTypeEnabledMap,
       currentSortType: this.#sortModel.sortType,
       onSortTypeChange: this.#onSortTypeChange
     });

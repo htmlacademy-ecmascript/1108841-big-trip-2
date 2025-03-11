@@ -9,7 +9,7 @@ import FilterModel from './model/filter-model.js';
 import SortModel from './model/sort-model.js';
 import NewPointButtonView from './view/new-point-button-view.js';
 import { render } from './framework/render.js';
-import { API_CONFIG } from './const.js';
+import { ApiConfig } from './const.js';
 import { generateAuthToken } from './utils/common.js';
 
 const tripMainElement = document.querySelector('.trip-main');
@@ -18,7 +18,7 @@ const filterElement = document.querySelector('.trip-controls__filters');
 const newPointButtonContainer = document.querySelector('.trip-main');
 
 const authorization = generateAuthToken();
-const apiService = new PointsApiService(API_CONFIG.END_POINT, authorization);
+const apiService = new PointsApiService(ApiConfig.END_POINT, authorization);
 
 const destinationsModel = new DestinationsModel(apiService);
 const offersModel = new OffersModel(apiService);

@@ -36,7 +36,7 @@ const TimeUnit = {
 const RADIX = 36;
 const ID_LENGTH = 2;
 
-const POINT_ICON_SIZE = {
+const PointIconSize = {
   SMALL: 17,
   MEDIUM: 28,
   LARGE: 42,
@@ -47,7 +47,7 @@ const MIN_PRICE = 1;
 
 const DEFAULT_ERROR_MESSAGE = 'Something went wrong...';
 
-const API_CONFIG = {
+const ApiConfig = {
   END_POINT: 'https://22.objects.htmlacademy.pro/big-trip',
 };
 
@@ -83,7 +83,7 @@ const SortType = {
   OFFER: 'offer'
 };
 
-const SortTypeEnabled = {
+const SortTypeEnabledMap = {
   [SortType.DAY]: true,
   [SortType.EVENT]: false,
   [SortType.TIME]: true,
@@ -91,7 +91,7 @@ const SortTypeEnabled = {
   [SortType.OFFER]: false
 };
 
-const EmptyListMessage = {
+const EmptyListMessageMap = {
   [FilterType.EVERYTHING]: 'Click New Event to create your first point',
   [FilterType.PAST]: 'There are no past events now',
   [FilterType.PRESENT]: 'There are no present events now',
@@ -120,18 +120,18 @@ export {
   MINUTES_IN_DAY,
   HOURS_IN_DAY,
   FilterType,
-  EmptyListMessage,
+  EmptyListMessageMap,
   SortType,
-  SortTypeEnabled,
+  SortTypeEnabledMap,
   UserAction,
   UpdateType,
   RADIX,
   ID_LENGTH,
-  POINT_ICON_SIZE,
+  PointIconSize,
   DEFAULT_PRICE,
   MIN_PRICE,
   DEFAULT_ERROR_MESSAGE,
   SortLabel,
-  API_CONFIG,
+  ApiConfig,
   ApiErrorMessage
 };
