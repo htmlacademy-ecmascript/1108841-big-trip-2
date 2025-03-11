@@ -52,19 +52,19 @@ export default class PointEditView extends AbstractStatefulView {
   _restoreHandlers() {
     this.element
       .querySelector('.event__type-list')
-      .addEventListener('change', this.#eventTypeChangeHandler);
+      .addEventListener('change', this.#onEventTypeChange);
 
     this.element
       .querySelector('.event__input--destination')
-      .addEventListener('change', this.#destinationChangeHandler);
+      .addEventListener('change', this.#onDestinationChange);
 
     this.element
       .querySelector('.event__input--price')
-      .addEventListener('change', this.#basePriceChangeHandler);
+      .addEventListener('change', this.#onBasePriceChange);
 
     const availableOffers = this.element.querySelector('.event__available-offers');
     if (availableOffers) {
-      availableOffers.addEventListener('change', this.#offersChangeHandler);
+      availableOffers.addEventListener('change', this.#onOffersChange);
     }
 
     this.element.querySelector('.event__rollup-btn')
@@ -91,7 +91,7 @@ export default class PointEditView extends AbstractStatefulView {
       {
         ...dateConfig,
         defaultDate: this._state.dateFrom,
-        onClose: this.#dateFromChangeHandler,
+        onClose: this.#onDateFromChange,
         maxDate: this._state.dateTo,
       }
     );
@@ -101,25 +101,25 @@ export default class PointEditView extends AbstractStatefulView {
       {
         ...dateConfig,
         defaultDate: this._state.dateTo,
-        onClose: this.#dateToChangeHandler,
+        onClose: this.#onDateToChange,
         minDate: this._state.dateFrom,
       }
     );
   }
 
-  #dateFromChangeHandler = ([userDate]) => {
+  #onDateFromChange = ([userDate]) => {
     this.updateElement({
       dateFrom: userDate,
     });
   };
 
-  #dateToChangeHandler = ([userDate]) => {
+  #onDateToChange = ([userDate]) => {
     this.updateElement({
       dateTo: userDate,
     });
   };
 
-  #eventTypeChangeHandler = (evt) => {
+  #onEventTypeChange = (evt) => {
     evt.preventDefault();
     if (!evt.target.classList.contains('event__type-input')) {
       return;
@@ -131,7 +131,7 @@ export default class PointEditView extends AbstractStatefulView {
     });
   };
 
-  #destinationChangeHandler = (evt) => {
+  #onDestinationChange = (evt) => {
     evt.preventDefault();
     const selectedDestination = this.#destinations.find((destination) => destination.name === evt.target.value);
 
@@ -145,7 +145,7 @@ export default class PointEditView extends AbstractStatefulView {
     });
   };
 
-  #offersChangeHandler = (evt) => {
+  #onOffersChange = (evt) => {
     evt.preventDefault();
     const offerId = evt.target.name.split('-')[2];
     const currentOffers = [...this._state.offers];
@@ -164,7 +164,7 @@ export default class PointEditView extends AbstractStatefulView {
     });
   };
 
-  #basePriceChangeHandler = (evt) => {
+  #onBasePriceChange = (evt) => {
     evt.preventDefault();
     this.updateElement({
       basePrice: parseInt(evt.target.value, 10)

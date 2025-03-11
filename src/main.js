@@ -15,7 +15,7 @@ import { generateAuthToken } from './utils/common.js';
 const tripMainElement = document.querySelector('.trip-main');
 const tripEventsElement = document.querySelector('.trip-events');
 const filterElement = document.querySelector('.trip-controls__filters');
-const newPointButtonContainer = document.querySelector('.trip-main');
+const newPointButtonElement = document.querySelector('.trip-main');
 
 const authorization = generateAuthToken();
 const apiService = new PointsApiService(ApiConfig.END_POINT, authorization);
@@ -60,7 +60,7 @@ const renderNewPointButton = () => {
   newPointButtonComponent = new NewPointButtonView({
     onClick: handleNewPointButtonClick
   });
-  render(newPointButtonComponent, newPointButtonContainer);
+  render(newPointButtonComponent, newPointButtonElement);
 };
 
 (async () => {
