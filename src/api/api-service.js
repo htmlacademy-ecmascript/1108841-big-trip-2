@@ -1,13 +1,5 @@
 import ApiService from '../framework/api-service.js';
-
-const ErrorMessages = {
-  LOADING_POINTS: 'Не удалось загрузить точки маршрута',
-  LOADING_OFFERS: 'Не удалось загрузить предложения',
-  LOADING_DESTINATIONS: 'Не удалось загрузить пункты назначения',
-  UPDATING_POINT: 'Не удалось обновить точку маршрута',
-  ADDING_POINT: 'Не удалось добавить точку маршрута',
-  DELETING_POINT: 'Не удалось удалить точку маршрута'
-};
+import { ApiErrorMessage } from '../const.js';
 
 export default class PointsApiService extends ApiService {
   constructor(endPoint, authorization) {
@@ -19,7 +11,7 @@ export default class PointsApiService extends ApiService {
       const response = await this._load({ url: 'points' });
       return ApiService.parseResponse(response);
     } catch (err) {
-      throw new Error(ErrorMessages.LOADING_POINTS);
+      throw new Error(ApiErrorMessage.LOADING_POINTS);
     }
   }
 
@@ -28,7 +20,7 @@ export default class PointsApiService extends ApiService {
       const response = await this._load({ url: 'destinations' });
       return ApiService.parseResponse(response);
     } catch (err) {
-      throw new Error(ErrorMessages.LOADING_DESTINATIONS);
+      throw new Error(ApiErrorMessage.LOADING_DESTINATIONS);
     }
   }
 
@@ -37,7 +29,7 @@ export default class PointsApiService extends ApiService {
       const response = await this._load({ url: 'offers' });
       return ApiService.parseResponse(response);
     } catch (err) {
-      throw new Error(ErrorMessages.LOADING_OFFERS);
+      throw new Error(ApiErrorMessage.LOADING_OFFERS);
     }
   }
 
@@ -52,7 +44,7 @@ export default class PointsApiService extends ApiService {
 
       return ApiService.parseResponse(response);
     } catch (err) {
-      throw new Error(ErrorMessages.UPDATING_POINT);
+      throw new Error(ApiErrorMessage.UPDATING_POINT);
     }
   }
 
@@ -67,7 +59,7 @@ export default class PointsApiService extends ApiService {
 
       return ApiService.parseResponse(response);
     } catch (err) {
-      throw new Error(ErrorMessages.ADDING_POINT);
+      throw new Error(ApiErrorMessage.ADDING_POINT);
     }
   }
 
@@ -78,7 +70,7 @@ export default class PointsApiService extends ApiService {
         method: 'DELETE',
       });
     } catch (err) {
-      throw new Error(ErrorMessages.DELETING_POINT);
+      throw new Error(ApiErrorMessage.DELETING_POINT);
     }
   }
 }

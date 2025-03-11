@@ -1,8 +1,9 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import { DEFAULT_ERROR_MESSAGE } from '../const.js';
 
 const createErrorTemplate = (message) => (
   `<p class="trip-events__msg">
-    ${message || 'Something went wrong...'}
+    ${message || DEFAULT_ERROR_MESSAGE}
   </p>`
 );
 

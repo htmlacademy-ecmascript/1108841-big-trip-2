@@ -1,7 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { POINT_TYPES } from '../const.js';
-import { formatDate } from '../utils.js';
-import { DateFormat } from '../const.js';
+import { POINT_TYPES, DateFormat, POINT_ICON_SIZE, DEFAULT_PRICE, MIN_PRICE } from '../const.js';
+import { formatDate } from '../utils/date-format.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -291,7 +290,7 @@ export default class PointEditView extends AbstractStatefulView {
             <div class="event__type-wrapper">
               <label class="event__type event__type-btn" for="event-type-toggle-1">
                 <span class="visually-hidden">Choose event type</span>
-                <img class="event__type-icon" width="17" height="17" src="img/icons/${this._state.type}.png" alt="Event type icon">
+                <img class="event__type-icon" width="${POINT_ICON_SIZE.SMALL}" height="${POINT_ICON_SIZE.SMALL}" src="img/icons/${this._state.type}.png" alt="Event type icon">
               </label>
               <input class="event__type-toggle visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -334,9 +333,9 @@ export default class PointEditView extends AbstractStatefulView {
                 class="event__input event__input--price"
                 id="event-price-1"
                 type="number"
-                min="1"
+                min="${MIN_PRICE}"
                 name="event-price"
-                value="${this._state.basePrice ?? ''}"
+                value="${this._state.basePrice ?? DEFAULT_PRICE}"
               >
             </div>
 

@@ -8,15 +8,13 @@ import FilterModel from './model/filter-model.js';
 import SortModel from './model/sort-model.js';
 import NewPointButtonView from './view/new-point-button-view.js';
 import { render } from './framework/render.js';
-
-const END_POINT = 'https://23.objects.htmlacademy.pro/big-trip';
-const AUTHORIZATION = 'Basic kTy9gIdsz2317rD';
+import { API_CONFIG } from './const.js';
 
 const tripEventsElement = document.querySelector('.trip-events');
 const filterElement = document.querySelector('.trip-controls__filters');
 const newPointButtonContainer = document.querySelector('.trip-main');
 
-const apiService = new PointsApiService(END_POINT, AUTHORIZATION);
+const apiService = new PointsApiService(API_CONFIG.END_POINT, API_CONFIG.AUTHORIZATION);
 
 const destinationsModel = new DestinationsModel(apiService);
 const offersModel = new OffersModel(apiService);
@@ -65,11 +63,11 @@ const renderNewPointButton = () => {
     ]);
 
     boardPresenter.setIsLoading(false);
+    boardPresenter.init();
     renderNewPointButton();
   } catch (err) {
     boardPresenter.setIsLoading(false);
+    boardPresenter.init();
     boardPresenter.renderError('Не удалось загрузить данные. Пожалуйста, попробуйте позже.');
-    // eslint-disable-next-line no-console
-    console.error('Ошибка при инициализации приложения:', err);
   }
 })();
