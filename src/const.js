@@ -1,4 +1,4 @@
-const POINT_TYPES = [
+const POINT_TYPE_ITEMS = [
   'taxi',
   'bus',
   'train',
@@ -112,7 +112,7 @@ const UpdateType = {
 };
 
 export {
-  POINT_TYPES,
+  POINT_TYPE_ITEMS,
   DateFormat,
   DurationLabel,
   TimeUnit,

@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { POINT_TYPES } from '../const.js';
+import { POINT_TYPE_ITEMS } from '../const.js';
 
 export default class PointAddNewView extends AbstractView {
   #destinations = null;
@@ -16,7 +16,7 @@ export default class PointAddNewView extends AbstractView {
       <option value="${dest.name}"></option>
     `).join('');
 
-    const pointTypesTemplate = POINT_TYPES.map((type) => `
+    const pointTypesTemplate = POINT_TYPE_ITEMS.map((type) => `
       <div class="event__type-item">
         <input
           id="event-type-${type}-1"
