@@ -13,7 +13,7 @@ export default class TripsModel extends Observable {
   async init() {
     try {
       const points = await this.#apiService.getPoints();
-      this.#trips = adaptToClient.points(points);
+      this.#trips = adaptToClient.convertPoints(points);
     } catch (err) {
       this.#trips = [];
       throw new Error('Не удалось загрузить точки маршрута');
@@ -26,8 +26,8 @@ export default class TripsModel extends Observable {
 
   async updateTrip(updateType, updatedPoint) {
     try {
-      const response = await this.#apiService.updatePoint(adaptToServer.point(updatedPoint));
-      const updatedServerPoint = adaptToClient.point(response);
+      const response = await this.#apiService.updatePoint(adaptToServer.convertPoint(updatedPoint));
+      const updatedServerPoint = adaptToClient.convertPoint(response);
 
       const index = this.#trips.findIndex((trip) => trip.id === updatedPoint.id);
 
@@ -50,8 +50,8 @@ export default class TripsModel extends Observable {
 
   async addTrip(updateType, trip) {
     try {
-      const response = await this.#apiService.addPoint(adaptToServer.point(trip));
-      const newTrip = adaptToClient.point(response);
+      const response = await this.#apiService.addPoint(adaptToServer.convertPoint(trip));
+      const newTrip = adaptToClient.convertPoint(response);
 
       this.#trips = [newTrip, ...this.#trips];
 

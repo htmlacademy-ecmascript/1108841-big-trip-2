@@ -11,7 +11,7 @@ export default class OffersModel {
   async init() {
     try {
       const offers = await this.#apiService.getOffers();
-      this.#offers = adaptToClient.offers(offers);
+      this.#offers = adaptToClient.convertOffers(offers);
     } catch (err) {
       this.#offers = [];
       throw new Error('Не удалось загрузить предложения');

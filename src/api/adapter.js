@@ -1,5 +1,5 @@
 export const ToClientAdapter = {
-  point: (point) => ({
+  convertPoint: (point) => ({
     id: point.id,
     basePrice: point.base_price,
     dateFrom: point.date_from,
@@ -10,31 +10,31 @@ export const ToClientAdapter = {
     type: point.type
   }),
 
-  points: (points) => points.map(ToClientAdapter.point),
+  convertPoints: (points) => points.map(ToClientAdapter.convertPoint),
 
-  destination: (destination) => ({
+  convertDestination: (destination) => ({
     id: destination.id,
     description: destination.description,
     name: destination.name,
     pictures: destination.pictures
   }),
 
-  destinations: (destinations) => destinations.map(ToClientAdapter.destination),
+  convertDestinations: (destinations) => destinations.map(ToClientAdapter.convertDestination),
 
-  offer: (offer) => ({
+  convertOffer: (offer) => ({
     id: offer.id,
     title: offer.title,
     price: offer.price
   }),
 
-  offers: (offers) => offers.map((offerGroup) => ({
+  convertOffers: (offers) => offers.map((offerGroup) => ({
     type: offerGroup.type,
-    offers: offerGroup.offers.map(ToClientAdapter.offer)
+    offers: offerGroup.offers.map(ToClientAdapter.convertOffer)
   }))
 };
 
 export const ToServerAdapter = {
-  point: (point) => {
+  convertPoint: (point) => {
     const adaptedPoint = {};
 
     adaptedPoint.id = point.id;
@@ -46,7 +46,7 @@ export const ToServerAdapter = {
     adaptedPoint.offers = point.offers || [];
     adaptedPoint.type = point.type;
 
-    if (isNaN(adaptedPoint['base_price'])) {
+    if (isNaN(adaptedPoint['base_price']) || adaptedPoint['base_price'] < 0) {
       adaptedPoint['base_price'] = 0;
     }
 

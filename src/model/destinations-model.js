@@ -11,7 +11,7 @@ export default class DestinationsModel {
   async init() {
     try {
       const destinations = await this.#apiService.getDestinations();
-      this.#destinations = adaptToClient.destinations(destinations);
+      this.#destinations = adaptToClient.convertDestinations(destinations);
     } catch (err) {
       this.#destinations = [];
       throw new Error('Не удалось загрузить пункты назначения');
