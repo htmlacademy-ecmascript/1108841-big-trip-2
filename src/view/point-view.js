@@ -1,6 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { formatDate, calculateDuration } from '../utils/date-format.js';
 import { DateFormat, PointIconSize } from '../const.js';
+import he from 'he';
 
 export default class PointView extends AbstractView {
   #point = null;
@@ -49,32 +50,32 @@ export default class PointView extends AbstractView {
 
     const offersMarkup = selectedOffers.map((offer) => `
       <li class="event__offer">
-        <span class="event__offer-title">${offer.title}</span>
+        <span class="event__offer-title">${he.encode(offer.title)}</span>
         &plus;&euro;&nbsp;
-        <span class="event__offer-price">${offer.price}</span>
+        <span class="event__offer-price">${he.encode(String(offer.price))}</span>
       </li>
     `).join('');
 
     return `
       <li class="trip-events__item">
         <div class="event">
-          <time class="event__date" datetime="${this.#point.dateFrom}">
-            ${formatDate(this.#point.dateFrom, DateFormat.MONTH)} ${formatDate(this.#point.dateFrom, DateFormat.DAY)}
+          <time class="event__date" datetime="${he.encode(this.#point.dateFrom)}">
+            ${he.encode(formatDate(this.#point.dateFrom, DateFormat.MONTH))} ${he.encode(formatDate(this.#point.dateFrom, DateFormat.DAY))}
           </time>
           <div class="event__type">
-            <img class="event__type-icon" width="${PointIconSize.LARGE}" height="${PointIconSize.LARGE}" src="img/icons/${this.#point.type}.png" alt="Event type icon">
+            <img class="event__type-icon" width="${PointIconSize.LARGE}" height="${PointIconSize.LARGE}" src="img/icons/${he.encode(this.#point.type)}.png" alt="Event type icon">
           </div>
-          <h3 class="event__title">${this.#point.type} ${destination ? destination.name : ''}</h3>
+          <h3 class="event__title">${he.encode(this.#point.type)} ${he.encode(destination ? destination.name : '')}</h3>
           <div class="event__schedule">
             <p class="event__time">
-              <time class="event__start-time" datetime="${this.#point.dateFrom}">${formatDate(this.#point.dateFrom, DateFormat.HOURS_MINUTES)}</time>
+              <time class="event__start-time" datetime="${he.encode(this.#point.dateFrom)}">${he.encode(formatDate(this.#point.dateFrom, DateFormat.HOURS_MINUTES))}</time>
               &mdash;
-              <time class="event__end-time" datetime="${this.#point.dateTo}">${formatDate(this.#point.dateTo, DateFormat.HOURS_MINUTES)}</time>
+              <time class="event__end-time" datetime="${he.encode(this.#point.dateTo)}">${he.encode(formatDate(this.#point.dateTo, DateFormat.HOURS_MINUTES))}</time>
             </p>
-            <p class="event__duration">${calculateDuration(this.#point.dateFrom, this.#point.dateTo)}</p>
+            <p class="event__duration">${he.encode(calculateDuration(this.#point.dateFrom, this.#point.dateTo))}</p>
           </div>
           <p class="event__price">
-            &euro;&nbsp;<span class="event__price-value">${this.#point.basePrice}</span>
+            &euro;&nbsp;<span class="event__price-value">${he.encode(String(this.#point.basePrice))}</span>
           </p>
           <h4 class="visually-hidden">Offers:</h4>
           <ul class="event__selected-offers">

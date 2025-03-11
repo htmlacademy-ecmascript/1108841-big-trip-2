@@ -1,6 +1,7 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { PointTypes, DateFormat, PointIconSize, PriceConfig, ButtonText } from '../const.js';
 import { formatDate } from '../utils/date-format.js';
+import he from 'he';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -191,11 +192,11 @@ export default class PointEditView extends AbstractStatefulView {
 
     return `<div class="event__field-group  event__field-group--destination">
       <label class="event__label  event__type-output" for="event-destination-1">
-        ${this._state.type}
+        ${he.encode(this._state.type)}
       </label>
-      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this.#getDestinationName(destination)}" list="destination-list-1">
+      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(this.#getDestinationName(destination))}" list="destination-list-1">
       <datalist id="destination-list-1">
-        ${destinations.map((item) => `<option value="${item}"></option>`).join('')}
+        ${destinations.map((item) => `<option value="${he.encode(item)}"></option>`).join('')}
       </datalist>
     </div>`;
   }
@@ -218,13 +219,13 @@ export default class PointEditView extends AbstractStatefulView {
     const picturesMarkup = pictures && pictures.length > 0
       ? `<div class="event__photos-container">
           <div class="event__photos-tape">
-            ${pictures.map((pic) => `<img class="event__photo" src="${pic.src}" alt="${pic.description}">`).join('')}
+            ${pictures.map((pic) => `<img class="event__photo" src="${he.encode(pic.src)}" alt="${he.encode(pic.description)}">`).join('')}
           </div>
         </div>`
       : '';
 
     const descriptionMarkup = description
-      ? `<p class="event__destination-description">${description}</p>`
+      ? `<p class="event__destination-description">${he.encode(description)}</p>`
       : '';
 
     const offersMarkup = this.#generateOffersTemplate(type);
@@ -262,11 +263,11 @@ export default class PointEditView extends AbstractStatefulView {
     const disabled = this._state.isDisabled ? 'disabled' : '';
 
     return `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${id}-1" type="checkbox" name="event-offer-${id}" ${checked} ${disabled}>
-      <label class="event__offer-label" for="event-offer-${id}-1">
-        <span class="event__offer-title">${title}</span>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${he.encode(String(id))}-1" type="checkbox" name="event-offer-${he.encode(String(id))}" ${checked} ${disabled}>
+      <label class="event__offer-label" for="event-offer-${he.encode(String(id))}-1">
+        <span class="event__offer-title">${he.encode(title)}</span>
         &plus;&euro;&nbsp;
-        <span class="event__offer-price">${price}</span>
+        <span class="event__offer-price">${he.encode(String(price))}</span>
       </label>
     </div>`;
   }
@@ -274,12 +275,12 @@ export default class PointEditView extends AbstractStatefulView {
   get template() {
     const pointTypes = PointTypes.ITEMS.map((pointType) => `
       <div class="event__type-item">
-        <input id="event-type-${pointType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${pointType}" ${this._state.type === pointType ? 'checked' : ''}>
+        <input id="event-type-${he.encode(pointType)}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${he.encode(pointType)}" ${this._state.type === pointType ? 'checked' : ''}>
         <label
-          class="event__type-label event__type-label--${pointType}"
-          for="event-type-${pointType}-1"
+          class="event__type-label event__type-label--${he.encode(pointType)}"
+          for="event-type-${he.encode(pointType)}-1"
         >
-          ${pointType}
+          ${he.encode(pointType)}
         </label>
       </div>
     `).join('');
@@ -290,7 +291,7 @@ export default class PointEditView extends AbstractStatefulView {
             <div class="event__type-wrapper">
               <label class="event__type event__type-btn" for="event-type-toggle-1">
                 <span class="visually-hidden">Choose event type</span>
-                <img class="event__type-icon" width="${PointIconSize.SMALL}" height="${PointIconSize.SMALL}" src="img/icons/${this._state.type}.png" alt="Event type icon">
+                <img class="event__type-icon" width="${PointIconSize.SMALL}" height="${PointIconSize.SMALL}" src="img/icons/${he.encode(this._state.type)}.png" alt="Event type icon">
               </label>
               <input class="event__type-toggle visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -311,7 +312,7 @@ export default class PointEditView extends AbstractStatefulView {
                 id="event-start-time-1"
                 type="text"
                 name="event-start-time"
-                value="${formatDate(this._state.dateFrom, DateFormat.DATE_PICKER)}"
+                value="${he.encode(formatDate(this._state.dateFrom, DateFormat.DATE_PICKER))}"
               >
               &mdash;
               <label class="visually-hidden" for="event-end-time-1">To</label>
@@ -320,7 +321,7 @@ export default class PointEditView extends AbstractStatefulView {
                 id="event-end-time-1"
                 type="text"
                 name="event-end-time"
-                value="${formatDate(this._state.dateTo, DateFormat.DATE_PICKER)}"
+                value="${he.encode(formatDate(this._state.dateTo, DateFormat.DATE_PICKER))}"
               >
             </div>
 
@@ -335,7 +336,7 @@ export default class PointEditView extends AbstractStatefulView {
                 type="number"
                 min="${PriceConfig.MIN}"
                 name="event-price"
-                value="${this._state.basePrice ?? PriceConfig.DEFAULT}"
+                value="${he.encode(String(this._state.basePrice ?? PriceConfig.DEFAULT))}"
               >
             </div>
 

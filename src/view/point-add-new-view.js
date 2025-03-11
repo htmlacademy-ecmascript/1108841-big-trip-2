@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { PointTypes } from '../const.js';
+import he from 'he';
 
 export default class PointAddNewView extends AbstractView {
   #destinations = null;
@@ -13,23 +14,23 @@ export default class PointAddNewView extends AbstractView {
 
   get template() {
     const destinations = this.#destinations.map((dest) => `
-      <option value="${dest.name}"></option>
+      <option value="${he.encode(dest.name)}"></option>
     `).join('');
 
     const pointTypes = PointTypes.ITEMS.map((type) => `
       <div class="event__type-item">
         <input
-          id="event-type-${type}-1"
+          id="event-type-${he.encode(type)}-1"
           class="event__type-input visually-hidden"
           type="radio"
           name="event-type"
-          value="${type}"
+          value="${he.encode(type)}"
         >
         <label
-          class="event__type-label event__type-label--${type}"
-          for="event-type-${type}-1"
+          class="event__type-label event__type-label--${he.encode(type)}"
+          for="event-type-${he.encode(type)}-1"
         >
-          ${type}
+          ${he.encode(type)}
         </label>
       </div>
     `).join('');
