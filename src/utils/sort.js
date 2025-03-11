@@ -39,7 +39,7 @@ function sortPointsByPrice(pointA, pointB) {
   return priceB - priceA;
 }
 
-const sort = {
+const Sort = {
   [SortType.DAY]: (points) => [...points].sort(sortPointsByDay),
   [SortType.EVENT]: (points) => points,
   [SortType.TIME]: (points) => [...points].sort(sortPointsByTime),
@@ -47,4 +47,4 @@ const sort = {
   [SortType.OFFER]: (points) => points,
 };
 
-export { sort, sortPointsByDay, sortPointsByTime, sortPointsByPrice };
+export { Sort as sort, sortPointsByDay, sortPointsByTime, sortPointsByPrice };

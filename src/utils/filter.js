@@ -19,7 +19,7 @@ function isPointPast(point) {
   return dayjs(point.dateTo).isBefore(dayjs());
 }
 
-const filter = {
+const Filter = {
   [FilterType.EVERYTHING]: (points) => points,
   [FilterType.FUTURE]: (points) => points.filter(isPointFuture),
   [FilterType.PRESENT]: (points) => points.filter(isPointPresent),
@@ -35,4 +35,4 @@ function generateFilters() {
   };
 }
 
-export { filter, generateFilters, isPointFuture, isPointPresent, isPointPast };
+export { Filter as filter, generateFilters, isPointFuture, isPointPresent, isPointPast };
