@@ -265,7 +265,7 @@ export default class PointEditView extends AbstractStatefulView {
   #generateOffersTemplate(eventType) {
     const allOffersByType = this.#offers.find((offer) => offer.type === eventType);
 
-    if (!allOffersByType || !allOffersByType.offers || allOffersByType.offers.length === 0) {
+    if (!allOffersByType?.offers?.length) {
       return '';
     }
 

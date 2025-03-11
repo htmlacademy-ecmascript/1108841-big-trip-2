@@ -106,41 +106,35 @@ export default class PointPresenter {
   }
 
   setSaving() {
-    if (this.#pointEditComponent) {
-      if (this.#pointEditComponent.element.parentElement) {
-        this.#pointEditComponent.updateElement({
-          isSaving: true,
-          isDisabled: true
-        });
-      } else {
-        throw new Error('Form is not in DOM');
-      }
+    if (this.#pointEditComponent && this.#pointEditComponent.element.parentElement) {
+      this.#pointEditComponent.updateElement({
+        isSaving: true,
+        isDisabled: true
+      });
+    } else if (this.#pointEditComponent) {
+      throw new Error('Form is not in DOM');
     }
   }
 
   setDeleting() {
-    if (this.#pointEditComponent) {
-      if (this.#pointEditComponent.element.parentElement) {
-        this.#pointEditComponent.updateElement({
-          isDeleting: true,
-          isDisabled: true
-        });
-      } else {
-        throw new Error('Form is not in DOM');
-      }
+    if (this.#pointEditComponent && this.#pointEditComponent.element.parentElement) {
+      this.#pointEditComponent.updateElement({
+        isDeleting: true,
+        isDisabled: true
+      });
+    } else if (this.#pointEditComponent) {
+      throw new Error('Form is not in DOM');
     }
   }
 
   setAborting() {
     const updateFormState = () => {
-      if (this.#pointEditComponent) {
-        if (this.#pointEditComponent.element.parentElement) {
-          this.#pointEditComponent.updateElement({
-            isDisabled: false,
-            isSaving: false,
-            isDeleting: false
-          });
-        }
+      if (this.#pointEditComponent && this.#pointEditComponent.element.parentElement) {
+        this.#pointEditComponent.updateElement({
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false
+        });
       } else if (this.#pointComponent) {
         this.#pointComponent.shake();
       }

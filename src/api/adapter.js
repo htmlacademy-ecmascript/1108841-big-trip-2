@@ -50,10 +50,6 @@ const ToServerAdapter = {
       adaptedPoint['base_price'] = 0;
     }
 
-    if (!Array.isArray(adaptedPoint.offers)) {
-      adaptedPoint.offers = [];
-    }
-
     return adaptedPoint;
   }
 };
