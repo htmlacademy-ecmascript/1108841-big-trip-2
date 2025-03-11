@@ -38,7 +38,7 @@ const ToServerAdapter = {
     const adaptedPoint = {};
 
     adaptedPoint.id = point.id;
-    adaptedPoint['base_price'] = parseInt(point.basePrice, 10);
+    adaptedPoint['base_price'] = point.basePrice;
     adaptedPoint['date_from'] = point.dateFrom;
     adaptedPoint['date_to'] = point.dateTo;
     adaptedPoint.destination = point.destination;
