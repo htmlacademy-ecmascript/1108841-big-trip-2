@@ -1,17 +1,32 @@
-const POINT_TYPE_ITEMS = [
-  'taxi',
-  'bus',
-  'train',
-  'ship',
-  'drive',
-  'flight',
-  'check-in',
-  'sightseeing',
-  'restaurant',
-];
-const MINUTES_IN_HOUR = 60;
-const MINUTES_IN_DAY = MINUTES_IN_HOUR * 24;
-const HOURS_IN_DAY = 24;
+const PointTypes = {
+  ITEMS: [
+    'taxi',
+    'bus',
+    'train',
+    'ship',
+    'drive',
+    'flight',
+    'check-in',
+    'sightseeing',
+    'restaurant',
+  ]
+};
+
+const TimeConfig = {
+  MINUTES_IN_HOUR: 60,
+  MINUTES_IN_DAY: 60 * 24,
+  HOURS_IN_DAY: 24
+};
+
+const IdConfig = {
+  RADIX: 36,
+  LENGTH: 2
+};
+
+const PriceConfig = {
+  DEFAULT: 0,
+  MIN: 1
+};
 
 const DateFormat = {
   MONTH: 'MONTH',
@@ -33,17 +48,11 @@ const TimeUnit = {
   MINUTE: 'minute',
 };
 
-const RADIX = 36;
-const ID_LENGTH = 2;
-
 const PointIconSize = {
   SMALL: 17,
   MEDIUM: 28,
   LARGE: 42,
 };
-
-const DEFAULT_PRICE = 0;
-const MIN_PRICE = 1;
 
 const DEFAULT_ERROR_MESSAGE = 'Something went wrong...';
 
@@ -112,24 +121,20 @@ const UpdateType = {
 };
 
 export {
-  POINT_TYPE_ITEMS,
+  PointTypes,
   DateFormat,
   DurationLabel,
   TimeUnit,
-  MINUTES_IN_HOUR,
-  MINUTES_IN_DAY,
-  HOURS_IN_DAY,
+  TimeConfig,
   FilterType,
   EmptyListTexts,
   SortType,
   SortTypeEnabled,
   UserAction,
   UpdateType,
-  RADIX,
-  ID_LENGTH,
+  IdConfig,
   PointIconSize,
-  DEFAULT_PRICE,
-  MIN_PRICE,
+  PriceConfig,
   DEFAULT_ERROR_MESSAGE,
   SortLabel,
   ApiConfig,

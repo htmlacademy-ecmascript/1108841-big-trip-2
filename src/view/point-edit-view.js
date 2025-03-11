@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { POINT_TYPE_ITEMS, DateFormat, PointIconSize, DEFAULT_PRICE, MIN_PRICE } from '../const.js';
+import { PointTypes, DateFormat, PointIconSize, PriceConfig } from '../const.js';
 import { formatDate } from '../utils/date-format.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
@@ -272,7 +272,7 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   get template() {
-    const pointTypes = POINT_TYPE_ITEMS.map((pointType) => `
+    const pointTypes = PointTypes.ITEMS.map((pointType) => `
       <div class="event__type-item">
         <input id="event-type-${pointType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${pointType}" ${this._state.type === pointType ? 'checked' : ''}>
         <label
@@ -333,9 +333,9 @@ export default class PointEditView extends AbstractStatefulView {
                 class="event__input event__input--price"
                 id="event-price-1"
                 type="number"
-                min="${MIN_PRICE}"
+                min="${PriceConfig.MIN}"
                 name="event-price"
-                value="${this._state.basePrice ?? DEFAULT_PRICE}"
+                value="${this._state.basePrice ?? PriceConfig.DEFAULT}"
               >
             </div>
 

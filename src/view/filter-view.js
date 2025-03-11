@@ -1,9 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
 export default class FilterView extends AbstractView {
   #filters = null;
   #currentFilter = null;
@@ -27,6 +23,10 @@ export default class FilterView extends AbstractView {
     </div>`;
   }
 
+  #capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   #createFilterItemTemplate(filterType, isEnabled) {
     const checked = filterType === this.#currentFilter ? 'checked' : '';
     const disabled = !isEnabled ? 'disabled' : '';
@@ -42,7 +42,7 @@ export default class FilterView extends AbstractView {
         ${disabled}
       >
       <label class="trip-filters__filter-label" for="filter-${filterType}">
-        ${capitalizeFirstLetter(filterType)}
+        ${this.#capitalizeFirstLetter(filterType)}
       </label>
     </div>`;
   }

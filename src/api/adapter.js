@@ -1,4 +1,4 @@
-export const AdaptToClient = {
+export const ToClientAdapter = {
   point: (point) => ({
     id: point.id,
     basePrice: point.base_price,
@@ -10,7 +10,7 @@ export const AdaptToClient = {
     type: point.type
   }),
 
-  points: (points) => points.map(AdaptToClient.point),
+  points: (points) => points.map(ToClientAdapter.point),
 
   destination: (destination) => ({
     id: destination.id,
@@ -19,7 +19,7 @@ export const AdaptToClient = {
     pictures: destination.pictures
   }),
 
-  destinations: (destinations) => destinations.map(AdaptToClient.destination),
+  destinations: (destinations) => destinations.map(ToClientAdapter.destination),
 
   offer: (offer) => ({
     id: offer.id,
@@ -29,11 +29,11 @@ export const AdaptToClient = {
 
   offers: (offers) => offers.map((offerGroup) => ({
     type: offerGroup.type,
-    offers: offerGroup.offers.map(AdaptToClient.offer)
+    offers: offerGroup.offers.map(ToClientAdapter.offer)
   }))
 };
 
-export const AdaptToServer = {
+export const ToServerAdapter = {
   point: (point) => {
     const adaptedPoint = {};
 
@@ -58,4 +58,4 @@ export const AdaptToServer = {
   }
 };
 
-export { AdaptToClient as adaptToClient, AdaptToServer as adaptToServer };
+export { ToClientAdapter as adaptToClient, ToServerAdapter as adaptToServer };

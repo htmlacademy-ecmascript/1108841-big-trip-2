@@ -8,9 +8,9 @@ import PointEditView from '../view/point-edit-view.js';
 import { render, remove } from '../framework/render.js';
 import { filter } from '../utils/filter.js';
 import { sort } from '../utils/sort.js';
-import { SortType, SortTypeEnabled, UserAction, UpdateType, FilterType, POINT_TYPE_ITEMS, RADIX, ID_LENGTH } from '../const.js';
+import { SortType, SortTypeEnabled, UserAction, UpdateType, FilterType, PointTypes, IdConfig } from '../const.js';
 
-const generateId = () => Date.now().toString(RADIX) + Math.random().toString(RADIX).substring(ID_LENGTH);
+const generateId = () => Date.now().toString(IdConfig.RADIX) + Math.random().toString(IdConfig.RADIX).substring(IdConfig.LENGTH);
 
 export default class BoardPresenter {
   #boardComponent = new BoardView();
@@ -317,7 +317,7 @@ export default class BoardPresenter {
       destination: this.#destinationsModel.destinations[0]?.id || '',
       isFavorite: false,
       offers: [],
-      type: POINT_TYPE_ITEMS[0]
+      type: PointTypes.ITEMS[0]
     };
 
     this.#newPointComponent = new PointEditView({

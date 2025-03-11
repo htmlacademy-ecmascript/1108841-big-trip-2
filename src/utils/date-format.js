@@ -1,4 +1,4 @@
-import { DateFormat, MINUTES_IN_HOUR, HOURS_IN_DAY, TimeUnit, DurationLabel } from '../const.js';
+import { DateFormat, TimeConfig, TimeUnit, DurationLabel } from '../const.js';
 import dayjs from 'dayjs';
 
 function formatDate(date, format) {
@@ -23,9 +23,9 @@ function formatDate(date, format) {
 function calculateDuration(dateFrom, dateTo) {
   const diff = dayjs(dateTo).diff(dayjs(dateFrom), TimeUnit.MINUTE);
 
-  const minutes = diff % MINUTES_IN_HOUR;
-  const hours = Math.floor(diff / MINUTES_IN_HOUR) % HOURS_IN_DAY;
-  const days = Math.floor(diff / MINUTES_IN_HOUR / HOURS_IN_DAY);
+  const minutes = diff % TimeConfig.MINUTES_IN_HOUR;
+  const hours = Math.floor(diff / TimeConfig.MINUTES_IN_HOUR) % TimeConfig.HOURS_IN_DAY;
+  const days = Math.floor(diff / TimeConfig.MINUTES_IN_HOUR / TimeConfig.HOURS_IN_DAY);
 
   if (days > 0) {
     return `${days}${DurationLabel.DAY} ${hours}${DurationLabel.HOUR} ${minutes}${DurationLabel.MINUTE}`;
