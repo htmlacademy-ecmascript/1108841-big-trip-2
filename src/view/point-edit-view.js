@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { PointTypes, DateFormat, PointIconSize, PriceConfig } from '../const.js';
+import { PointTypes, DateFormat, PointIconSize, PriceConfig, ButtonText } from '../const.js';
 import { formatDate } from '../utils/date-format.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
@@ -339,11 +339,11 @@ export default class PointEditView extends AbstractStatefulView {
               >
             </div>
 
-            <button class="event__save-btn btn btn--blue" type="submit" ${this._state.isDisabled ? 'disabled' : ''}>
-              ${this._state.isSaving ? 'Saving...' : 'Save'}
+            <button class="event__save-btn  btn  btn--blue" type="submit" ${this._state.isDisabled ? 'disabled' : ''}>
+              ${this._state.isSaving ? ButtonText.SAVING : ButtonText.SAVE}
             </button>
             <button class="event__reset-btn" type="reset" ${this._state.isDisabled ? 'disabled' : ''}>
-              ${this._state.isDeleting ? 'Deleting...' : 'Delete'}
+              ${this._state.isDeleting ? ButtonText.DELETING : ButtonText.DELETE}
             </button>
             <button class="event__rollup-btn" type="button" ${this._state.isDisabled ? 'disabled' : ''}>
               <span class="visually-hidden">Open event</span>

@@ -120,6 +120,25 @@ const UpdateType = {
   FORCE: 'FORCE',
 };
 
+const ButtonText = {
+  SAVE: 'Save',
+  SAVING: 'Saving...',
+  DELETE: 'Delete',
+  DELETING: 'Deleting...',
+  LOADING: 'Loading...'
+};
+
+const ArrayConfig = {
+  EMPTY_LENGTH: 0,
+  FIRST_INDEX: 0,
+  SECOND_INDEX: 1
+};
+
+const TokenConfig = {
+  CHARACTERS: 'abcdefghijklmnopqrstuvwxyz0123456789',
+  LENGTH: 12
+};
+
 export {
   PointTypes,
   DateFormat,
@@ -138,5 +157,8 @@ export {
   DEFAULT_ERROR_MESSAGE,
   SortLabel,
   ApiConfig,
-  ApiErrorMessage
+  ApiErrorMessage,
+  ButtonText,
+  ArrayConfig,
+  TokenConfig
 };

@@ -1,10 +1,4 @@
-// Константы
-const CharacterConfig = {
-  FIRST_CHAR_INDEX: 0,
-  SECOND_CHAR_INDEX: 1,
-  CHARACTERS: 'abcdefghijklmnopqrstuvwxyz0123456789',
-  TOKEN_LENGTH: 12
-};
+import { ArrayConfig, TokenConfig } from '../const.js';
 
 // Функции
 function getRandomArrayElement(items) {
@@ -15,11 +9,11 @@ function capitalizeFirstLetter(word) {
   if (!word) {
     return '';
   }
-  return word[CharacterConfig.FIRST_CHAR_INDEX].toUpperCase() + word.slice(CharacterConfig.SECOND_CHAR_INDEX);
+  return word[ArrayConfig.FIRST_INDEX].toUpperCase() + word.slice(ArrayConfig.SECOND_INDEX);
 }
 
-const generateAuthToken = () => `Basic ${Array.from({length: CharacterConfig.TOKEN_LENGTH}, () =>
-  CharacterConfig.CHARACTERS[Math.floor(Math.random() * CharacterConfig.CHARACTERS.length)]
+const generateAuthToken = () => `Basic ${Array.from({length: TokenConfig.LENGTH}, () =>
+  TokenConfig.CHARACTERS[Math.floor(Math.random() * TokenConfig.CHARACTERS.length)]
 ).join('')}`;
 
 // Экспорты
