@@ -320,7 +320,7 @@ export default class BoardPresenter {
 
     render(this.#newPointComponent, boardElement, 'afterbegin');
     this.#newPointComponent.setEventListeners();
-    document.addEventListener('keydown', this.#onEscKeyDown);
+    document.addEventListener('keydown', this.#onEscKeyDownForNewPoint);
   }
 
   #handleNewPointFormClose = () => {
@@ -332,11 +332,18 @@ export default class BoardPresenter {
     this.#newPointComponent = null;
     this.#isCreating = false;
 
-    document.removeEventListener('keydown', this.#onEscKeyDown);
+    document.removeEventListener('keydown', this.#onEscKeyDownForNewPoint);
 
     const points = this.getPoints;
     if (points.length > 0 && this.#pointPresenters.size === 0) {
       this.#renderPoints(points);
+    }
+  };
+
+  #onEscKeyDownForNewPoint = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#handleNewPointFormClose();
     }
   };
 
@@ -390,7 +397,7 @@ export default class BoardPresenter {
 
         render(this.#newPointComponent, this.#boardComponent.element, 'afterbegin');
         this.#newPointComponent.setEventListeners();
-        document.addEventListener('keydown', this.#onEscKeyDown);
+        document.addEventListener('keydown', this.#onEscKeyDownForNewPoint);
       }
 
       return;
