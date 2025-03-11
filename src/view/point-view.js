@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { formatDate, getDuration } from '../utils/date-format.js';
+import { formatDate, calculateDuration } from '../utils/date-format.js';
 import { DateFormat, PointIconSize } from '../const.js';
 
 export default class PointView extends AbstractView {
@@ -71,7 +71,7 @@ export default class PointView extends AbstractView {
               &mdash;
               <time class="event__end-time" datetime="${this.#point.dateTo}">${formatDate(this.#point.dateTo, DateFormat.HOURS_MINUTES)}</time>
             </p>
-            <p class="event__duration">${getDuration(this.#point.dateFrom, this.#point.dateTo)}</p>
+            <p class="event__duration">${calculateDuration(this.#point.dateFrom, this.#point.dateTo)}</p>
           </div>
           <p class="event__price">
             &euro;&nbsp;<span class="event__price-value">${this.#point.basePrice}</span>

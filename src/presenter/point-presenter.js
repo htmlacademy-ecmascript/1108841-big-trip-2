@@ -200,7 +200,7 @@ export default class PointPresenter {
   }
 
   setAborting() {
-    const resetFormState = () => {
+    const updateFormState = () => {
       if (this.#pointEditComponent) {
         if (this.#pointEditComponent.element.parentElement) {
           this.#pointEditComponent.updateElement({
@@ -215,9 +215,9 @@ export default class PointPresenter {
     };
 
     if (this.#pointEditComponent && this.#pointEditComponent.element.parentElement) {
-      this.#pointEditComponent.shake(resetFormState);
+      this.#pointEditComponent.shake(updateFormState);
     } else {
-      this.#pointComponent.shake(resetFormState);
+      this.#pointComponent.shake(updateFormState);
     }
   }
 }

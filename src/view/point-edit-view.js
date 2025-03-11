@@ -185,7 +185,7 @@ export default class PointEditView extends AbstractStatefulView {
     this.#onFormSubmit(this.#parseStateToPoint());
   };
 
-  #createDestinationTemplate() {
+  #generateDestinationTemplate() {
     const { destination } = this._state;
     const destinations = this.#destinations.map((item) => item.name);
 
@@ -205,7 +205,7 @@ export default class PointEditView extends AbstractStatefulView {
     return destination ? destination.name : '';
   }
 
-  #createBaseDetailsTemplate() {
+  #generateBaseDetailsTemplate() {
     const { destination, type } = this._state;
     const destinationData = this.#destinations.find((item) => item.id === destination);
 
@@ -227,7 +227,7 @@ export default class PointEditView extends AbstractStatefulView {
       ? `<p class="event__destination-description">${description}</p>`
       : '';
 
-    const offersMarkup = this.#createOffersTemplate(type);
+    const offersMarkup = this.#generateOffersTemplate(type);
 
     return `<section class="event__details">
       ${offersMarkup}
@@ -239,7 +239,7 @@ export default class PointEditView extends AbstractStatefulView {
     </section>`;
   }
 
-  #createOffersTemplate(eventType) {
+  #generateOffersTemplate(eventType) {
     const allOffersByType = this.#offers.find((offer) => offer.type === eventType);
 
     if (!allOffersByType || !allOffersByType.offers || allOffersByType.offers.length === 0) {
@@ -251,12 +251,12 @@ export default class PointEditView extends AbstractStatefulView {
     return `<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
       <div class="event__available-offers">
-        ${offers.map((offer) => this.#createOfferTemplate(offer)).join('')}
+        ${offers.map((offer) => this.#generateOfferTemplate(offer)).join('')}
       </div>
     </section>`;
   }
 
-  #createOfferTemplate(offer) {
+  #generateOfferTemplate(offer) {
     const { id, title, price } = offer;
     const checked = this._state.offers.includes(id) ? 'checked' : '';
     const disabled = this._state.isDisabled ? 'disabled' : '';
@@ -302,7 +302,7 @@ export default class PointEditView extends AbstractStatefulView {
               </div>
             </div>
 
-            ${this.#createDestinationTemplate()}
+            ${this.#generateDestinationTemplate()}
 
             <div class="event__field-group event__field-group--time">
               <label class="visually-hidden" for="event-start-time-1">From</label>
@@ -349,7 +349,7 @@ export default class PointEditView extends AbstractStatefulView {
               <span class="visually-hidden">Open event</span>
             </button>
           </header>
-          ${this.#createBaseDetailsTemplate()}
+          ${this.#generateBaseDetailsTemplate()}
         </form>
       </li>`;
   }

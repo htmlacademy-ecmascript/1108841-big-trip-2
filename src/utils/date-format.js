@@ -20,7 +20,7 @@ function formatDate(date, format) {
   }
 }
 
-function getDuration(dateFrom, dateTo) {
+function calculateDuration(dateFrom, dateTo) {
   const diff = dayjs(dateTo).diff(dayjs(dateFrom), TimeUnit.MINUTE);
 
   const minutes = diff % MINUTES_IN_HOUR;
@@ -36,4 +36,4 @@ function getDuration(dateFrom, dateTo) {
   return `${minutes}${DurationLabel.MINUTE}`;
 }
 
-export { formatDate, getDuration };
+export { formatDate, calculateDuration };

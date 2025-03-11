@@ -71,7 +71,7 @@ export default class BoardPresenter {
     if (actionType === UserAction.UPDATE_POINT && updateType === UpdateType.MINOR &&
         !document.querySelector('.event--edit')) {
       this.#clearPointsList();
-      this.#renderPoints(this.points);
+      this.#renderPoints(this.getPoints);
       return;
     }
 
@@ -163,11 +163,11 @@ export default class BoardPresenter {
     try {
       if (this.#tripsModel.updateTrip(updatedPoint)) {
         this.#clearBoard();
-        this.#renderBoard(this.points);
+        this.#renderBoard(this.getPoints);
       }
     } catch (error) {
       this.#clearBoard();
-      this.#renderBoard(this.points);
+      this.#renderBoard(this.getPoints);
     }
   };
 
@@ -179,10 +179,10 @@ export default class BoardPresenter {
     this.#sortModel.setSortType(sortType);
     this.#currentSortType = sortType;
     this.#clearPointsList();
-    this.#renderPoints(this.points);
+    this.#renderPoints(this.getPoints);
   };
 
-  get points() {
+  get getPoints() {
     if (document.querySelector('.event--edit')) {
       return this.#tripsModel.trips;
     }
@@ -298,7 +298,7 @@ export default class BoardPresenter {
     }
 
     if (this.#pointPresenters.size > 0 && this.#boardComponent.element && !this.#boardComponent.element.querySelector('.trip-events__item:not(.trip-events__item--editing)')) {
-      const points = this.points;
+      const points = this.getPoints;
       this.#clearPointsList();
       this.#renderPoints(points);
     }
@@ -345,7 +345,7 @@ export default class BoardPresenter {
 
     document.removeEventListener('keydown', this.#escKeyDownHandler);
 
-    const points = this.points;
+    const points = this.getPoints;
     if (points.length > 0 && this.#pointPresenters.size === 0) {
       this.#renderPoints(points);
     }
@@ -370,7 +370,7 @@ export default class BoardPresenter {
       return;
     }
 
-    const points = this.points;
+    const points = this.getPoints;
 
     if (this.#isCreating) {
       render(this.#boardComponent, this.#container);

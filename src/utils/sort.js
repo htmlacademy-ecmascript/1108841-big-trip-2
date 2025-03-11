@@ -1,7 +1,7 @@
 import { SortType } from '../const.js';
 import dayjs from 'dayjs';
 
-function getEventDuration(point) {
+function calculateEventDuration(point) {
   return dayjs(point.dateTo).diff(dayjs(point.dateFrom));
 }
 
@@ -10,15 +10,15 @@ function sortPointsByDay(pointA, pointB) {
 
   // Если даты начала равны, сортируем по длительности события (более длинные - выше)
   if (dateFromDiff === 0) {
-    return getEventDuration(pointB) - getEventDuration(pointA);
+    return calculateEventDuration(pointB) - calculateEventDuration(pointA);
   }
 
   return dateFromDiff;
 }
 
 function sortPointsByTime(pointA, pointB) {
-  const durationA = getEventDuration(pointA);
-  const durationB = getEventDuration(pointB);
+  const durationA = calculateEventDuration(pointA);
+  const durationB = calculateEventDuration(pointB);
 
   // Если длительности равны, сортируем по дате начала
   if (durationA === durationB) {
