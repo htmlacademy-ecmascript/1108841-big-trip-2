@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { EmptyListMessageMap } from '../const.js';
+import { EmptyListTexts } from '../const.js';
 
 export default class EmptyListView extends AbstractView {
   #filterType = null;
@@ -10,6 +10,6 @@ export default class EmptyListView extends AbstractView {
   }
 
   get template() {
-    return `<p class="trip-events__msg">${EmptyListMessageMap[this.#filterType]}</p>`;
+    return `<p class="trip-events__msg">${EmptyListTexts[this.#filterType]}</p>`;
   }
 }

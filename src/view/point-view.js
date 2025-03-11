@@ -47,7 +47,7 @@ export default class PointView extends AbstractView {
     const pointTypeOffers = this.#offers.find((offer) => offer.type === this.#point.type)?.offers || [];
     const selectedOffers = pointTypeOffers.filter((offer) => this.#point.offers.includes(offer.id));
 
-    const offersTemplate = selectedOffers.map((offer) => `
+    const offersMarkup = selectedOffers.map((offer) => `
       <li class="event__offer">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
@@ -78,7 +78,7 @@ export default class PointView extends AbstractView {
           </p>
           <h4 class="visually-hidden">Offers:</h4>
           <ul class="event__selected-offers">
-            ${offersTemplate}
+            ${offersMarkup}
           </ul>
           <button class="event__favorite-btn ${this.#point.isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
             <span class="visually-hidden">Add to favorite</span>

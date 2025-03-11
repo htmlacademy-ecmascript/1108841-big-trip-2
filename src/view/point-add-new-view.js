@@ -12,11 +12,11 @@ export default class PointAddNewView extends AbstractView {
   }
 
   get template() {
-    const destinationsTemplate = this.#destinations.map((dest) => `
+    const destinations = this.#destinations.map((dest) => `
       <option value="${dest.name}"></option>
     `).join('');
 
-    const pointTypesTemplate = POINT_TYPE_ITEMS.map((type) => `
+    const pointTypes = POINT_TYPE_ITEMS.map((type) => `
       <div class="event__type-item">
         <input
           id="event-type-${type}-1"
@@ -47,7 +47,7 @@ export default class PointAddNewView extends AbstractView {
               <div class="event__type-list">
                 <fieldset class="event__type-group">
                   <legend class="visually-hidden">Event type</legend>
-                  ${pointTypesTemplate}
+                  ${pointTypes}
                 </fieldset>
               </div>
             </div>
@@ -65,7 +65,7 @@ export default class PointAddNewView extends AbstractView {
                 list="destination-list-1"
               >
               <datalist id="destination-list-1">
-                ${destinationsTemplate}
+                ${destinations}
               </datalist>
             </div>
 

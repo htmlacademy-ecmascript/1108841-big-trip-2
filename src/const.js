@@ -83,7 +83,7 @@ const SortType = {
   OFFER: 'offer'
 };
 
-const SortTypeEnabledMap = {
+const SortTypeEnabled = {
   [SortType.DAY]: true,
   [SortType.EVENT]: false,
   [SortType.TIME]: true,
@@ -91,7 +91,7 @@ const SortTypeEnabledMap = {
   [SortType.OFFER]: false
 };
 
-const EmptyListMessageMap = {
+const EmptyListTexts = {
   [FilterType.EVERYTHING]: 'Click New Event to create your first point',
   [FilterType.PAST]: 'There are no past events now',
   [FilterType.PRESENT]: 'There are no present events now',
@@ -120,9 +120,9 @@ export {
   MINUTES_IN_DAY,
   HOURS_IN_DAY,
   FilterType,
-  EmptyListMessageMap,
+  EmptyListTexts,
   SortType,
-  SortTypeEnabledMap,
+  SortTypeEnabled,
   UserAction,
   UpdateType,
   RADIX,

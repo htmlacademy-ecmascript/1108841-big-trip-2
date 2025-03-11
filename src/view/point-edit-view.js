@@ -187,7 +187,7 @@ export default class PointEditView extends AbstractStatefulView {
 
   #createDestinationTemplate() {
     const { destination } = this._state;
-    const destinationsList = this.#destinations.map((item) => item.name);
+    const destinations = this.#destinations.map((item) => item.name);
 
     return `<div class="event__field-group  event__field-group--destination">
       <label class="event__label  event__type-output" for="event-destination-1">
@@ -195,7 +195,7 @@ export default class PointEditView extends AbstractStatefulView {
       </label>
       <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this.#getDestinationName(destination)}" list="destination-list-1">
       <datalist id="destination-list-1">
-        ${destinationsList.map((item) => `<option value="${item}"></option>`).join('')}
+        ${destinations.map((item) => `<option value="${item}"></option>`).join('')}
       </datalist>
     </div>`;
   }
@@ -215,7 +215,7 @@ export default class PointEditView extends AbstractStatefulView {
 
     const { description, pictures } = destinationData;
 
-    const picturesTemplate = pictures && pictures.length > 0
+    const picturesMarkup = pictures && pictures.length > 0
       ? `<div class="event__photos-container">
           <div class="event__photos-tape">
             ${pictures.map((pic) => `<img class="event__photo" src="${pic.src}" alt="${pic.description}">`).join('')}
@@ -223,18 +223,18 @@ export default class PointEditView extends AbstractStatefulView {
         </div>`
       : '';
 
-    const descriptionTemplate = description
+    const descriptionMarkup = description
       ? `<p class="event__destination-description">${description}</p>`
       : '';
 
-    const offersTemplate = this.#createOffersTemplate(type);
+    const offersMarkup = this.#createOffersTemplate(type);
 
     return `<section class="event__details">
-      ${offersTemplate}
+      ${offersMarkup}
       <section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        ${descriptionTemplate}
-        ${picturesTemplate}
+        ${descriptionMarkup}
+        ${picturesMarkup}
       </section>
     </section>`;
   }
@@ -272,7 +272,7 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   get template() {
-    const pointTypesTemplate = POINT_TYPE_ITEMS.map((pointType) => `
+    const pointTypes = POINT_TYPE_ITEMS.map((pointType) => `
       <div class="event__type-item">
         <input id="event-type-${pointType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${pointType}" ${this._state.type === pointType ? 'checked' : ''}>
         <label
@@ -297,7 +297,7 @@ export default class PointEditView extends AbstractStatefulView {
               <div class="event__type-list">
                 <fieldset class="event__type-group">
                   <legend class="visually-hidden">Event type</legend>
-                  ${pointTypesTemplate}
+                  ${pointTypes}
                 </fieldset>
               </div>
             </div>

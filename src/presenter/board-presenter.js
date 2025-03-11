@@ -8,7 +8,7 @@ import PointEditView from '../view/point-edit-view.js';
 import { render, remove } from '../framework/render.js';
 import { filter } from '../utils/filter.js';
 import { sort } from '../utils/sort.js';
-import { SortType, SortTypeEnabledMap, UserAction, UpdateType, FilterType, POINT_TYPE_ITEMS, RADIX, ID_LENGTH } from '../const.js';
+import { SortType, SortTypeEnabled, UserAction, UpdateType, FilterType, POINT_TYPE_ITEMS, RADIX, ID_LENGTH } from '../const.js';
 
 const generateId = () => Date.now().toString(RADIX) + Math.random().toString(RADIX).substring(ID_LENGTH);
 
@@ -21,7 +21,7 @@ export default class BoardPresenter {
   #filterModel = null;
   #sortModel = null;
   #pointPresenters = new Map();
-  #emptyListComponent = null;
+  #emptyComponent = null;
   #sortComponent = null;
   #loadingComponent = new LoadingView();
   #errorComponent = null;
@@ -201,11 +201,11 @@ export default class BoardPresenter {
   }
 
   #renderEmptyList() {
-    this.#emptyListComponent = new EmptyListView({
+    this.#emptyComponent = new EmptyListView({
       filterType: this.#filterModel.filterType
     });
 
-    render(this.#emptyListComponent, this.#container);
+    render(this.#emptyComponent, this.#container);
   }
 
   #renderPoint(point) {
@@ -226,7 +226,7 @@ export default class BoardPresenter {
 
   #renderSort() {
     this.#sortComponent = new SortView({
-      sortTypes: SortTypeEnabledMap,
+      sortTypes: SortTypeEnabled,
       currentSortType: this.#sortModel.sortType,
       onSortTypeChange: this.#onSortTypeChange
     });
@@ -262,9 +262,9 @@ export default class BoardPresenter {
       this.#sortComponent = null;
     }
 
-    if (this.#emptyListComponent) {
-      remove(this.#emptyListComponent);
-      this.#emptyListComponent = null;
+    if (this.#emptyComponent) {
+      remove(this.#emptyComponent);
+      this.#emptyComponent = null;
     }
 
     remove(this.#boardComponent);
@@ -285,9 +285,9 @@ export default class BoardPresenter {
     this.#filterModel.setFilterType(FilterType.EVERYTHING);
     this.resetSortType();
 
-    if (this.#emptyListComponent) {
-      remove(this.#emptyListComponent);
-      this.#emptyListComponent = null;
+    if (this.#emptyComponent) {
+      remove(this.#emptyComponent);
+      this.#emptyComponent = null;
     }
 
     this.#handleModeChange();
