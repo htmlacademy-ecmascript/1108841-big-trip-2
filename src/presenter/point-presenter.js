@@ -95,7 +95,7 @@ export default class PointPresenter {
         remove(prevPointComponent);
       }
 
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
+      document.removeEventListener('keydown', this.#onEscKeyDown);
     }
 
     if (this.#pointComponent && !this.#pointComponent.element.parentElement &&
@@ -108,7 +108,7 @@ export default class PointPresenter {
   #replacePointToForm() {
     replace(this.#pointEditComponent, this.#pointComponent);
     this.#pointEditComponent.setEventListeners();
-    document.addEventListener('keydown', this.#escKeyDownHandler);
+    document.addEventListener('keydown', this.#onEscKeyDown);
 
     this.#handleModeChange(this.#point.id);
   }
@@ -116,7 +116,7 @@ export default class PointPresenter {
   #handleFormRollupClick = () => {
     replace(this.#pointComponent, this.#pointEditComponent);
     this.#pointComponent.setEventListeners();
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#onEscKeyDown);
 
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
@@ -125,12 +125,12 @@ export default class PointPresenter {
     );
   };
 
-  #escKeyDownHandler = (evt) => {
+  #onEscKeyDown = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
       replace(this.#pointComponent, this.#pointEditComponent);
       this.#pointComponent.setEventListeners();
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
+      document.removeEventListener('keydown', this.#onEscKeyDown);
 
       this.#handleDataChange(
         UserAction.UPDATE_POINT,
@@ -163,6 +163,7 @@ export default class PointPresenter {
       UpdateType.MINOR,
       update
     );
+    document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 
   #handleDeleteClick = (point) => {
@@ -171,6 +172,7 @@ export default class PointPresenter {
       UpdateType.MINOR,
       point
     );
+    document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 
   setSaving() {

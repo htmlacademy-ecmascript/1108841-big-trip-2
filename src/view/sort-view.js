@@ -12,7 +12,7 @@ export default class SortView extends AbstractView {
     this.#currentSortType = currentSortType;
     this.#handleSortTypeChange = onSortTypeChange;
 
-    this.element.addEventListener('change', this.#sortTypeChangeHandler);
+    this.element.addEventListener('change', this.#onSortTypeChange);
   }
 
   get template() {
@@ -55,7 +55,7 @@ export default class SortView extends AbstractView {
     }
   }
 
-  #sortTypeChangeHandler = (evt) => {
+  #onSortTypeChange = (evt) => {
     if (evt.target.tagName !== 'INPUT') {
       return;
     }

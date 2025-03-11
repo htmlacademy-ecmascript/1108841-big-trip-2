@@ -331,7 +331,7 @@ export default class BoardPresenter {
 
     render(this.#newPointComponent, this.#boardComponent.element, 'afterbegin');
     this.#newPointComponent.setEventListeners();
-    document.addEventListener('keydown', this.#escKeyDownHandler);
+    document.addEventListener('keydown', this.#onEscKeyDown);
   }
 
   #handleNewPointFormClose = () => {
@@ -343,7 +343,7 @@ export default class BoardPresenter {
     this.#newPointComponent = null;
     this.#isCreating = false;
 
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#onEscKeyDown);
 
     const points = this.getPoints;
     if (points.length > 0 && this.#pointPresenters.size === 0) {
@@ -351,7 +351,7 @@ export default class BoardPresenter {
     }
   };
 
-  #escKeyDownHandler = (evt) => {
+  #onEscKeyDown = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
       this.#handleNewPointFormClose();
