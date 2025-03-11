@@ -78,13 +78,12 @@ export default class PointView extends AbstractView {
 
   // Методы класса
   setEventListeners() {
-    this.element
-      .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#onRollupButtonClick);
+    const element = this.element;
+    const rollupBtn = element.querySelector('.event__rollup-btn');
+    const favoriteBtn = element.querySelector('.event__favorite-btn');
 
-    this.element
-      .querySelector('.event__favorite-btn')
-      .addEventListener('click', this.#onFavoriteButtonClick);
+    rollupBtn.addEventListener('click', this.#onRollupButtonClick);
+    favoriteBtn.addEventListener('click', this.#onFavoriteButtonClick);
   }
 
   // Обработчики событий

@@ -159,7 +159,8 @@ export default class BoardPresenter {
   };
 
   get getPoints() {
-    if (document.querySelector('.event--edit')) {
+    const editForm = document.querySelector('.event--edit');
+    if (editForm) {
       return this.#tripsModel.trips;
     }
 
@@ -278,10 +279,12 @@ export default class BoardPresenter {
 
     this.#ensureBoardExists();
 
+    const boardElement = this.#boardComponent.element;
+    const hasNonEditingItems = boardElement &&
+      !boardElement.querySelector('.trip-events__item:not(.trip-events__item--editing)');
+
     const shouldRerenderPoints =
-      this.#pointPresenters.size > 0 &&
-      this.#boardComponent.element &&
-      !this.#boardComponent.element.querySelector('.trip-events__item:not(.trip-events__item--editing)');
+      this.#pointPresenters.size > 0 && hasNonEditingItems;
 
     if (shouldRerenderPoints) {
       const points = this.getPoints;
@@ -315,7 +318,7 @@ export default class BoardPresenter {
       onDeleteClick: this.#handleNewPointFormClose
     });
 
-    render(this.#newPointComponent, this.#boardComponent.element, 'afterbegin');
+    render(this.#newPointComponent, boardElement, 'afterbegin');
     this.#newPointComponent.setEventListeners();
     document.addEventListener('keydown', this.#onEscKeyDown);
   }

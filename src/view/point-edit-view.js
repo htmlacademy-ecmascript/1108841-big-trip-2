@@ -111,31 +111,26 @@ export default class PointEditView extends AbstractStatefulView {
 
   // Перегруженные методы родительского класса
   _restoreHandlers() {
-    this.element
-      .querySelector('.event__type-list')
-      .addEventListener('change', this.#onEventTypeChange);
+    const element = this.element;
+    const typeList = element.querySelector('.event__type-list');
+    const destinationInput = element.querySelector('.event__input--destination');
+    const priceInput = element.querySelector('.event__input--price');
+    const availableOffers = element.querySelector('.event__available-offers');
+    const rollupBtn = element.querySelector('.event__rollup-btn');
+    const resetBtn = element.querySelector('.event__reset-btn');
+    const form = element.querySelector('form');
 
-    this.element
-      .querySelector('.event__input--destination')
-      .addEventListener('change', this.#onDestinationChange);
+    typeList.addEventListener('change', this.#onEventTypeChange);
+    destinationInput.addEventListener('change', this.#onDestinationChange);
+    priceInput.addEventListener('change', this.#onBasePriceChange);
 
-    this.element
-      .querySelector('.event__input--price')
-      .addEventListener('change', this.#onBasePriceChange);
-
-    const availableOffers = this.element.querySelector('.event__available-offers');
     if (availableOffers) {
       availableOffers.addEventListener('change', this.#onOffersChange);
     }
 
-    this.element.querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#onRollupButtonClick);
-
-    this.element.querySelector('.event__reset-btn')
-      .addEventListener('click', this.#onDeleteClick);
-
-    this.element.querySelector('form')
-      .addEventListener('submit', this.#onFormSubmit);
+    rollupBtn.addEventListener('click', this.#onRollupButtonClick);
+    resetBtn.addEventListener('click', this.#onDeleteClick);
+    form.addEventListener('submit', this.#onFormSubmit);
 
     this.#setDatepickers();
   }
@@ -181,14 +176,21 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   #setDatepickers() {
+    const element = this.element;
+    const dateFromElement = element.querySelector('#event-start-time-1');
+    const dateToElement = element.querySelector('#event-end-time-1');
+
     const dateConfig = {
+      dateFormat: 'd/m/y H:i',
       enableTime: true,
-      time24hr: true,
-      dateFormat: DateFormat.DATE_PICKER,
+      locale: {
+        firstDayOfWeek: 1,
+      },
+      'time_24hr': true
     };
 
     this.#datepickerFrom = flatpickr(
-      this.element.querySelector('#event-start-time-1'),
+      dateFromElement,
       {
         ...dateConfig,
         defaultDate: this._state.dateFrom,
@@ -198,7 +200,7 @@ export default class PointEditView extends AbstractStatefulView {
     );
 
     this.#datepickerTo = flatpickr(
-      this.element.querySelector('#event-end-time-1'),
+      dateToElement,
       {
         ...dateConfig,
         defaultDate: this._state.dateTo,
