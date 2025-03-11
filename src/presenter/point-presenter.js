@@ -12,6 +12,7 @@ export default class PointPresenter {
   #offers = null;
   #handleDataChange = null;
   #handleModeChange = null;
+  #isEditFormOpen = false;
 
   constructor({
     container,
@@ -33,22 +34,8 @@ export default class PointPresenter {
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
 
-    this.#pointComponent = new PointView({
-      point: this.#point,
-      destinations: this.#destinations,
-      offers: this.#offers,
-      onClick: this.#handlePointClick,
-      onFavoriteClick: this.#handleFavoriteClick
-    });
-
-    this.#pointEditComponent = new PointEditView({
-      point: this.#point,
-      destinations: this.#destinations,
-      offers: this.#offers,
-      onSubmit: this.#handleFormSubmit,
-      onRollupClick: this.#handleFormRollupClick,
-      onDeleteClick: this.#handleDeleteClick
-    });
+    this.#createPointComponent();
+    this.#createPointEditComponent();
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
       render(this.#pointComponent, this.#container);
@@ -75,115 +62,95 @@ export default class PointPresenter {
   }
 
   resetView() {
-    if (this.#pointEditComponent && this.#pointEditComponent.element &&
-        this.#pointEditComponent.element.parentElement) {
-
-      const prevPointComponent = this.#pointComponent;
-
-      this.#pointComponent = new PointView({
-        point: this.#point,
-        destinations: this.#destinations,
-        offers: this.#offers,
-        onClick: this.#handlePointClick,
-        onFavoriteClick: this.#handleFavoriteClick
-      });
-
-      replace(this.#pointComponent, this.#pointEditComponent);
-      this.#pointComponent.setEventListeners();
-
-      if (prevPointComponent) {
-        remove(prevPointComponent);
-      }
-
-      document.removeEventListener('keydown', this.#onEscKeyDown);
-    }
-
-    if (this.#pointComponent && !this.#pointComponent.element.parentElement &&
-        this.#point) {
-      render(this.#pointComponent, this.#container);
-      this.#pointComponent.setEventListeners();
+    if (this.#isEditFormOpen) {
+      this.#closeEditForm();
     }
   }
 
   setSaving() {
-    if (this.#pointEditComponent && this.#pointEditComponent.element.parentElement) {
+    if (this.#isEditFormOpen) {
       this.#pointEditComponent.updateElement({
         isSaving: true,
         isDisabled: true
       });
-    } else if (this.#pointEditComponent) {
-      throw new Error('Form is not in DOM');
     }
   }
 
   setDeleting() {
-    if (this.#pointEditComponent && this.#pointEditComponent.element.parentElement) {
+    if (this.#isEditFormOpen) {
       this.#pointEditComponent.updateElement({
         isDeleting: true,
         isDisabled: true
       });
-    } else if (this.#pointEditComponent) {
-      throw new Error('Form is not in DOM');
     }
   }
 
   setAborting() {
-    const updateFormState = () => {
-      if (this.#pointEditComponent && this.#pointEditComponent.element.parentElement) {
+    if (this.#isEditFormOpen) {
+      this.#pointEditComponent.shake(() => {
         this.#pointEditComponent.updateElement({
           isDisabled: false,
           isSaving: false,
           isDeleting: false
         });
-      } else if (this.#pointComponent) {
-        this.#pointComponent.shake();
-      }
-    };
-
-    if (this.#pointEditComponent && this.#pointEditComponent.element.parentElement) {
-      this.#pointEditComponent.shake(updateFormState);
+      });
     } else {
-      this.#pointComponent.shake(updateFormState);
+      this.#pointComponent.shake();
     }
   }
 
-  #replacePointToForm() {
-    replace(this.#pointEditComponent, this.#pointComponent);
-    this.#pointEditComponent.setEventListeners();
-    document.addEventListener('keydown', this.#onEscKeyDown);
-
-    this.#handleModeChange(this.#point.id);
+  #createPointComponent() {
+    this.#pointComponent = new PointView({
+      point: this.#point,
+      destinations: this.#destinations,
+      offers: this.#offers,
+      onClick: this.#openEditForm,
+      onFavoriteClick: this.#handleFavoriteClick
+    });
   }
 
-  #handleFormRollupClick = () => {
+  #createPointEditComponent() {
+    this.#pointEditComponent = new PointEditView({
+      point: this.#point,
+      destinations: this.#destinations,
+      offers: this.#offers,
+      onSubmit: this.#handleFormSubmit,
+      onRollupClick: this.#closeEditForm,
+      onDeleteClick: this.#handleDeleteClick
+    });
+  }
+
+  #openEditForm = () => {
+    replace(this.#pointEditComponent, this.#pointComponent);
+    this.#pointEditComponent.setEventListeners();
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange(this.#point.id);
+    this.#isEditFormOpen = true;
+  };
+
+  #closeEditForm = () => {
     replace(this.#pointComponent, this.#pointEditComponent);
     this.#pointComponent.setEventListeners();
-    document.removeEventListener('keydown', this.#onEscKeyDown);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#isEditFormOpen = false;
+  };
+
+  #escKeyDownHandler = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#closeEditForm();
+    }
+  };
+
+  #handleFormSubmit = (update) => {
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#isEditFormOpen = false;
 
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
       UpdateType.MINOR,
-      this.#point
+      update
     );
-  };
-
-  #onEscKeyDown = (evt) => {
-    if (evt.key === 'Escape') {
-      evt.preventDefault();
-      replace(this.#pointComponent, this.#pointEditComponent);
-      this.#pointComponent.setEventListeners();
-      document.removeEventListener('keydown', this.#onEscKeyDown);
-
-      this.#handleDataChange(
-        UserAction.UPDATE_POINT,
-        UpdateType.MINOR,
-        this.#point
-      );
-    }
-  };
-
-  #handlePointClick = () => {
-    this.#replacePointToForm();
   };
 
   #handleFavoriteClick = () => {
@@ -199,21 +166,14 @@ export default class PointPresenter {
     );
   };
 
-  #handleFormSubmit = (update) => {
-    this.#handleDataChange(
-      UserAction.UPDATE_POINT,
-      UpdateType.MINOR,
-      update
-    );
-    document.removeEventListener('keydown', this.#onEscKeyDown);
-  };
-
   #handleDeleteClick = (point) => {
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#isEditFormOpen = false;
+
     this.#handleDataChange(
       UserAction.DELETE_POINT,
       UpdateType.MINOR,
       point
     );
-    document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 }
