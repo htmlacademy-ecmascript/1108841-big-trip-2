@@ -14,6 +14,10 @@ export default class NewPointButtonView extends AbstractView {
     return '<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button">New event</button>';
   }
 
+  setDisabled(isDisabled) {
+    this.element.disabled = isDisabled;
+  }
+
   #clickHandler = (evt) => {
     evt.preventDefault();
     this.#handleClick();

@@ -91,7 +91,10 @@ export default class BoardPresenter {
         }
         case UserAction.ADD_POINT: {
           if (this.#newPointComponent) {
-            this.#newPointComponent.updateElement({ isSaving: true });
+            this.#newPointComponent.updateElement({
+              isSaving: true,
+              isDisabled: true
+            });
           }
           await this.#tripsModel.addTrip(updateType, update);
           this.#handleNewPointFormClose();
@@ -134,6 +137,10 @@ export default class BoardPresenter {
           }
           break;
         }
+      }
+    } finally {
+      if (actionType === UserAction.ADD_POINT) {
+        document.querySelector('.trip-main__event-add-btn').disabled = false;
       }
     }
   };
@@ -278,6 +285,11 @@ export default class BoardPresenter {
     this.#filterModel.setFilterType(FilterType.EVERYTHING);
     this.resetSortType();
 
+    if (this.#emptyListComponent) {
+      remove(this.#emptyListComponent);
+      this.#emptyListComponent = null;
+    }
+
     this.#handleModeChange();
 
     if (!this.#boardComponent) {
@@ -359,6 +371,11 @@ export default class BoardPresenter {
     }
 
     const points = this.points;
+
+    if (this.#isCreating) {
+      render(this.#boardComponent, this.#container);
+      return;
+    }
 
     if (points.length === 0 && !this.#isCreating) {
       this.#renderEmptyList();

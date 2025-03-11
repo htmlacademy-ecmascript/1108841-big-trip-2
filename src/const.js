@@ -20,6 +20,7 @@ const DateFormat = {
   FULL: 'FULL',
   DATE_PICKER: 'd/m/y H:i',
   DATE_DISPLAY: 'DD/MM/YY HH:mm',
+  TRIP_INFO: 'DD MMM',
 };
 
 const DurationLabel = {
@@ -47,8 +48,7 @@ const MIN_PRICE = 1;
 const DEFAULT_ERROR_MESSAGE = 'Something went wrong...';
 
 const API_CONFIG = {
-  END_POINT: 'https://23.objects.htmlacademy.pro/big-trip',
-  AUTHORIZATION: 'Basic dXNlcjEyMzpwYXNzMTIz'
+  END_POINT: 'https://22.objects.htmlacademy.pro/big-trip',
 };
 
 const ApiErrorMessage = {

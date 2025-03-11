@@ -13,6 +13,8 @@ function formatDate(date, format) {
       return dayjs(date).format('YYYY MMMM DD HH:mm');
     case DateFormat.DATE_DISPLAY:
       return dayjs(date).format('DD/MM/YY HH:mm');
+    case DateFormat.TRIP_INFO:
+      return dayjs(date).format('DD MMM').toUpperCase();
     default:
       return date;
   }

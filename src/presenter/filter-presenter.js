@@ -14,10 +14,14 @@ export default class FilterPresenter {
     this.#filterModel = filterModel;
     this.#tripsModel = tripsModel;
     this.#boardPresenter = boardPresenter;
+
+    this.#tripsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
-    const filters = generateFilters(this.#tripsModel.trips);
+    const points = this.#tripsModel.trips;
+    const filters = generateFilters(points);
     const prevFilterComponent = this.#filterComponent;
 
     this.#filterComponent = new FilterView({
@@ -43,5 +47,9 @@ export default class FilterPresenter {
     this.#filterModel.setFilterType(filterType);
     this.#boardPresenter.resetSortType();
     this.#boardPresenter.init();
+  };
+
+  #handleModelEvent = () => {
+    this.init();
   };
 }

@@ -15,7 +15,7 @@ function createTripRouteTemplate(destinations) {
 }
 
 function createTripDatesTemplate(dateFrom, dateTo) {
-  return `${formatDate(dateFrom, DateFormat.DATE_DISPLAY)} &mdash; ${formatDate(dateTo, DateFormat.DATE_DISPLAY)}`;
+  return `${formatDate(dateFrom, DateFormat.TRIP_INFO)} &mdash; ${formatDate(dateTo, DateFormat.TRIP_INFO)}`;
 }
 
 export default class TripInfoView extends AbstractView {
