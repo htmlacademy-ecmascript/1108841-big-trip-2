@@ -1,4 +1,4 @@
-import { adaptToClient, adaptToServer } from '../api/adapter.js';
+import { ToClientAdapter, ToServerAdapter } from '../api/adapter.js';
 import Observable from '../framework/observable.js';
 
 export default class TripsModel extends Observable {
@@ -13,7 +13,7 @@ export default class TripsModel extends Observable {
   async init() {
     try {
       const points = await this.#apiService.getPoints();
-      this.#trips = adaptToClient.convertPoints(points);
+      this.#trips = ToClientAdapter.convertPoints(points);
     } catch (err) {
       this.#trips = [];
       throw new Error('Не удалось загрузить точки маршрута');
@@ -26,8 +26,8 @@ export default class TripsModel extends Observable {
 
   async updateTrip(updateType, updatedPoint) {
     try {
-      const response = await this.#apiService.updatePoint(adaptToServer.convertPoint(updatedPoint));
-      const updatedServerPoint = adaptToClient.convertPoint(response);
+      const response = await this.#apiService.updatePoint(ToServerAdapter.convertPoint(updatedPoint));
+      const updatedServerPoint = ToClientAdapter.convertPoint(response);
 
       const index = this.#trips.findIndex((trip) => trip.id === updatedPoint.id);
 
@@ -50,8 +50,8 @@ export default class TripsModel extends Observable {
 
   async addTrip(updateType, trip) {
     try {
-      const response = await this.#apiService.addPoint(adaptToServer.convertPoint(trip));
-      const newTrip = adaptToClient.convertPoint(response);
+      const response = await this.#apiService.addPoint(ToServerAdapter.convertPoint(trip));
+      const newTrip = ToClientAdapter.convertPoint(response);
 
       this.#trips = [newTrip, ...this.#trips];
 

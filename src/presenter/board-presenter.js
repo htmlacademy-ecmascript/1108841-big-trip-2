@@ -6,8 +6,8 @@ import ErrorView from '../view/error-view.js';
 import PointPresenter from './point-presenter.js';
 import PointEditView from '../view/point-edit-view.js';
 import { render, remove } from '../framework/render.js';
-import { filter } from '../utils/filter.js';
-import { sort } from '../utils/sort.js';
+import { Filter } from '../utils/filter.js';
+import { Sort } from '../utils/sort.js';
 import { SortType, SortTypeEnabled, UserAction, UpdateType, FilterType, PointTypes, IdConfig } from '../const.js';
 
 const generateId = () => Date.now().toString(IdConfig.RADIX) + Math.random().toString(IdConfig.RADIX).substring(IdConfig.LENGTH);
@@ -194,9 +194,9 @@ export default class BoardPresenter {
       return [];
     }
 
-    const filteredPoints = filter[filterType](points);
+    const filteredPoints = Filter[filterType](points);
     const sortType = this.#sortModel.sortType;
-    const sortedPoints = sort[sortType](filteredPoints);
+    const sortedPoints = Sort[sortType](filteredPoints);
     return sortedPoints;
   }
 

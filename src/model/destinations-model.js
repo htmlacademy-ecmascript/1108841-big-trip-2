@@ -1,4 +1,4 @@
-import { adaptToClient } from '../api/adapter.js';
+import { ToClientAdapter } from '../api/adapter.js';
 
 export default class DestinationsModel {
   #destinations = [];
@@ -11,7 +11,7 @@ export default class DestinationsModel {
   async init() {
     try {
       const destinations = await this.#apiService.getDestinations();
-      this.#destinations = adaptToClient.convertDestinations(destinations);
+      this.#destinations = ToClientAdapter.convertDestinations(destinations);
     } catch (err) {
       this.#destinations = [];
       throw new Error('Не удалось загрузить пункты назначения');

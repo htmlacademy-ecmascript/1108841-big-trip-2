@@ -45,4 +45,4 @@ function sortPointsByPrice(pointA, pointB) {
   return priceB - priceA;
 }
 
-export { Sort as sort, sortPointsByDay, sortPointsByTime, sortPointsByPrice };
+export { Sort, sortPointsByDay, sortPointsByTime, sortPointsByPrice };

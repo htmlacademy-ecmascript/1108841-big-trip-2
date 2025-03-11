@@ -1,4 +1,4 @@
-export const ToClientAdapter = {
+const ToClientAdapter = {
   convertPoint: (point) => ({
     id: point.id,
     basePrice: point.base_price,
@@ -33,7 +33,7 @@ export const ToClientAdapter = {
   }))
 };
 
-export const ToServerAdapter = {
+const ToServerAdapter = {
   convertPoint: (point) => {
     const adaptedPoint = {};
 
@@ -58,4 +58,4 @@ export const ToServerAdapter = {
   }
 };
 
-export { ToClientAdapter as adaptToClient, ToServerAdapter as adaptToServer };
+export { ToClientAdapter, ToServerAdapter };

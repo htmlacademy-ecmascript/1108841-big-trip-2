@@ -35,4 +35,4 @@ function generateFilters() {
   };
 }
 
-export { Filter as filter, generateFilters, isPointFuture, isPointPresent, isPointPast };
+export { Filter, generateFilters, isPointFuture, isPointPresent, isPointPast };

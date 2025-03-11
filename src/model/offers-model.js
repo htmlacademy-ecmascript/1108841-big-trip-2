@@ -1,4 +1,4 @@
-import { adaptToClient } from '../api/adapter.js';
+import { ToClientAdapter } from '../api/adapter.js';
 
 export default class OffersModel {
   #offers = [];
@@ -11,7 +11,7 @@ export default class OffersModel {
   async init() {
     try {
       const offers = await this.#apiService.getOffers();
-      this.#offers = adaptToClient.convertOffers(offers);
+      this.#offers = ToClientAdapter.convertOffers(offers);
     } catch (err) {
       this.#offers = [];
       throw new Error('Не удалось загрузить предложения');
