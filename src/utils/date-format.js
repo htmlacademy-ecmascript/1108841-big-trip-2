@@ -2,6 +2,10 @@ import { DateFormat, TimeConfig, TimeUnit, DurationLabel } from '../const.js';
 import dayjs from 'dayjs';
 
 function formatDate(date, format) {
+  if (!date) {
+    return '';
+  }
+
   switch (format) {
     case DateFormat.MONTH:
       return dayjs(date).format('MMM');
@@ -16,7 +20,10 @@ function formatDate(date, format) {
     case DateFormat.TRIP_INFO:
       return dayjs(date).format('DD MMM').toUpperCase();
     default:
-      return date;
+      if (typeof format === 'string') {
+        return dayjs(date).format(format);
+      }
+      return String(date);
   }
 }
 

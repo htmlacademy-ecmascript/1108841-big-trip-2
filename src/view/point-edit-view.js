@@ -298,14 +298,22 @@ export default class PointEditView extends AbstractStatefulView {
 
   // Обработчики событий
   #onDateFromChange = ([userDate]) => {
+    if (!userDate) {
+      return;
+    }
+
     this.updateElement({
-      dateFrom: userDate,
+      dateFrom: userDate.toISOString(),
     });
   };
 
   #onDateToChange = ([userDate]) => {
+    if (!userDate) {
+      return;
+    }
+
     this.updateElement({
-      dateTo: userDate,
+      dateTo: userDate.toISOString(),
     });
   };
 
