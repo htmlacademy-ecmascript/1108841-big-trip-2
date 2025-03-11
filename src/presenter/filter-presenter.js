@@ -44,6 +44,10 @@ export default class FilterPresenter {
       return;
     }
 
+    if (this.#boardPresenter.isCreating()) {
+      return;
+    }
+
     this.#filterModel.setFilterType(filterType);
     this.#boardPresenter.resetSortType();
     this.#boardPresenter.init();

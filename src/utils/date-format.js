@@ -1,30 +1,29 @@
 import { DateFormat, TimeConfig, TimeUnit, DurationLabel } from '../const.js';
 import dayjs from 'dayjs';
 
+const formatters = {
+  [DateFormat.MONTH]: (date) => dayjs(date).format('MMM'),
+  [DateFormat.DAY]: (date) => dayjs(date).format('DD'),
+  [DateFormat.HOURS_MINUTES]: (date) => dayjs(date).format('HH:mm'),
+  [DateFormat.FULL]: (date) => dayjs(date).format('YYYY MMMM DD HH:mm'),
+  [DateFormat.DATE_DISPLAY]: (date) => dayjs(date).format('DD/MM/YY HH:mm'),
+  [DateFormat.TRIP_INFO]: (date) => dayjs(date).format('DD MMM').toUpperCase(),
+  DEFAULT: (date, format) => {
+    if (typeof format === 'string') {
+      return dayjs(date).format(format);
+    }
+    return String(date);
+  }
+};
+
 function formatDate(date, format) {
   if (!date) {
     return '';
   }
 
-  switch (format) {
-    case DateFormat.MONTH:
-      return dayjs(date).format('MMM');
-    case DateFormat.DAY:
-      return dayjs(date).format('DD');
-    case DateFormat.HOURS_MINUTES:
-      return dayjs(date).format('HH:mm');
-    case DateFormat.FULL:
-      return dayjs(date).format('YYYY MMMM DD HH:mm');
-    case DateFormat.DATE_DISPLAY:
-      return dayjs(date).format('DD/MM/YY HH:mm');
-    case DateFormat.TRIP_INFO:
-      return dayjs(date).format('DD MMM').toUpperCase();
-    default:
-      if (typeof format === 'string') {
-        return dayjs(date).format(format);
-      }
-      return String(date);
-  }
+  // Если для указанного формата есть функция форматирования, используем её
+  const formatter = formatters[format] || formatters.DEFAULT;
+  return formatter(date, format);
 }
 
 function calculateDuration(dateFrom, dateTo) {

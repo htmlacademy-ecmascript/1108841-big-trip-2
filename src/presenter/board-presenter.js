@@ -362,7 +362,37 @@ export default class BoardPresenter {
     const points = this.getPoints;
 
     if (this.#isCreating) {
+      if (!this.#boardComponent) {
+        this.#boardComponent = new BoardView();
+      }
       render(this.#boardComponent, this.#container);
+
+      if (!this.#newPointComponent) {
+        const newPoint = {
+          id: generateId(),
+          basePrice: 0,
+          dateFrom: new Date().toISOString(),
+          dateTo: new Date().toISOString(),
+          destination: this.#destinationsModel.destinations[0]?.id || '',
+          isFavorite: false,
+          offers: [],
+          type: PointTypes.ITEMS[0]
+        };
+
+        this.#newPointComponent = new PointEditView({
+          point: newPoint,
+          destinations: this.#destinationsModel.destinations,
+          offers: this.#offersModel.offers,
+          onSubmit: this.#handleViewAction.bind(this, UserAction.ADD_POINT, UpdateType.MINOR),
+          onRollupClick: this.#handleNewPointFormClose,
+          onDeleteClick: this.#handleNewPointFormClose
+        });
+
+        render(this.#newPointComponent, this.#boardComponent.element, 'afterbegin');
+        this.#newPointComponent.setEventListeners();
+        document.addEventListener('keydown', this.#onEscKeyDown);
+      }
+
       return;
     }
 
@@ -390,5 +420,9 @@ export default class BoardPresenter {
 
   setIsLoading(isLoading) {
     this.#isLoading = isLoading;
+  }
+
+  isCreating() {
+    return this.#isCreating;
   }
 }
