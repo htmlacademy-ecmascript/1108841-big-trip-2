@@ -19,29 +19,10 @@ export default class PointView extends AbstractView {
     this.#handleFavoriteClick = onFavoriteClick;
   }
 
-  setEventListeners() {
-    this.element
-      .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#onRollupButtonClick);
-
-    this.element
-      .querySelector('.event__favorite-btn')
-      .addEventListener('click', this.#onFavoriteButtonClick);
-  }
-
+  // Геттеры
   get point() {
     return this.#point;
   }
-
-  #onRollupButtonClick = (evt) => {
-    evt.preventDefault();
-    this.#handleRollupButtonClick();
-  };
-
-  #onFavoriteButtonClick = (evt) => {
-    evt.preventDefault();
-    this.#handleFavoriteClick();
-  };
 
   get template() {
     const destination = this.#destinations.find((dest) => dest.id === this.#point.destination);
@@ -94,4 +75,26 @@ export default class PointView extends AbstractView {
       </li>
     `;
   }
+
+  // Методы класса
+  setEventListeners() {
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#onRollupButtonClick);
+
+    this.element
+      .querySelector('.event__favorite-btn')
+      .addEventListener('click', this.#onFavoriteButtonClick);
+  }
+
+  // Обработчики событий
+  #onRollupButtonClick = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupButtonClick();
+  };
+
+  #onFavoriteButtonClick = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteClick();
+  };
 }
