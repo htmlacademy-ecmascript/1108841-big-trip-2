@@ -142,14 +142,19 @@ export default class PointPresenter {
     }
   };
 
-  #handleFormSubmit = (update) => {
+  #closeFormAndRemoveListeners() {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#isEditFormOpen = false;
+  }
 
+  #handleFormSubmit = (point) => {
+    this.#closeFormAndRemoveListeners();
+
+    const updatedPoint = {...point};
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
       UpdateType.MINOR,
-      update
+      updatedPoint,
     );
   };
 
@@ -167,13 +172,12 @@ export default class PointPresenter {
   };
 
   #handleDeleteClick = (point) => {
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
-    this.#isEditFormOpen = false;
+    this.#closeFormAndRemoveListeners();
 
     this.#handleDataChange(
       UserAction.DELETE_POINT,
       UpdateType.MINOR,
-      point
+      point,
     );
   };
 }

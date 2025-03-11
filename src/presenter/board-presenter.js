@@ -50,8 +50,6 @@ export default class BoardPresenter {
         this.#pointPresenters.get(data.id)?.init(data);
         break;
       case UpdateType.MINOR:
-        this.#refreshBoard();
-        break;
       case UpdateType.MAJOR:
         this.#refreshBoard();
         break;
@@ -70,15 +68,19 @@ export default class BoardPresenter {
     this.#renderBoard(this.getPoints);
   }
 
+  #setAbortingForPresenter(pointId) {
+    const pointPresenter = this.#pointPresenters.get(pointId);
+    if (pointPresenter) {
+      pointPresenter.setAborting();
+    }
+  }
+
   #handleViewAction = (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
         this.#tripsModel.updateTrip(update)
           .catch(() => {
-            const pointPresenter = this.#pointPresenters.get(update.id);
-            if (pointPresenter) {
-              pointPresenter.setAborting();
-            }
+            this.#setAbortingForPresenter(update.id);
           });
         break;
       case UserAction.ADD_POINT:
@@ -111,10 +113,7 @@ export default class BoardPresenter {
             this.init();
           })
           .catch(() => {
-            const pointPresenter = this.#pointPresenters.get(update.id);
-            if (pointPresenter) {
-              pointPresenter.setAborting();
-            }
+            this.#setAbortingForPresenter(update.id);
           });
         break;
       default:
@@ -209,13 +208,20 @@ export default class BoardPresenter {
     render(this.#sortComponent, this.#container);
   }
 
-  #renderBoard(points) {
-    this.#renderSort();
-
+  #ensureBoardExists() {
     if (!this.#boardComponent) {
       this.#boardComponent = new BoardView();
       render(this.#boardComponent, this.#container);
-    } else {
+      return true;
+    }
+    return false;
+  }
+
+  #renderBoard(points) {
+    this.#renderSort();
+
+    const isNewBoard = this.#ensureBoardExists();
+    if (!isNewBoard) {
       render(this.#boardComponent, this.#container);
     }
 
@@ -270,10 +276,7 @@ export default class BoardPresenter {
 
     this.#handleModeChange();
 
-    if (!this.#boardComponent) {
-      this.#boardComponent = new BoardView();
-      render(this.#boardComponent, this.#container);
-    }
+    this.#ensureBoardExists();
 
     const shouldRerenderPoints =
       this.#pointPresenters.size > 0 &&
