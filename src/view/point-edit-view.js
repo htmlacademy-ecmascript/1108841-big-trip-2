@@ -354,7 +354,7 @@ export default class PointEditView extends AbstractStatefulView {
     // Если выбрано "Empty destination", устанавливаем пустой идентификатор назначения
     if (destinationName === 'Empty destination') {
       this.updateElement({
-        destination: this.#destinations.find(dest => dest.name === 'Empty destination')?.id || null
+        destination: this.#destinations.find((dest) => dest.name === 'Empty destination')?.id || null
       });
       return;
     }
