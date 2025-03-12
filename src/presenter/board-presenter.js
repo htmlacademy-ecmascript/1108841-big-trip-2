@@ -427,6 +427,8 @@ export default class BoardPresenter {
     const points = this.getPoints();
     if (points.length > 0 && this.#pointPresenters.size === 0) {
       this.#renderPoints(points);
+    } else if (points.length === 0) {
+      this.#renderEmptyList();
     }
   };
 
