@@ -6,13 +6,6 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 
-const Filter = {
-  [FilterType.EVERYTHING]: (points) => points,
-  [FilterType.FUTURE]: (points) => points.filter(isPointFuture),
-  [FilterType.PRESENT]: (points) => points.filter(isPointPresent),
-  [FilterType.PAST]: (points) => points.filter(isPointPast),
-};
-
 function isPointFuture(point) {
   return dayjs(point.dateFrom).isAfter(dayjs());
 }
@@ -35,4 +28,4 @@ function generateFilters() {
   };
 }
 
-export { Filter, generateFilters, isPointFuture, isPointPresent, isPointPast };
+export { generateFilters, isPointFuture, isPointPresent, isPointPast };
