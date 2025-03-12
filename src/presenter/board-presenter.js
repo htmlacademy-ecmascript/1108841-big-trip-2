@@ -77,7 +77,7 @@ export default class BoardPresenter {
   }
 
   #handlePointUpdate(update) {
-    this.#tripsModel.updateTrip(update)
+    this.#tripsModel.updateTrip(UpdateType.MINOR, update)
       .catch(() => {
         this.#setAbortingForPresenter(update.id);
       });
@@ -111,7 +111,7 @@ export default class BoardPresenter {
   #handlePointAdd(update) {
     this.#prepareNewPointForSaving();
 
-    this.#tripsModel.addTrip(update)
+    this.#tripsModel.addTrip(UpdateType.MINOR, update)
       .then(() => {
         this.#handleAddPointSuccess();
       })
@@ -121,7 +121,7 @@ export default class BoardPresenter {
   }
 
   #handlePointDelete(update) {
-    this.#tripsModel.deleteTrip(update.id)
+    this.#tripsModel.deleteTrip(UpdateType.MINOR, update.id)
       .then(() => {
         this.init();
       })
@@ -351,9 +351,7 @@ export default class BoardPresenter {
   }
 
   #rerenderPointsIfNeeded() {
-    const boardElement = this.#boardComponent.element;
-    const hasNonEditingItems = boardElement &&
-      !boardElement.querySelector('.trip-events__item:not(.trip-events__item--editing)');
+    const hasNonEditingItems = this.#boardComponent && this.#boardComponent.hasNonEditingItems();
 
     const shouldRerenderPoints =
       this.#pointPresenters.size > 0 && hasNonEditingItems;
