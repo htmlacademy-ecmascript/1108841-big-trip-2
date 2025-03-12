@@ -122,10 +122,14 @@ export default class PointEditView extends AbstractStatefulView {
 
     typeList.addEventListener('change', this.#onEventTypeChange);
     destinationInput.addEventListener('change', this.#onDestinationChange);
-    priceInput.addEventListener('change', this.#onBasePriceChange);
+    priceInput.addEventListener('input', this.#onBasePriceChange);
 
     if (availableOffers) {
-      availableOffers.addEventListener('change', this.#onOffersChange);
+      // Добавляем обработчики для всех чекбоксов предложений
+      const offerCheckboxes = element.querySelectorAll('.event__offer-checkbox');
+      offerCheckboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', this.#onOffersChange);
+      });
     }
 
     rollupBtn.addEventListener('click', this.#onRollupButtonClick);
@@ -233,9 +237,13 @@ export default class PointEditView extends AbstractStatefulView {
   #generateBaseDetailsTemplate() {
     const { destination, type } = this._state;
     const destinationData = this.#destinations.find((item) => item.id === destination);
+    const offersMarkup = this.#generateOffersTemplate(type);
 
-    if (!destinationData) {
-      return '';
+    // Если нет данных о назначении или destination = 'Empty destination', возвращаем только предложения
+    if (!destinationData || (destinationData.name === 'Empty destination' && !destinationData.description && (!destinationData.pictures || destinationData.pictures.length === 0))) {
+      return `<section class="event__details">
+        ${offersMarkup}
+      </section>`;
     }
 
     const { description, pictures } = destinationData;
@@ -252,15 +260,18 @@ export default class PointEditView extends AbstractStatefulView {
       ? `<p class="event__destination-description">${he.encode(description)}</p>`
       : '';
 
-    const offersMarkup = this.#generateOffersTemplate(type);
+    // Если нет описания и фотографий, секцию назначения не показываем
+    const destinationSectionMarkup = (description || (pictures && pictures.length > 0))
+      ? `<section class="event__section event__section--destination">
+          <h3 class="event__section-title event__section-title--destination">Destination</h3>
+          ${descriptionMarkup}
+          ${picturesMarkup}
+        </section>`
+      : '';
 
     return `<section class="event__details">
       ${offersMarkup}
-      <section class="event__section  event__section--destination">
-        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        ${descriptionMarkup}
-        ${picturesMarkup}
-      </section>
+      ${destinationSectionMarkup}
     </section>`;
   }
 
@@ -287,7 +298,7 @@ export default class PointEditView extends AbstractStatefulView {
     const disabled = this._state.isDisabled ? 'disabled' : '';
 
     return `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${he.encode(String(id))}-1" type="checkbox" name="event-offer-${he.encode(String(id))}" ${checked} ${disabled}>
+      <input class="event__offer-checkbox visually-hidden" id="event-offer-${he.encode(String(id))}-1" type="checkbox" name="event-offer-${he.encode(String(id))}" ${checked} ${disabled} data-offer-id="${he.encode(String(id))}">
       <label class="event__offer-label" for="event-offer-${he.encode(String(id))}-1">
         <span class="event__offer-title">${he.encode(title)}</span>
         &plus;&euro;&nbsp;
@@ -323,21 +334,38 @@ export default class PointEditView extends AbstractStatefulView {
       return;
     }
 
-    this.updateElement({
-      type: evt.target.value,
-      offers: []
-    });
+    const newType = evt.target.value;
+    const currentType = this._state.type;
+
+    // Обновляем компонент только если тип изменился
+    if (newType !== currentType) {
+      this.updateElement({
+        type: newType,
+        offers: []
+      });
+    }
   };
 
   #onDestinationChange = (evt) => {
     evt.preventDefault();
-    const selectedDestination = this.#destinations.find((destination) => destination.name === evt.target.value);
+    const destinationName = evt.target.value;
+    const selectedDestination = this.#destinations.find((destination) => destination.name === destinationName);
 
+    // Если выбрано "Empty destination", устанавливаем пустой идентификатор назначения
+    if (destinationName === 'Empty destination') {
+      this.updateElement({
+        destination: this.#destinations.find(dest => dest.name === 'Empty destination')?.id || null
+      });
+      return;
+    }
+
+    // Если назначение не найдено, очищаем поле ввода
     if (!selectedDestination) {
       evt.target.value = '';
       return;
     }
 
+    // Обновляем компонент с выбранным назначением
     this.updateElement({
       destination: selectedDestination.id
     });
@@ -345,11 +373,18 @@ export default class PointEditView extends AbstractStatefulView {
 
   #onOffersChange = (evt) => {
     evt.preventDefault();
-    const offerId = evt.target.name.split('-')[2];
+
+    if (!evt.target.classList.contains('event__offer-checkbox')) {
+      return;
+    }
+
+    const offerId = evt.target.dataset.offerId || evt.target.name.split('-')[2];
     const currentOffers = [...this._state.offers];
 
     if (evt.target.checked) {
-      currentOffers.push(offerId);
+      if (!currentOffers.includes(offerId)) {
+        currentOffers.push(offerId);
+      }
     } else {
       const index = currentOffers.indexOf(offerId);
       if (index !== -1) {
@@ -364,9 +399,14 @@ export default class PointEditView extends AbstractStatefulView {
 
   #onBasePriceChange = (evt) => {
     evt.preventDefault();
-    this.updateElement({
-      basePrice: parseInt(evt.target.value, 10)
-    });
+    const price = parseInt(evt.target.value, 10);
+
+    // Проверяем, что введено валидное число
+    if (!isNaN(price) && price >= PriceConfig.MIN) {
+      this.updateElement({
+        basePrice: price
+      });
+    }
   };
 
   #onRollupButtonClick = (evt) => {

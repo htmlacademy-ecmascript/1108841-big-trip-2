@@ -153,6 +153,14 @@ export default class BoardPresenter {
 
     this.#filterModel.setFilterType(FilterType.EVERYTHING, true);
 
+    // Если pointId не передан, закрываем все открытые формы
+    if (!pointId) {
+      this.#pointPresenters.forEach((presenter) => {
+        presenter.resetView();
+      });
+      return;
+    }
+
     const activePointPresenter = this.#pointPresenters.get(pointId);
 
     this.#pointPresenters.forEach((presenter) => {

@@ -29,7 +29,7 @@ export default class PointPresenter {
   }
 
   init(point) {
-    this.#point = point;
+    this.#point = structuredClone(point);
 
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
@@ -50,6 +50,7 @@ export default class PointPresenter {
 
     if (this.#container.contains(prevPointEditComponent.element)) {
       replace(this.#pointEditComponent, prevPointEditComponent);
+      this.#pointEditComponent.setEventListeners();
     }
 
     remove(prevPointComponent);
@@ -63,6 +64,7 @@ export default class PointPresenter {
 
   resetView() {
     if (this.#isEditFormOpen) {
+      this.#createPointComponent();
       this.#closeEditForm();
     }
   }
@@ -121,6 +123,10 @@ export default class PointPresenter {
   }
 
   #openEditForm = () => {
+    if (!this.#pointEditComponent) {
+      this.#createPointEditComponent();
+    }
+
     replace(this.#pointEditComponent, this.#pointComponent);
     this.#pointEditComponent.setEventListeners();
     document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -129,23 +135,33 @@ export default class PointPresenter {
   };
 
   #closeEditForm = () => {
-    replace(this.#pointComponent, this.#pointEditComponent);
+    this.#createPointComponent();
+
+    if (this.#pointEditComponent && this.#pointEditComponent.element && this.#pointEditComponent.element.parentElement) {
+      replace(this.#pointComponent, this.#pointEditComponent);
+    } else if (this.#pointEditComponent) {
+      remove(this.#pointEditComponent);
+    }
+
     this.#pointComponent.setEventListeners();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#isEditFormOpen = false;
-  };
 
-  #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
-      evt.preventDefault();
-      this.#closeEditForm();
-    }
+    this.#pointEditComponent = null;
   };
 
   #closeFormAndRemoveListeners() {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#isEditFormOpen = false;
   }
+
+  #escKeyDownHandler = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#createPointComponent();
+      this.#closeEditForm();
+    }
+  };
 
   #handleFormSubmit = (point) => {
     this.#closeFormAndRemoveListeners();
