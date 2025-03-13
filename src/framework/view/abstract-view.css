@@ -1,16 +1,18 @@
 .shake {
-  animation: shake 0.6s;
-  animation-iteration-count: 1;
-  position: relative;
-  z-index: 10;
-  outline: 3px solid red !important;
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.7) !important;
+  animation: shake 0.6s !important;
+  animation-iteration-count: 1 !important;
+  position: relative !important;
+  z-index: 2000 !important;
+  outline: 8px solid red !important;
+  box-shadow: 0 0 25px rgba(255, 0, 0, 1) !important;
+  transform-origin: center center !important;
+  transition: none !important;
 }
 
 @keyframes shake {
   0%,
   100% {
-    transform: translateX(0);
+    transform: translateX(0) !important;
   }
 
   10%,
@@ -18,13 +20,13 @@
   50%,
   70%,
   90% {
-    transform: translateX(-12px);
+    transform: translateX(-25px) !important;
   }
 
   20%,
   40%,
   60%,
   80% {
-    transform: translateX(12px);
+    transform: translateX(25px) !important;
   }
 }

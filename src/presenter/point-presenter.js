@@ -123,6 +123,21 @@ export default class PointPresenter {
       this.#pointEditComponent.updateElement({
         isDisabled: true
       });
+
+      // Явно устанавливаем атрибут disabled для всех элементов формы
+      const form = document.querySelector('.event.event--edit');
+      if (form) {
+        const buttons = form.querySelectorAll('button');
+        const inputs = form.querySelectorAll('input');
+
+        buttons.forEach((button) => {
+          button.disabled = true;
+        });
+
+        inputs.forEach((input) => {
+          input.disabled = true;
+        });
+      }
     } else {
       this.#pointComponent.setDisabled(true);
     }
@@ -133,6 +148,21 @@ export default class PointPresenter {
       this.#pointEditComponent.updateElement({
         isDisabled: false
       });
+
+      // Явно убираем атрибут disabled для всех элементов формы
+      const form = document.querySelector('.event.event--edit');
+      if (form) {
+        const buttons = form.querySelectorAll('button');
+        const inputs = form.querySelectorAll('input');
+
+        buttons.forEach((button) => {
+          button.disabled = false;
+        });
+
+        inputs.forEach((input) => {
+          input.disabled = false;
+        });
+      }
     } else {
       this.#pointComponent.setDisabled(false);
     }
@@ -191,4 +221,29 @@ export default class PointPresenter {
       point
     );
   };
+
+  setFavoriteAborting() {
+    // Анимируем точку напрямую
+    const pointElement = this.#pointComponent.element;
+    if (pointElement && !pointElement.classList.contains('shake')) {
+      pointElement.classList.add('shake');
+
+      // Принудительный рендеринг
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Убедимся, что браузер применил стили до начала анимации
+          pointElement.style.animation = 'none';
+          pointElement.offsetHeight; // форсируем reflow
+          pointElement.style.animation = null;
+
+          setTimeout(() => {
+            pointElement.classList.remove('shake');
+          }, 600);
+        });
+      });
+    }
+
+    // Сбрасываем состояние после анимации
+    this.#pointComponent.setDisabled(false);
+  }
 }
