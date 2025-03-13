@@ -13,3 +13,5 @@ node_modules/
 
 # Собранные файлы (допишите самостоятельно)
 build/
+js2-big-trip-e2e/
+repo/

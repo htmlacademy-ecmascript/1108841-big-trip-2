@@ -9,14 +9,21 @@ export default class PointView extends AbstractView {
   #offers = null;
   #handleRollupButtonClick = null;
   #handleFavoriteClick = null;
+  #isDisabled = false;
 
-  constructor({ point, destinations, offers, onClick, onFavoriteClick }) {
+  constructor({ point, destinations, offers, onRollupClick, onFavoriteClick }) {
     super();
     this.#point = point;
     this.#destinations = destinations;
     this.#offers = offers;
-    this.#handleRollupButtonClick = onClick;
+    this.#handleRollupButtonClick = onRollupClick;
     this.#handleFavoriteClick = onFavoriteClick;
+
+    this._restoreHandlers();
+  }
+
+  _restoreHandlers() {
+    this.setEventListeners();
   }
 
   // Геттеры
@@ -62,13 +69,13 @@ export default class PointView extends AbstractView {
           <ul class="event__selected-offers">
             ${offersMarkup}
           </ul>
-          <button class="event__favorite-btn ${this.#point.isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
+          <button class="event__favorite-btn ${this.#point.isFavorite ? 'event__favorite-btn--active' : ''}" type="button" ${this.#isDisabled ? 'disabled' : ''}>
             <span class="visually-hidden">Add to favorite</span>
             <svg class="event__favorite-icon" width="${PointIconSize.MEDIUM}" height="${PointIconSize.MEDIUM}" viewBox="0 0 28 28">
               <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
             </svg>
           </button>
-          <button class="event__rollup-btn" type="button">
+          <button class="event__rollup-btn" type="button" ${this.#isDisabled ? 'disabled' : ''}>
             <span class="visually-hidden">Open event</span>
           </button>
         </div>
@@ -84,6 +91,12 @@ export default class PointView extends AbstractView {
 
     rollupBtn.addEventListener('click', this.#onRollupButtonClick);
     favoriteBtn.addEventListener('click', this.#onFavoriteButtonClick);
+  }
+
+  setDisabled(isDisabled) {
+    this.#isDisabled = isDisabled;
+    this.element.querySelector('.event__rollup-btn').disabled = isDisabled;
+    this.element.querySelector('.event__favorite-btn').disabled = isDisabled;
   }
 
   // Обработчики событий

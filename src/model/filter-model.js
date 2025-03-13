@@ -3,6 +3,7 @@ import Observable from '../framework/observable.js';
 
 export default class FilterModel extends Observable {
   #filterType = FilterType.EVERYTHING;
+  #filterPresenter = null;
 
   get filterType() {
     return this.#filterType;
@@ -14,5 +15,13 @@ export default class FilterModel extends Observable {
     if (!silentUpdate) {
       this._notify(UpdateType.MAJOR, this.#filterType);
     }
+  }
+
+  setFilterPresenter(filterPresenter) {
+    this.#filterPresenter = filterPresenter;
+  }
+
+  getFilterPresenter() {
+    return this.#filterPresenter;
   }
 }

@@ -1,10 +1,14 @@
+import Observable from '../framework/observable.js';
 import { ToClientAdapter } from '../api/adapter.js';
+import { UpdateType } from '../const.js';
 
-export default class DestinationsModel {
+export default class DestinationsModel extends Observable {
   #destinations = [];
   #apiService = null;
+  #hasError = false;
 
   constructor(apiService) {
+    super();
     this.#apiService = apiService;
   }
 
@@ -12,14 +16,22 @@ export default class DestinationsModel {
     try {
       const destinations = await this.#apiService.getDestinations();
       this.#destinations = ToClientAdapter.convertDestinations(destinations);
+      this.#hasError = false;
+      this._notify(UpdateType.INIT);
     } catch (err) {
       this.#destinations = [];
-      throw new Error('Не удалось загрузить пункты назначения');
+      this.#hasError = true;
+      this._notify(UpdateType.ERROR);
+      throw new Error('Failed to load latest route information');
     }
   }
 
   get destinations() {
     return this.#destinations;
+  }
+
+  get hasError() {
+    return this.#hasError;
   }
 
   getById(id) {

@@ -7,8 +7,16 @@ function createTripRouteTemplate(destinations) {
     return '';
   }
 
-  if (destinations.length <= 3) {
-    return destinations.map((destination) => destination.name).join(' &mdash; ');
+  if (destinations.length === 1) {
+    return destinations[0].name;
+  }
+
+  if (destinations.length === 2) {
+    return `${destinations[0].name} &mdash; ${destinations[1].name}`;
+  }
+
+  if (destinations.length === 3) {
+    return `${destinations[0].name} &mdash; ${destinations[1].name} &mdash; ${destinations[2].name}`;
   }
 
   return `${destinations[0].name} &mdash; ... &mdash; ${destinations[destinations.length - 1].name}`;
@@ -40,14 +48,11 @@ export default class TripInfoView extends AbstractView {
       this.#destinations.find((dest) => dest.id === point.destination)
     ).filter(Boolean);
 
-    const totalPrice = this.#points.reduce((sum, point) => {
-      const pointOffers = this.#offers
-        .find((offer) => offer.type === point.type)?.offers
-        .filter((offer) => point.offers.includes(offer.id))
-        .reduce((offerSum, offer) => offerSum + offer.price, 0) || 0;
+    if (tripDestinations.length === 0) {
+      return '<div class="trip-info"></div>';
+    }
 
-      return sum + point.basePrice + pointOffers;
-    }, 0);
+    const totalPrice = this.#calculateTotalPrice();
 
     return `
       <section class="trip-main__trip-info trip-info">
@@ -62,5 +67,25 @@ export default class TripInfoView extends AbstractView {
         </p>
       </section>
     `;
+  }
+
+  #calculateTotalPrice() {
+    if (!this.#points || this.#points.length === 0) {
+      return 0;
+    }
+
+    return this.#points.reduce((sum, point) => {
+      const typeOffers = this.#offers.find((offer) => offer.type === point.type);
+      if (!typeOffers) {
+        return sum + point.basePrice;
+      }
+
+      const pointOffers = point.offers
+        .map(offerId => typeOffers.offers.find(offer => offer.id === offerId))
+        .filter(Boolean)
+        .reduce((offerSum, offer) => offerSum + offer.price, 0);
+
+      return sum + point.basePrice + pointOffers;
+    }, 0);
   }
 }

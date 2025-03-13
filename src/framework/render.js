@@ -21,22 +21,43 @@ function createElement(template) {
 }
 
 /**
- * Функция для отрисовки элемента
- * @param {AbstractView} component Компонент, который должен был отрисован
- * @param {HTMLElement} container Элемент в котором будет отрисован компонент
- * @param {string} place Позиция компонента относительно контейнера. По умолчанию - `beforeend`
+ * Функция для рендеринга элемента
+ * @param {AbstractView} component - компонент, который должен быть отрендерен
+ * @param {HTMLElement} container - элемент в DOM, куда должен быть отрендерен компонент
+ * @param {string} place - позиция компонента относительно контейнера: 'beforebegin', 'afterbegin', 'beforeend', 'afterend'
  */
-function render(component, container, place = RenderPosition.BEFOREEND) {
-  if (!(component instanceof AbstractView)) {
-    throw new Error('Can render only components');
+const render = (component, container, place = 'beforeend') => {
+  const element = component.element;
+
+  console.log('Render component:', component.constructor.name);
+  console.log('Container:', container);
+  console.log('Place:', place);
+  console.log('Element to render:', element);
+
+  switch (place) {
+    case 'beforebegin':
+      container.before(element);
+      break;
+    case 'afterbegin':
+      container.prepend(element);
+      break;
+    case 'beforeend':
+      container.append(element);
+      break;
+    case 'afterend':
+      container.after(element);
+      break;
   }
 
-  if (container === null) {
-    throw new Error('Container element doesn\'t exist');
-  }
-
-  container.insertAdjacentElement(place, component.element);
-}
+  // Проверяем, успешно ли добавлен элемент
+  setTimeout(() => {
+    if (element.isConnected) {
+      console.log('Element successfully rendered:', element.outerHTML);
+    } else {
+      console.warn('Element was not connected to DOM after render!');
+    }
+  }, 0);
+};
 
 /**
  * Функция для замены одного компонента на другой

@@ -11,7 +11,7 @@ export default class PointsApiService extends ApiService {
       const response = await this._load({ url: 'points' });
       return ApiService.parseResponse(response);
     } catch (err) {
-      throw new Error(ApiErrorMessage.LOADING_POINTS);
+      throw new Error(ApiErrorMessage.GET);
     }
   }
 
@@ -20,7 +20,7 @@ export default class PointsApiService extends ApiService {
       const response = await this._load({ url: 'destinations' });
       return ApiService.parseResponse(response);
     } catch (err) {
-      throw new Error(ApiErrorMessage.LOADING_DESTINATIONS);
+      throw new Error(ApiErrorMessage.GET);
     }
   }
 
@@ -29,7 +29,7 @@ export default class PointsApiService extends ApiService {
       const response = await this._load({ url: 'offers' });
       return ApiService.parseResponse(response);
     } catch (err) {
-      throw new Error(ApiErrorMessage.LOADING_OFFERS);
+      throw new Error(ApiErrorMessage.GET);
     }
   }
 
@@ -44,7 +44,7 @@ export default class PointsApiService extends ApiService {
 
       return ApiService.parseResponse(response);
     } catch (err) {
-      throw new Error(ApiErrorMessage.UPDATING_POINT);
+      throw new Error(ApiErrorMessage.PUT);
     }
   }
 
@@ -59,7 +59,7 @@ export default class PointsApiService extends ApiService {
 
       return ApiService.parseResponse(response);
     } catch (err) {
-      throw new Error(ApiErrorMessage.ADDING_POINT);
+      throw new Error(ApiErrorMessage.POST);
     }
   }
 
@@ -70,7 +70,7 @@ export default class PointsApiService extends ApiService {
         method: 'DELETE',
       });
     } catch (err) {
-      throw new Error(ApiErrorMessage.DELETING_POINT);
+      throw new Error(ApiErrorMessage.DELETE);
     }
   }
 }

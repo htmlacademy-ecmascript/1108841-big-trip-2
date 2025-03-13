@@ -33,13 +33,18 @@ function calculateDuration(dateFrom, dateTo) {
   const hours = Math.floor(diff / TimeConfig.MINUTES_IN_HOUR) % TimeConfig.HOURS_IN_DAY;
   const days = Math.floor(diff / TimeConfig.MINUTES_IN_HOUR / TimeConfig.HOURS_IN_DAY);
 
+  // Форматируем числа с ведущими нулями
+  const formattedDays = String(days).padStart(2, '0');
+  const formattedHours = String(hours).padStart(2, '0');
+  const formattedMinutes = String(minutes).padStart(2, '0');
+
   if (days > 0) {
-    return `${days}${DurationLabel.DAY} ${hours}${DurationLabel.HOUR} ${minutes}${DurationLabel.MINUTE}`;
+    return `${formattedDays}${DurationLabel.DAY} ${formattedHours}${DurationLabel.HOUR} ${formattedMinutes}${DurationLabel.MINUTE}`;
   }
   if (hours > 0) {
-    return `${hours}${DurationLabel.HOUR} ${minutes}${DurationLabel.MINUTE}`;
+    return `${formattedHours}${DurationLabel.HOUR} ${formattedMinutes}${DurationLabel.MINUTE}`;
   }
-  return `${minutes}${DurationLabel.MINUTE}`;
+  return `${formattedMinutes}${DurationLabel.MINUTE}`;
 }
 
 export { formatDate, calculateDuration };

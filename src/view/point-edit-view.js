@@ -13,6 +13,7 @@ export default class PointEditView extends AbstractStatefulView {
   #handleDeleteClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
+  #escKeyDownHandler = null;
 
   constructor({ point, destinations, offers, onSubmit, onRollupClick, onDeleteClick }) {
     super();
@@ -23,6 +24,7 @@ export default class PointEditView extends AbstractStatefulView {
     this.#handleDeleteClick = onDeleteClick;
 
     this._state = this.#parsePointToState(point);
+    this._restoreHandlers();
   }
 
   // Геттеры
@@ -66,7 +68,7 @@ export default class PointEditView extends AbstractStatefulView {
                 id="event-start-time-1"
                 type="text"
                 name="event-start-time"
-                value="${he.encode(formatDate(this._state.dateFrom, DateFormat.DATE_PICKER))}"
+                value="${!this._state.id ? '' : he.encode(formatDate(this._state.dateFrom, DateFormat.DATE_PICKER))}"
               >
               &mdash;
               <label class="visually-hidden" for="event-end-time-1">To</label>
@@ -75,7 +77,7 @@ export default class PointEditView extends AbstractStatefulView {
                 id="event-end-time-1"
                 type="text"
                 name="event-end-time"
-                value="${he.encode(formatDate(this._state.dateTo, DateFormat.DATE_PICKER))}"
+                value="${!this._state.id ? '' : he.encode(formatDate(this._state.dateTo, DateFormat.DATE_PICKER))}"
               >
             </div>
 
@@ -98,7 +100,7 @@ export default class PointEditView extends AbstractStatefulView {
               ${this._state.isSaving ? ButtonText.SAVING : ButtonText.SAVE}
             </button>
             <button class="event__reset-btn" type="reset" ${this._state.isDisabled ? 'disabled' : ''}>
-              ${this._state.isDeleting ? ButtonText.DELETING : ButtonText.DELETE}
+              ${!this._state.id ? 'Cancel' : this._state.isDeleting ? ButtonText.DELETING : ButtonText.DELETE}
             </button>
             <button class="event__rollup-btn" type="button" ${this._state.isDisabled ? 'disabled' : ''}>
               <span class="visually-hidden">Open event</span>
@@ -158,6 +160,10 @@ export default class PointEditView extends AbstractStatefulView {
     this._restoreHandlers();
   }
 
+  reset(point) {
+    this.updateElement(this.#parsePointToState(point));
+  }
+
   // Приватные методы
   #parsePointToState(point) {
     return {
@@ -197,7 +203,7 @@ export default class PointEditView extends AbstractStatefulView {
       dateFromElement,
       {
         ...dateConfig,
-        defaultDate: this._state.dateFrom,
+        defaultDate: this._state.id ? this._state.dateFrom : null,
         onClose: this.#onDateFromChange,
         maxDate: this._state.dateTo,
       }
@@ -207,7 +213,7 @@ export default class PointEditView extends AbstractStatefulView {
       dateToElement,
       {
         ...dateConfig,
-        defaultDate: this._state.dateTo,
+        defaultDate: this._state.id ? this._state.dateTo : null,
         onClose: this.#onDateToChange,
         minDate: this._state.dateFrom,
       }
@@ -423,4 +429,31 @@ export default class PointEditView extends AbstractStatefulView {
     evt.preventDefault();
     this.#handleFormSubmit(this.#parseStateToPoint());
   };
+
+  // Дополнительные методы для работы с состоянием
+  setSaving() {
+    this.updateElement({
+      isSaving: true,
+      isDisabled: true
+    });
+  }
+
+  setDeleting() {
+    this.updateElement({
+      isDeleting: true,
+      isDisabled: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.updateElement({
+        isSaving: false,
+        isDeleting: false,
+        isDisabled: false
+      });
+    };
+
+    this.shake(resetFormState);
+  }
 }

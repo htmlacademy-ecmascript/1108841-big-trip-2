@@ -54,19 +54,27 @@ const PointIconSize = {
   LARGE: 42,
 };
 
-const DEFAULT_ERROR_MESSAGE = 'Something went wrong...';
+const DEFAULT_ERROR_MESSAGE = 'Failed to load latest route information';
 
 const ApiConfig = {
-  END_POINT: 'https://22.objects.htmlacademy.pro/big-trip',
-};
-
-const ApiErrorMessage = {
-  LOADING_POINTS: 'Не удалось загрузить точки маршрута',
-  LOADING_OFFERS: 'Не удалось загрузить предложения',
-  LOADING_DESTINATIONS: 'Не удалось загрузить пункты назначения',
+  BASE_URL: 'https://22.objects.htmlacademy.pro/big-trip',
+  ENDPOINTS: {
+    POINTS: 'points',
+    DESTINATIONS: 'destinations',
+    OFFERS: 'offers'
+  },
+  AUTHORIZATION: 'Basic sffj3n3ndkddss73',
+  CONTENT_TYPE: 'application/json',
   UPDATING_POINT: 'Не удалось обновить точку маршрута',
   ADDING_POINT: 'Не удалось добавить точку маршрута',
   DELETING_POINT: 'Не удалось удалить точку маршрута'
+};
+
+const ApiErrorMessage = {
+  DELETE: 'Failed to delete point. Please try again.',
+  PUT: 'Failed to update point. Please try again.',
+  POST: 'Failed to create point. Please try again.',
+  GET: 'Failed to load latest route information'
 };
 
 const SortLabel = {
@@ -139,6 +147,17 @@ const TokenConfig = {
   LENGTH: 12
 };
 
+const DEFAULT_POINT = {
+  id: null,
+  basePrice: 0,
+  dateFrom: null,
+  dateTo: null,
+  destination: '',
+  isFavorite: false,
+  offers: [],
+  type: 'flight'
+};
+
 export {
   PointTypes,
   DateFormat,
@@ -160,5 +179,6 @@ export {
   ApiErrorMessage,
   ButtonText,
   ArrayConfig,
-  TokenConfig
+  TokenConfig,
+  DEFAULT_POINT
 };
