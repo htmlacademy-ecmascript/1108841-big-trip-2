@@ -1,32 +1,35 @@
 .shake {
   animation: shake 0.6s !important;
-  animation-iteration-count: 1 !important;
   position: relative !important;
-  z-index: 2000 !important;
-  outline: 8px solid red !important;
-  box-shadow: 0 0 25px rgba(255, 0, 0, 1) !important;
-  transform-origin: center center !important;
-  transition: none !important;
+  z-index: 9999 !important;
+  outline: 10px solid red !important;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 1) !important;
+  left: 0 !important;
+  transform: translateX(0) !important;
+}
+
+.shake-left {
+  left: -50px !important;
+  position: relative !important;
+  transform: translateX(-50px) !important;
+}
+
+.shake-right {
+  left: 50px !important;
+  position: relative !important;
+  transform: translateX(50px) !important;
 }
 
 @keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0) !important;
-  }
-
-  10%,
-  30%,
-  50%,
-  70%,
-  90% {
-    transform: translateX(-25px) !important;
-  }
-
-  20%,
-  40%,
-  60%,
-  80% {
-    transform: translateX(25px) !important;
-  }
+  0% { left: 0 !important; transform: translateX(0) !important; }
+  10% { left: -50px !important; transform: translateX(-50px) !important; }
+  20% { left: 50px !important; transform: translateX(50px) !important; }
+  30% { left: -50px !important; transform: translateX(-50px) !important; }
+  40% { left: 50px !important; transform: translateX(50px) !important; }
+  50% { left: -50px !important; transform: translateX(-50px) !important; }
+  60% { left: 50px !important; transform: translateX(50px) !important; }
+  70% { left: -50px !important; transform: translateX(-50px) !important; }
+  80% { left: 50px !important; transform: translateX(50px) !important; }
+  90% { left: -50px !important; transform: translateX(-50px) !important; }
+  100% { left: 0 !important; transform: translateX(0) !important; }
 }

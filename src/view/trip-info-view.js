@@ -81,7 +81,7 @@ export default class TripInfoView extends AbstractView {
       }
 
       const pointOffers = point.offers
-        .map(offerId => typeOffers.offers.find(offer => offer.id === offerId))
+        .map((offerId) => typeOffers.offers.find((offer) => offer.id === offerId))
         .filter(Boolean)
         .reduce((offerSum, offer) => offerSum + offer.price, 0);
 

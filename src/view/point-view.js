@@ -46,7 +46,7 @@ export default class PointView extends AbstractView {
 
     return `
       <li class="trip-events__item">
-        <div class="event">
+        <div class="event" data-id="${he.encode(this.#point.id)}">
           <time class="event__date" datetime="${he.encode(this.#point.dateFrom)}">
             ${he.encode(formatDate(this.#point.dateFrom, DateFormat.MONTH))} ${he.encode(formatDate(this.#point.dateFrom, DateFormat.DAY))}
           </time>
@@ -97,6 +97,35 @@ export default class PointView extends AbstractView {
     this.#isDisabled = isDisabled;
     this.element.querySelector('.event__rollup-btn').disabled = isDisabled;
     this.element.querySelector('.event__favorite-btn').disabled = isDisabled;
+  }
+
+  updateElement(update) {
+    if (!update) {
+      return;
+    }
+
+    // Обновляем данные точки
+    this.#point = {...this.#point, ...update};
+
+    // Сохраняем ссылку на старый элемент
+    const oldElement = this.element;
+
+    // Удаляем ссылку на элемент, чтобы при следующем обращении к this.element
+    // был создан новый элемент с обновленными данными
+    this.removeElement();
+
+    // Получаем новый элемент с обновленными данными
+    const newElement = this.element;
+
+    // Обновляем DOM
+    const parent = oldElement.parentElement;
+    if (parent) {
+      // Заменяем старый элемент новым
+      parent.replaceChild(newElement, oldElement);
+    }
+
+    // Восстанавливаем обработчики событий
+    this._restoreHandlers();
   }
 
   // Обработчики событий

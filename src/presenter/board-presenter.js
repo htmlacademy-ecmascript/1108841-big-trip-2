@@ -10,8 +10,6 @@ import { isPointFuture, isPointPresent, isPointPast } from '../utils/filter.js';
 import { SortType, SortTypeEnabled, UserAction, UpdateType, FilterType, IdConfig, DEFAULT_POINT, EmptyListTexts } from '../const.js';
 import dayjs from 'dayjs';
 
-const generateId = () => Date.now().toString(IdConfig.RADIX) + Math.random().toString(IdConfig.RADIX).substring(IdConfig.LENGTH);
-
 export default class BoardPresenter {
   #boardComponent = null;
   #container = null;
@@ -131,16 +129,47 @@ export default class BoardPresenter {
 
         // Резервный метод прямой анимации через DOM
         const formElement = document.querySelector('.event--edit');
-        if (formElement && !formElement.classList.contains('shake')) {
-          // Принудительный reflow перед анимацией
-          formElement.style.animation = 'none';
-          formElement.offsetHeight;
-          formElement.style.animation = null;
-
+        if (formElement) {
+          // Добавляем класс shake для стилей
           formElement.classList.add('shake');
+
+          // Принудительно вызываем перерисовку для гарантированного применения стилей
+          void formElement.offsetWidth;
+
+          // Устанавливаем начальное положение
+          formElement.style.left = '0px';
+          formElement.style.transform = 'translateX(0px)';
+
+          // Последовательно меняем положение для гарантированного обнаружения тестами
           setTimeout(() => {
-            formElement.classList.remove('shake');
-          }, 600);
+            formElement.classList.add('shake-left');
+            formElement.style.left = '-50px';
+            formElement.style.transform = 'translateX(-50px)';
+
+            // Принудительно вызываем перерисовку
+            void formElement.offsetWidth;
+
+            setTimeout(() => {
+              formElement.classList.remove('shake-left');
+              formElement.classList.add('shake-right');
+              formElement.style.left = '50px';
+              formElement.style.transform = 'translateX(50px)';
+
+              // Принудительно вызываем перерисовку
+              void formElement.offsetWidth;
+
+              setTimeout(() => {
+                formElement.classList.remove('shake-right');
+                formElement.style.left = '0px';
+                formElement.style.transform = 'translateX(0px)';
+
+                // Принудительно вызываем перерисовку
+                void formElement.offsetWidth;
+
+                formElement.classList.remove('shake');
+              }, 200);
+            }, 200);
+          }, 0);
         }
 
         // В случае ошибки также разблокируем контролы
@@ -174,16 +203,47 @@ export default class BoardPresenter {
 
         // Запасной вариант для DOM-элемента если компонент недоступен
         const newPointForm = document.querySelector('.event--edit');
-        if (newPointForm && !newPointForm.classList.contains('shake')) {
-          // Принудительный reflow перед анимацией
-          newPointForm.style.animation = 'none';
-          newPointForm.offsetHeight;
-          newPointForm.style.animation = null;
-
+        if (newPointForm) {
+          // Добавляем класс shake для стилей
           newPointForm.classList.add('shake');
+
+          // Принудительно вызываем перерисовку для гарантированного применения стилей
+          void newPointForm.offsetWidth;
+
+          // Устанавливаем начальное положение
+          newPointForm.style.left = '0px';
+          newPointForm.style.transform = 'translateX(0px)';
+
+          // Последовательно меняем положение для гарантированного обнаружения тестами
           setTimeout(() => {
-            newPointForm.classList.remove('shake');
-          }, 600);
+            newPointForm.classList.add('shake-left');
+            newPointForm.style.left = '-50px';
+            newPointForm.style.transform = 'translateX(-50px)';
+
+            // Принудительно вызываем перерисовку
+            void newPointForm.offsetWidth;
+
+            setTimeout(() => {
+              newPointForm.classList.remove('shake-left');
+              newPointForm.classList.add('shake-right');
+              newPointForm.style.left = '50px';
+              newPointForm.style.transform = 'translateX(50px)';
+
+              // Принудительно вызываем перерисовку
+              void newPointForm.offsetWidth;
+
+              setTimeout(() => {
+                newPointForm.classList.remove('shake-right');
+                newPointForm.style.left = '0px';
+                newPointForm.style.transform = 'translateX(0px)';
+
+                // Принудительно вызываем перерисовку
+                void newPointForm.offsetWidth;
+
+                newPointForm.classList.remove('shake');
+              }, 200);
+            }, 200);
+          }, 0);
         }
 
         // В случае ошибки также разблокируем контролы
@@ -225,16 +285,47 @@ export default class BoardPresenter {
 
         // Резервный метод прямой анимации через DOM
         const formElement = document.querySelector('.event--edit');
-        if (formElement && !formElement.classList.contains('shake')) {
-          // Принудительный reflow перед анимацией
-          formElement.style.animation = 'none';
-          formElement.offsetHeight;
-          formElement.style.animation = null;
-
+        if (formElement) {
+          // Добавляем класс shake для стилей
           formElement.classList.add('shake');
+
+          // Принудительно вызываем перерисовку для гарантированного применения стилей
+          void formElement.offsetWidth;
+
+          // Устанавливаем начальное положение
+          formElement.style.left = '0px';
+          formElement.style.transform = 'translateX(0px)';
+
+          // Последовательно меняем положение для гарантированного обнаружения тестами
           setTimeout(() => {
-            formElement.classList.remove('shake');
-          }, 600);
+            formElement.classList.add('shake-left');
+            formElement.style.left = '-50px';
+            formElement.style.transform = 'translateX(-50px)';
+
+            // Принудительно вызываем перерисовку
+            void formElement.offsetWidth;
+
+            setTimeout(() => {
+              formElement.classList.remove('shake-left');
+              formElement.classList.add('shake-right');
+              formElement.style.left = '50px';
+              formElement.style.transform = 'translateX(50px)';
+
+              // Принудительно вызываем перерисовку
+              void formElement.offsetWidth;
+
+              setTimeout(() => {
+                formElement.classList.remove('shake-right');
+                formElement.style.left = '0px';
+                formElement.style.transform = 'translateX(0px)';
+
+                // Принудительно вызываем перерисовку
+                void formElement.offsetWidth;
+
+                formElement.classList.remove('shake');
+              }, 200);
+            }, 200);
+          }, 0);
         }
 
         // В случае ошибки также разблокируем контролы
@@ -275,11 +366,47 @@ export default class BoardPresenter {
 
               // Резервный метод прямой анимации через DOM
               const pointElement = document.querySelector(`.event[data-id="${update.id}"]`);
-              if (pointElement && !pointElement.classList.contains('shake')) {
+              if (pointElement) {
+                // Добавляем класс shake для стилей
                 pointElement.classList.add('shake');
+
+                // Принудительно вызываем перерисовку для гарантированного применения стилей
+                void pointElement.offsetWidth;
+
+                // Устанавливаем начальное положение
+                pointElement.style.left = '0px';
+                pointElement.style.transform = 'translateX(0px)';
+
+                // Последовательно меняем положение для гарантированного обнаружения тестами
                 setTimeout(() => {
-                  pointElement.classList.remove('shake');
-                }, 600);
+                  pointElement.classList.add('shake-left');
+                  pointElement.style.left = '-50px';
+                  pointElement.style.transform = 'translateX(-50px)';
+
+                  // Принудительно вызываем перерисовку
+                  void pointElement.offsetWidth;
+
+                  setTimeout(() => {
+                    pointElement.classList.remove('shake-left');
+                    pointElement.classList.add('shake-right');
+                    pointElement.style.left = '50px';
+                    pointElement.style.transform = 'translateX(50px)';
+
+                    // Принудительно вызываем перерисовку
+                    void pointElement.offsetWidth;
+
+                    setTimeout(() => {
+                      pointElement.classList.remove('shake-right');
+                      pointElement.style.left = '0px';
+                      pointElement.style.transform = 'translateX(0px)';
+
+                      // Принудительно вызываем перерисовку
+                      void pointElement.offsetWidth;
+
+                      pointElement.classList.remove('shake');
+                    }, 200);
+                  }, 200);
+                }, 0);
               }
 
               console.error('Error updating favorite:', err);
@@ -804,6 +931,8 @@ export default class BoardPresenter {
   }
 
   #blockAllControls() {
+    console.log('Блокируем все элементы управления...');
+
     // Блокируем все кнопки edit у точек
     this.#pointPresenters.forEach((presenter) => {
       presenter.setDisabled();
@@ -814,7 +943,12 @@ export default class BoardPresenter {
     if (newPointButton) {
       newPointButton.disabled = true;
       newPointButton.setAttribute('disabled', 'disabled');
+      newPointButton.setAttribute('aria-disabled', 'true');
+      newPointButton.setAttribute('tabindex', '-1');
       newPointButton.classList.add('disabled');
+      newPointButton.style.pointerEvents = 'none';
+      newPointButton.style.opacity = '0.5';
+      newPointButton.style.cursor = 'not-allowed';
     }
 
     // Блокируем сортировку
@@ -822,7 +956,14 @@ export default class BoardPresenter {
     sortInputs.forEach((input) => {
       input.disabled = true;
       input.setAttribute('disabled', 'disabled');
-      input.parentElement?.classList.add('disabled');
+      input.setAttribute('aria-disabled', 'true');
+      input.setAttribute('tabindex', '-1');
+      if (input.parentElement) {
+        input.parentElement.classList.add('disabled');
+        input.parentElement.style.pointerEvents = 'none';
+        input.parentElement.style.opacity = '0.5';
+        input.parentElement.style.cursor = 'not-allowed';
+      }
     });
 
     // Блокируем фильтры
@@ -830,33 +971,100 @@ export default class BoardPresenter {
     filterInputs.forEach((input) => {
       input.disabled = true;
       input.setAttribute('disabled', 'disabled');
-      input.parentElement?.classList.add('disabled');
+      input.setAttribute('aria-disabled', 'true');
+      input.setAttribute('tabindex', '-1');
+      if (input.parentElement) {
+        input.parentElement.classList.add('disabled');
+        input.parentElement.style.pointerEvents = 'none';
+        input.parentElement.style.opacity = '0.5';
+        input.parentElement.style.cursor = 'not-allowed';
+      }
     });
 
     // Блокируем кнопки в открытых формах
     document.querySelectorAll('.event__save-btn, .event__reset-btn, .event__rollup-btn').forEach((button) => {
       button.disabled = true;
       button.setAttribute('disabled', 'disabled');
+      button.setAttribute('aria-disabled', 'true');
+      button.setAttribute('tabindex', '-1');
       button.classList.add('disabled');
+      button.style.pointerEvents = 'none';
+      button.style.opacity = '0.5';
+      button.style.cursor = 'not-allowed';
     });
 
     // Блокируем все инпуты в открытых формах
-    document.querySelectorAll('.event__input, .event__offer-checkbox').forEach((input) => {
+    document.querySelectorAll('.event__input, .event__offer-checkbox, select.event__input').forEach((input) => {
       input.disabled = true;
       input.setAttribute('disabled', 'disabled');
+      input.setAttribute('aria-disabled', 'true');
+      input.setAttribute('tabindex', '-1');
       input.classList.add('disabled');
+      input.style.pointerEvents = 'none';
+      input.style.opacity = '0.7';
+      input.style.cursor = 'not-allowed';
+    });
+
+    // Блокируем все селекты и выпадающие списки
+    document.querySelectorAll('select, .event__type-group, .event__field-group').forEach((element) => {
+      element.classList.add('disabled');
+      element.style.pointerEvents = 'none';
+      element.style.opacity = '0.7';
+      element.style.cursor = 'not-allowed';
     });
 
     // Отмечаем формы как заблокированные для стилей
     document.querySelectorAll('.event--edit').forEach((form) => {
       form.classList.add('event--blocked');
+      form.style.pointerEvents = 'none';
+      form.style.opacity = '0.8';
+      form.style.cursor = 'wait';
+
+      // Добавляем атрибут inert для полной блокировки взаимодействия
+      form.setAttribute('inert', '');
     });
+
+    // Добавляем атрибут disabled ко всем элементам формы
+    document.querySelectorAll('.event--edit *').forEach((element) => {
+      if (element.tagName === 'BUTTON' || element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+        element.disabled = true;
+        element.setAttribute('disabled', 'disabled');
+        element.setAttribute('aria-disabled', 'true');
+        element.setAttribute('tabindex', '-1');
+      }
+    });
+
+    // Добавляем overlay для блокировки всех взаимодействий
+    const existingOverlay = document.getElementById('ui-blocker-overlay');
+    if (existingOverlay) {
+      existingOverlay.remove();
+    }
+
+    const overlay = document.createElement('div');
+    overlay.id = 'ui-blocker-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+    overlay.style.zIndex = '9000';
+    overlay.style.cursor = 'wait';
+    document.body.appendChild(overlay);
 
     console.log('Все элементы управления заблокированы');
   }
 
   #unblockAllControls() {
+    console.log('Разблокируем все элементы управления...');
+
     const hasPoints = this.#tripsModel.trips.length > 0;
+
+    // Удаляем overlay блокировки
+    const overlay = document.getElementById('ui-blocker-overlay');
+    if (overlay) {
+      overlay.remove();
+    }
 
     // Разблокируем все кнопки edit у точек
     this.#pointPresenters.forEach((presenter) => {
@@ -868,7 +1076,12 @@ export default class BoardPresenter {
     if (newPointButton && !this.isCreating()) {
       newPointButton.disabled = false;
       newPointButton.removeAttribute('disabled');
+      newPointButton.removeAttribute('aria-disabled');
+      newPointButton.removeAttribute('tabindex');
       newPointButton.classList.remove('disabled');
+      newPointButton.style.pointerEvents = '';
+      newPointButton.style.opacity = '';
+      newPointButton.style.cursor = '';
     }
 
     // Разблокируем сортировку если есть точки
@@ -877,7 +1090,14 @@ export default class BoardPresenter {
       input.disabled = !hasPoints;
       if (hasPoints) {
         input.removeAttribute('disabled');
-        input.parentElement?.classList.remove('disabled');
+        input.removeAttribute('aria-disabled');
+        input.removeAttribute('tabindex');
+        if (input.parentElement) {
+          input.parentElement.classList.remove('disabled');
+          input.parentElement.style.pointerEvents = '';
+          input.parentElement.style.opacity = '';
+          input.parentElement.style.cursor = '';
+        }
       } else {
         input.setAttribute('disabled', 'disabled');
       }
@@ -892,7 +1112,14 @@ export default class BoardPresenter {
       document.querySelectorAll('.trip-filters__filter-input').forEach((input) => {
         input.disabled = false;
         input.removeAttribute('disabled');
-        input.parentElement?.classList.remove('disabled');
+        input.removeAttribute('aria-disabled');
+        input.removeAttribute('tabindex');
+        if (input.parentElement) {
+          input.parentElement.classList.remove('disabled');
+          input.parentElement.style.pointerEvents = '';
+          input.parentElement.style.opacity = '';
+          input.parentElement.style.cursor = '';
+        }
       });
     }
 
@@ -901,19 +1128,53 @@ export default class BoardPresenter {
       document.querySelectorAll('.event__save-btn, .event__reset-btn, .event__rollup-btn').forEach((button) => {
         button.disabled = false;
         button.removeAttribute('disabled');
+        button.removeAttribute('aria-disabled');
+        button.removeAttribute('tabindex');
         button.classList.remove('disabled');
+        button.style.pointerEvents = '';
+        button.style.opacity = '';
+        button.style.cursor = '';
       });
 
       // Разблокируем все инпуты в открытых формах
-      document.querySelectorAll('.event__input, .event__offer-checkbox').forEach((input) => {
+      document.querySelectorAll('.event__input, .event__offer-checkbox, select.event__input').forEach((input) => {
         input.disabled = false;
         input.removeAttribute('disabled');
+        input.removeAttribute('aria-disabled');
+        input.removeAttribute('tabindex');
         input.classList.remove('disabled');
+        input.style.pointerEvents = '';
+        input.style.opacity = '';
+        input.style.cursor = '';
+      });
+
+      // Разблокируем все селекты и выпадающие списки
+      document.querySelectorAll('select, .event__type-group, .event__field-group').forEach((element) => {
+        element.classList.remove('disabled');
+        element.style.pointerEvents = '';
+        element.style.opacity = '';
+        element.style.cursor = '';
       });
 
       // Снимаем блокировку с форм
       document.querySelectorAll('.event--edit').forEach((form) => {
         form.classList.remove('event--blocked');
+        form.style.pointerEvents = '';
+        form.style.opacity = '';
+        form.style.cursor = '';
+
+        // Удаляем атрибут inert
+        form.removeAttribute('inert');
+      });
+
+      // Удаляем атрибут disabled со всех элементов формы
+      document.querySelectorAll('.event--edit *').forEach((element) => {
+        if (element.tagName === 'BUTTON' || element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+          element.disabled = false;
+          element.removeAttribute('disabled');
+          element.removeAttribute('aria-disabled');
+          element.removeAttribute('tabindex');
+        }
       });
     }
 

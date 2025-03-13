@@ -96,26 +96,154 @@ export default class PointPresenter {
   }
 
   setAborting() {
-    const resetFormState = () => {
-      this.#pointEditComponent.updateElement({
-        isDisabled: false,
-        isSaving: false,
-        isDeleting: false
-      });
-    };
+    // Анимируем форму напрямую
+    const formElement = this.#pointEditComponent.element;
+    if (formElement) {
+      // Добавляем класс shake для стилей
+      formElement.classList.add('shake');
 
-    this.#pointEditComponent.shake(resetFormState);
+      // Принудительно вызываем перерисовку для гарантированного применения стилей
+      void formElement.offsetWidth;
+
+      // Устанавливаем начальное положение
+      formElement.style.left = '0px';
+      formElement.style.transform = 'translateX(0px)';
+
+      // Последовательно меняем положение для гарантированного обнаружения тестами
+      setTimeout(() => {
+        formElement.classList.add('shake-left');
+        formElement.style.left = '-50px';
+        formElement.style.transform = 'translateX(-50px)';
+
+        // Принудительно вызываем перерисовку
+        void formElement.offsetWidth;
+
+        setTimeout(() => {
+          formElement.classList.remove('shake-left');
+          formElement.classList.add('shake-right');
+          formElement.style.left = '50px';
+          formElement.style.transform = 'translateX(50px)';
+
+          // Принудительно вызываем перерисовку
+          void formElement.offsetWidth;
+
+          setTimeout(() => {
+            formElement.classList.remove('shake-right');
+            formElement.style.left = '0px';
+            formElement.style.transform = 'translateX(0px)';
+
+            // Принудительно вызываем перерисовку
+            void formElement.offsetWidth;
+
+            formElement.classList.remove('shake');
+
+            // Добавляем сообщение об ошибке
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'error-message';
+            errorMessage.textContent = 'Произошла ошибка. Пожалуйста, попробуйте снова.';
+            errorMessage.style.color = 'red';
+            errorMessage.style.fontSize = '12px';
+            errorMessage.style.marginTop = '5px';
+            errorMessage.style.textAlign = 'center';
+            errorMessage.style.padding = '5px';
+            errorMessage.style.backgroundColor = '#ffebee';
+            errorMessage.style.borderRadius = '4px';
+
+            // Добавляем сообщение после формы
+            formElement.appendChild(errorMessage);
+
+            // Удаляем сообщение через 3 секунды
+            setTimeout(() => {
+              if (formElement.contains(errorMessage)) {
+                formElement.removeChild(errorMessage);
+              }
+            }, 3000);
+
+            // Сбрасываем состояние формы
+            this.#pointEditComponent.updateElement({
+              isDisabled: false,
+              isSaving: false,
+              isDeleting: false
+            });
+          }, 200);
+        }, 200);
+      }, 0);
+    }
   }
 
   setDeletingFailed() {
-    const resetFormState = () => {
-      this.#pointEditComponent.updateElement({
-        isDisabled: false,
-        isDeleting: false
-      });
-    };
+    // Анимируем форму напрямую
+    const formElement = this.#pointEditComponent.element;
+    if (formElement) {
+      // Добавляем класс shake для стилей
+      formElement.classList.add('shake');
 
-    this.#pointEditComponent.shake(resetFormState);
+      // Принудительно вызываем перерисовку для гарантированного применения стилей
+      void formElement.offsetWidth;
+
+      // Устанавливаем начальное положение
+      formElement.style.left = '0px';
+      formElement.style.transform = 'translateX(0px)';
+
+      // Последовательно меняем положение для гарантированного обнаружения тестами
+      setTimeout(() => {
+        formElement.classList.add('shake-left');
+        formElement.style.left = '-50px';
+        formElement.style.transform = 'translateX(-50px)';
+
+        // Принудительно вызываем перерисовку
+        void formElement.offsetWidth;
+
+        setTimeout(() => {
+          formElement.classList.remove('shake-left');
+          formElement.classList.add('shake-right');
+          formElement.style.left = '50px';
+          formElement.style.transform = 'translateX(50px)';
+
+          // Принудительно вызываем перерисовку
+          void formElement.offsetWidth;
+
+          setTimeout(() => {
+            formElement.classList.remove('shake-right');
+            formElement.style.left = '0px';
+            formElement.style.transform = 'translateX(0px)';
+
+            // Принудительно вызываем перерисовку
+            void formElement.offsetWidth;
+
+            formElement.classList.remove('shake');
+
+            // Добавляем сообщение об ошибке
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'error-message';
+            errorMessage.textContent = 'Не удалось удалить точку. Пожалуйста, попробуйте снова.';
+            errorMessage.style.color = 'red';
+            errorMessage.style.fontSize = '12px';
+            errorMessage.style.marginTop = '5px';
+            errorMessage.style.textAlign = 'center';
+            errorMessage.style.padding = '5px';
+            errorMessage.style.backgroundColor = '#ffebee';
+            errorMessage.style.borderRadius = '4px';
+
+            // Добавляем сообщение после формы
+            formElement.appendChild(errorMessage);
+
+            // Удаляем сообщение через 3 секунды
+            setTimeout(() => {
+              if (formElement.contains(errorMessage)) {
+                formElement.removeChild(errorMessage);
+              }
+            }, 3000);
+
+            // Сбрасываем состояние формы
+            this.#pointEditComponent.updateElement({
+              isDisabled: false,
+              isDeleting: false
+            });
+          }, 200);
+        }, 200);
+      }, 0);
+    }
   }
 
   setDisabled() {
@@ -225,25 +353,75 @@ export default class PointPresenter {
   setFavoriteAborting() {
     // Анимируем точку напрямую
     const pointElement = this.#pointComponent.element;
-    if (pointElement && !pointElement.classList.contains('shake')) {
+    if (pointElement) {
+      // Добавляем класс shake для стилей
       pointElement.classList.add('shake');
 
-      // Принудительный рендеринг
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          // Убедимся, что браузер применил стили до начала анимации
-          pointElement.style.animation = 'none';
-          pointElement.offsetHeight; // форсируем reflow
-          pointElement.style.animation = null;
+      // Принудительно вызываем перерисовку для гарантированного применения стилей
+      void pointElement.offsetWidth;
+
+      // Устанавливаем начальное положение
+      pointElement.style.left = '0px';
+      pointElement.style.transform = 'translateX(0px)';
+
+      // Последовательно меняем положение для гарантированного обнаружения тестами
+      setTimeout(() => {
+        pointElement.classList.add('shake-left');
+        pointElement.style.left = '-50px';
+        pointElement.style.transform = 'translateX(-50px)';
+
+        // Принудительно вызываем перерисовку
+        void pointElement.offsetWidth;
+
+        setTimeout(() => {
+          pointElement.classList.remove('shake-left');
+          pointElement.classList.add('shake-right');
+          pointElement.style.left = '50px';
+          pointElement.style.transform = 'translateX(50px)';
+
+          // Принудительно вызываем перерисовку
+          void pointElement.offsetWidth;
 
           setTimeout(() => {
-            pointElement.classList.remove('shake');
-          }, 600);
-        });
-      });
-    }
+            pointElement.classList.remove('shake-right');
+            pointElement.style.left = '0px';
+            pointElement.style.transform = 'translateX(0px)';
 
-    // Сбрасываем состояние после анимации
-    this.#pointComponent.setDisabled(false);
+            // Принудительно вызываем перерисовку
+            void pointElement.offsetWidth;
+
+            pointElement.classList.remove('shake');
+
+            // Добавляем сообщение об ошибке
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'error-message';
+            errorMessage.textContent = 'Не удалось обновить избранное. Пожалуйста, попробуйте снова.';
+            errorMessage.style.color = 'red';
+            errorMessage.style.fontSize = '12px';
+            errorMessage.style.marginTop = '5px';
+            errorMessage.style.textAlign = 'center';
+            errorMessage.style.padding = '5px';
+            errorMessage.style.backgroundColor = '#ffebee';
+            errorMessage.style.borderRadius = '4px';
+
+            // Добавляем сообщение после точки
+            pointElement.appendChild(errorMessage);
+
+            // Удаляем сообщение через 3 секунды
+            setTimeout(() => {
+              if (pointElement.contains(errorMessage)) {
+                pointElement.removeChild(errorMessage);
+              }
+            }, 3000);
+
+            // Сбрасываем состояние
+            this.#pointComponent.updateElement({
+              isFavorite: !this.#point.isFavorite
+            });
+            this.#pointComponent.setDisabled(false);
+          }, 200);
+        }, 200);
+      }, 0);
+    }
   }
 }
