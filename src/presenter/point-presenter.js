@@ -117,16 +117,16 @@ export default class PointPresenter {
       const favoriteButton = this.#pointComponent.element.querySelector('.event__favorite-btn');
 
       if (rollupButton) {
-        rollupButton.disabled = true;
-        rollupButton.style.pointerEvents = 'none';
+        rollupButton.setAttribute('aria-disabled', 'true');
         rollupButton.style.opacity = '0.5';
       }
 
       if (favoriteButton) {
-        favoriteButton.disabled = true;
-        favoriteButton.style.pointerEvents = 'none';
+        favoriteButton.setAttribute('aria-disabled', 'true');
         favoriteButton.style.opacity = '0.5';
       }
+
+      this.#pointComponent.element.classList.add('disabled');
     }
   }
 
@@ -136,16 +136,16 @@ export default class PointPresenter {
       const favoriteButton = this.#pointComponent.element.querySelector('.event__favorite-btn');
 
       if (rollupButton) {
-        rollupButton.disabled = false;
-        rollupButton.style.pointerEvents = 'auto';
+        rollupButton.removeAttribute('aria-disabled');
         rollupButton.style.opacity = '1';
       }
 
       if (favoriteButton) {
-        favoriteButton.disabled = false;
-        favoriteButton.style.pointerEvents = 'auto';
+        favoriteButton.removeAttribute('aria-disabled');
         favoriteButton.style.opacity = '1';
       }
+
+      this.#pointComponent.element.classList.remove('disabled');
     }
   }
 

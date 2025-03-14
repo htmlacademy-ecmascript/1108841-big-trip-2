@@ -96,13 +96,13 @@ export default class PointEditView extends AbstractStatefulView {
               >
             </div>
 
-            <button class="event__save-btn" type="submit" ${this._state.isDisabled ? 'disabled' : ''}>
+            <button class="event__save-btn" type="submit" ${this._state.isDisabled ? 'aria-disabled="true"' : ''}>
               ${this._state.isSaving ? ButtonText.SAVING : ButtonText.SAVE}
             </button>
-            <button class="event__reset-btn" type="reset" ${this._state.isDisabled ? 'disabled' : ''}>
+            <button class="event__reset-btn" type="reset" ${this._state.isDisabled ? 'aria-disabled="true"' : ''}>
               ${this.#getResetButtonText()}
             </button>
-            <button class="event__rollup-btn" type="button" ${this._state.isDisabled ? 'disabled' : ''}>
+            <button class="event__rollup-btn" type="button" ${this._state.isDisabled ? 'aria-disabled="true"' : ''}>
               <span class="visually-hidden">Open event</span>
             </button>
           </header>
@@ -312,7 +312,7 @@ export default class PointEditView extends AbstractStatefulView {
   #generateOfferTemplate(offer) {
     const { id, title, price } = offer;
     const checked = this._state.offers.includes(id) ? 'checked' : '';
-    const disabled = this._state.isDisabled ? 'disabled' : '';
+    const disabled = this._state.isDisabled ? 'aria-disabled="true"' : '';
 
     return `<div class="event__offer-selector">
       <input class="event__offer-checkbox visually-hidden" id="event-offer-${he.encode(String(id))}-1" type="checkbox" name="event-offer-${he.encode(String(id))}" ${checked} ${disabled} data-offer-id="${he.encode(String(id))}">
@@ -447,36 +447,6 @@ export default class PointEditView extends AbstractStatefulView {
       isSaving: true,
       isDisabled: true
     });
-
-    // Дополнительно блокируем все интерактивные элементы
-    const form = this.element.querySelector('form');
-    if (form) {
-      form.classList.add('disabled');
-
-      const buttons = form.querySelectorAll('button');
-      const inputs = form.querySelectorAll('input');
-      const selects = form.querySelectorAll('select');
-      const labels = form.querySelectorAll('label');
-
-      buttons.forEach((button) => {
-        button.disabled = true;
-        button.style.pointerEvents = 'none';
-      });
-
-      inputs.forEach((input) => {
-        input.disabled = true;
-        input.style.pointerEvents = 'none';
-      });
-
-      selects.forEach((select) => {
-        select.disabled = true;
-        select.style.pointerEvents = 'none';
-      });
-
-      labels.forEach((label) => {
-        label.style.pointerEvents = 'none';
-      });
-    }
   }
 
   setDeleting() {
@@ -484,36 +454,6 @@ export default class PointEditView extends AbstractStatefulView {
       isDeleting: true,
       isDisabled: true
     });
-
-    // Дополнительно блокируем все интерактивные элементы
-    const form = this.element.querySelector('form');
-    if (form) {
-      form.classList.add('disabled');
-
-      const buttons = form.querySelectorAll('button');
-      const inputs = form.querySelectorAll('input');
-      const selects = form.querySelectorAll('select');
-      const labels = form.querySelectorAll('label');
-
-      buttons.forEach((button) => {
-        button.disabled = true;
-        button.style.pointerEvents = 'none';
-      });
-
-      inputs.forEach((input) => {
-        input.disabled = true;
-        input.style.pointerEvents = 'none';
-      });
-
-      selects.forEach((select) => {
-        select.disabled = true;
-        select.style.pointerEvents = 'none';
-      });
-
-      labels.forEach((label) => {
-        label.style.pointerEvents = 'none';
-      });
-    }
   }
 
   setAborting() {
@@ -551,19 +491,25 @@ export default class PointEditView extends AbstractStatefulView {
         const labels = form.querySelectorAll('label');
 
         buttons.forEach((button) => {
-          button.disabled = true;
+          // Не устанавливаем disabled, чтобы элемент мог получать фокус
+          button.setAttribute('aria-disabled', 'true');
+          button.style.opacity = '0.5';
         });
 
         inputs.forEach((input) => {
-          input.disabled = true;
+          // Не устанавливаем disabled, чтобы элемент мог получать фокус
+          input.setAttribute('aria-disabled', 'true');
+          input.style.opacity = '0.5';
         });
 
         selects.forEach((select) => {
-          select.disabled = true;
+          // Не устанавливаем disabled, чтобы элемент мог получать фокус
+          select.setAttribute('aria-disabled', 'true');
+          select.style.opacity = '0.5';
         });
 
         labels.forEach((label) => {
-          label.style.pointerEvents = 'none';
+          label.style.opacity = '0.5';
         });
       }
     } else {
@@ -577,19 +523,22 @@ export default class PointEditView extends AbstractStatefulView {
         const labels = form.querySelectorAll('label');
 
         buttons.forEach((button) => {
-          button.disabled = false;
+          button.removeAttribute('aria-disabled');
+          button.style.opacity = '1';
         });
 
         inputs.forEach((input) => {
-          input.disabled = false;
+          input.removeAttribute('aria-disabled');
+          input.style.opacity = '1';
         });
 
         selects.forEach((select) => {
-          select.disabled = false;
+          select.removeAttribute('aria-disabled');
+          select.style.opacity = '1';
         });
 
         labels.forEach((label) => {
-          label.style.pointerEvents = 'auto';
+          label.style.opacity = '1';
         });
       }
     }
