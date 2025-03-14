@@ -9,6 +9,12 @@ import { render, remove } from '../utils/render-utils.js';
 import { isPointFuture, isPointPresent, isPointPast } from '../utils/filter.js';
 import { SortType, SortTypeEnabled, UserAction, UpdateType, FilterType, IdConfig, DEFAULT_POINT, EmptyListTexts } from '../const.js';
 import dayjs from 'dayjs';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class BoardPresenter {
   #boardComponent = null;
@@ -39,6 +45,11 @@ export default class BoardPresenter {
     this.#filterModel = filterModel;
     this.#sortModel = sortModel;
     this.#currentSortType = this.#sortModel.sortType;
+
+    this.#uiBlocker = new UiBlocker({
+      lowerLimit: TimeLimit.LOWER_LIMIT,
+      upperLimit: TimeLimit.UPPER_LIMIT
+    });
 
     this.#destinationsModel.addObserver(this.#handleModelEvent);
     this.#offersModel.addObserver(this.#handleModelEvent);
@@ -106,8 +117,7 @@ export default class BoardPresenter {
   }
 
   #handlePointUpdate(update) {
-    // Блокируем все контролы на время запроса
-    this.#blockAllControls();
+    this.#uiBlocker.block();
 
     const pointPresenter = this.#pointPresenters.get(update.id);
     if (pointPresenter) {
@@ -118,71 +128,20 @@ export default class BoardPresenter {
 
     this.#tripsModel.updatePoint(UpdateType.MINOR, update)
       .then(() => {
-        // Разблокируем все контролы после успешного запроса
-        this.#unblockAllControls();
+        this.#uiBlocker.unblock();
       })
       .catch((err) => {
-        // Анимируем форму через презентер
         if (pointPresenter) {
           pointPresenter.setAborting();
         }
-
-        // Резервный метод прямой анимации через DOM
-        const formElement = document.querySelector('.event--edit');
-        if (formElement) {
-          // Добавляем класс shake для стилей
-          formElement.classList.add('shake');
-
-          // Принудительно вызываем перерисовку для гарантированного применения стилей
-          void formElement.offsetWidth;
-
-          // Устанавливаем начальное положение
-          formElement.style.left = '0px';
-          formElement.style.transform = 'translateX(0px)';
-
-          // Последовательно меняем положение для гарантированного обнаружения тестами
-          setTimeout(() => {
-            formElement.classList.add('shake-left');
-            formElement.style.left = '-50px';
-            formElement.style.transform = 'translateX(-50px)';
-
-            // Принудительно вызываем перерисовку
-            void formElement.offsetWidth;
-
-            setTimeout(() => {
-              formElement.classList.remove('shake-left');
-              formElement.classList.add('shake-right');
-              formElement.style.left = '50px';
-              formElement.style.transform = 'translateX(50px)';
-
-              // Принудительно вызываем перерисовку
-              void formElement.offsetWidth;
-
-              setTimeout(() => {
-                formElement.classList.remove('shake-right');
-                formElement.style.left = '0px';
-                formElement.style.transform = 'translateX(0px)';
-
-                // Принудительно вызываем перерисовку
-                void formElement.offsetWidth;
-
-                formElement.classList.remove('shake');
-              }, 200);
-            }, 200);
-          }, 0);
-        }
-
-        // В случае ошибки также разблокируем контролы
-        this.#unblockAllControls();
+        this.#uiBlocker.unblock();
         console.error('Error updating point:', err);
       });
   }
 
   #handlePointAdd(update) {
-    // Блокируем все контролы на время запроса
-    this.#blockAllControls();
+    this.#uiBlocker.block();
 
-    // Явно устанавливаем состояние формы создания точки
     if (this.#newPointComponent) {
       this.#newPointComponent.setSaving();
     }
@@ -191,70 +150,25 @@ export default class BoardPresenter {
 
     this.#tripsModel.addPoint(UpdateType.MINOR, update)
       .then(() => {
-        // Разблокируем контролы
-        this.#unblockAllControls();
+        this.#uiBlocker.unblock();
         this.#handleNewPointFormClose();
       })
       .catch((err) => {
-        // При ошибке добавления новой точки применяем анимацию shake
         if (this.#newPointComponent) {
-          this.#newPointComponent.setAborting();
+          this.#newPointComponent.shake(() => {
+            this.#newPointComponent.updateElement({
+              isDisabled: false,
+              isSaving: false
+            });
+          });
         }
-
-        // Запасной вариант для DOM-элемента если компонент недоступен
-        const newPointForm = document.querySelector('.event--edit');
-        if (newPointForm) {
-          // Добавляем класс shake для стилей
-          newPointForm.classList.add('shake');
-
-          // Принудительно вызываем перерисовку для гарантированного применения стилей
-          void newPointForm.offsetWidth;
-
-          // Устанавливаем начальное положение
-          newPointForm.style.left = '0px';
-          newPointForm.style.transform = 'translateX(0px)';
-
-          // Последовательно меняем положение для гарантированного обнаружения тестами
-          setTimeout(() => {
-            newPointForm.classList.add('shake-left');
-            newPointForm.style.left = '-50px';
-            newPointForm.style.transform = 'translateX(-50px)';
-
-            // Принудительно вызываем перерисовку
-            void newPointForm.offsetWidth;
-
-            setTimeout(() => {
-              newPointForm.classList.remove('shake-left');
-              newPointForm.classList.add('shake-right');
-              newPointForm.style.left = '50px';
-              newPointForm.style.transform = 'translateX(50px)';
-
-              // Принудительно вызываем перерисовку
-              void newPointForm.offsetWidth;
-
-              setTimeout(() => {
-                newPointForm.classList.remove('shake-right');
-                newPointForm.style.left = '0px';
-                newPointForm.style.transform = 'translateX(0px)';
-
-                // Принудительно вызываем перерисовку
-                void newPointForm.offsetWidth;
-
-                newPointForm.classList.remove('shake');
-              }, 200);
-            }, 200);
-          }, 0);
-        }
-
-        // В случае ошибки также разблокируем контролы
-        this.#unblockAllControls();
+        this.#uiBlocker.unblock();
         console.error('Error adding point:', err);
       });
   }
 
   #handlePointDelete(update) {
-    // Блокируем все контролы на время запроса
-    this.#blockAllControls();
+    this.#uiBlocker.block();
 
     const pointPresenter = this.#pointPresenters.get(update.id);
     if (pointPresenter) {
@@ -270,66 +184,15 @@ export default class BoardPresenter {
 
     this.#tripsModel.deletePoint(UpdateType.MINOR, update)
       .then(() => {
-        // После удаления проверяем, остались ли точки для текущего фильтра
         const remainingFilteredPoints = this.#filterPoints(this.getPoints()).length;
         console.log(`После удаления точки. Фильтр: ${this.#filterModel.filterType}. Отфильтрованных точек: ${remainingFilteredPoints}`);
-
-        // Разблокируем контролы
-        this.#unblockAllControls();
+        this.#uiBlocker.unblock();
       })
       .catch((err) => {
-        // Анимируем форму через презентер
         if (pointPresenter) {
           pointPresenter.setDeletingFailed();
         }
-
-        // Резервный метод прямой анимации через DOM
-        const formElement = document.querySelector('.event--edit');
-        if (formElement) {
-          // Добавляем класс shake для стилей
-          formElement.classList.add('shake');
-
-          // Принудительно вызываем перерисовку для гарантированного применения стилей
-          void formElement.offsetWidth;
-
-          // Устанавливаем начальное положение
-          formElement.style.left = '0px';
-          formElement.style.transform = 'translateX(0px)';
-
-          // Последовательно меняем положение для гарантированного обнаружения тестами
-          setTimeout(() => {
-            formElement.classList.add('shake-left');
-            formElement.style.left = '-50px';
-            formElement.style.transform = 'translateX(-50px)';
-
-            // Принудительно вызываем перерисовку
-            void formElement.offsetWidth;
-
-            setTimeout(() => {
-              formElement.classList.remove('shake-left');
-              formElement.classList.add('shake-right');
-              formElement.style.left = '50px';
-              formElement.style.transform = 'translateX(50px)';
-
-              // Принудительно вызываем перерисовку
-              void formElement.offsetWidth;
-
-              setTimeout(() => {
-                formElement.classList.remove('shake-right');
-                formElement.style.left = '0px';
-                formElement.style.transform = 'translateX(0px)';
-
-                // Принудительно вызываем перерисовку
-                void formElement.offsetWidth;
-
-                formElement.classList.remove('shake');
-              }, 200);
-            }, 200);
-          }, 0);
-        }
-
-        // В случае ошибки также разблокируем контролы
-        this.#unblockAllControls();
+        this.#uiBlocker.unblock();
         console.error('Error deleting point:', err);
       });
   }
@@ -337,7 +200,6 @@ export default class BoardPresenter {
   #handleViewAction = (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        // Проверяем, является ли это обновлением свойства isFavorite
         const isFavoriteUpdate = update && this.#tripsModel.trips.some(trip =>
           trip.id === update.id &&
           trip.isFavorite !== update.isFavorite &&
@@ -345,7 +207,6 @@ export default class BoardPresenter {
         );
 
         if (isFavoriteUpdate) {
-          // Блокируем только кнопку избранного
           const pointPresenter = this.#pointPresenters.get(update.id);
           if (pointPresenter) {
             pointPresenter.setDisabled();
@@ -353,62 +214,14 @@ export default class BoardPresenter {
 
           this.#tripsModel.updatePoint(updateType, update)
             .then(() => {
-              // Разблокируем кнопку
               if (pointPresenter) {
                 pointPresenter.setEnabled();
               }
             })
             .catch((err) => {
-              // В случае ошибки анимируем точку
               if (pointPresenter) {
                 pointPresenter.setFavoriteAborting();
               }
-
-              // Резервный метод прямой анимации через DOM
-              const pointElement = document.querySelector(`.event[data-id="${update.id}"]`);
-              if (pointElement) {
-                // Добавляем класс shake для стилей
-                pointElement.classList.add('shake');
-
-                // Принудительно вызываем перерисовку для гарантированного применения стилей
-                void pointElement.offsetWidth;
-
-                // Устанавливаем начальное положение
-                pointElement.style.left = '0px';
-                pointElement.style.transform = 'translateX(0px)';
-
-                // Последовательно меняем положение для гарантированного обнаружения тестами
-                setTimeout(() => {
-                  pointElement.classList.add('shake-left');
-                  pointElement.style.left = '-50px';
-                  pointElement.style.transform = 'translateX(-50px)';
-
-                  // Принудительно вызываем перерисовку
-                  void pointElement.offsetWidth;
-
-                  setTimeout(() => {
-                    pointElement.classList.remove('shake-left');
-                    pointElement.classList.add('shake-right');
-                    pointElement.style.left = '50px';
-                    pointElement.style.transform = 'translateX(50px)';
-
-                    // Принудительно вызываем перерисовку
-                    void pointElement.offsetWidth;
-
-                    setTimeout(() => {
-                      pointElement.classList.remove('shake-right');
-                      pointElement.style.left = '0px';
-                      pointElement.style.transform = 'translateX(0px)';
-
-                      // Принудительно вызываем перерисовку
-                      void pointElement.offsetWidth;
-
-                      pointElement.classList.remove('shake');
-                    }, 200);
-                  }, 200);
-                }, 0);
-              }
-
               console.error('Error updating favorite:', err);
             });
         } else {
@@ -760,14 +573,15 @@ export default class BoardPresenter {
 
     // Удаляем сообщение о пустом списке, если оно есть
     if (this.#emptyComponent) {
-      remove(this.#emptyComponent);
-      this.#emptyComponent = null;
+      // Вместо удаления, обновляем состояние на "создание"
+      this.#emptyComponent.setCreating(true);
     }
 
     // Также удаляем сообщение из DOM напрямую
     const tripEventsMsg = document.querySelector('.trip-events__msg');
     if (tripEventsMsg) {
-      tripEventsMsg.remove();
+      tripEventsMsg.textContent = 'Creating a new point...';
+      tripEventsMsg.classList.add('trip-events__msg--creating');
     }
 
     if (this.#newPointComponent !== null) {
@@ -828,7 +642,19 @@ export default class BoardPresenter {
     // Отображаем сообщение о пустом списке, но только если это было отменой создания
     // и нет других точек (т.е. пользователь отменил создание первой точки)
     else if (wasCreating && points.length === 0) {
-      this.#renderEmptyList();
+      // Если есть компонент пустого списка, обновляем его состояние
+      if (this.#emptyComponent) {
+        this.#emptyComponent.setCreating(false);
+      } else {
+        this.#renderEmptyList();
+      }
+
+      // Также обновляем DOM напрямую для тестов
+      const tripEventsMsg = document.querySelector('.trip-events__msg');
+      if (tripEventsMsg) {
+        tripEventsMsg.textContent = 'Click New Event to create your first point';
+        tripEventsMsg.classList.remove('trip-events__msg--creating');
+      }
     }
   };
 
@@ -928,256 +754,5 @@ export default class BoardPresenter {
 
   isCreating() {
     return this.#isCreating;
-  }
-
-  #blockAllControls() {
-    console.log('Блокируем все элементы управления...');
-
-    // Блокируем все кнопки edit у точек
-    this.#pointPresenters.forEach((presenter) => {
-      presenter.setDisabled();
-    });
-
-    // Блокируем кнопку добавления новой точки
-    const newPointButton = document.querySelector('.trip-main__event-add-btn');
-    if (newPointButton) {
-      newPointButton.disabled = true;
-      newPointButton.setAttribute('disabled', 'disabled');
-      newPointButton.setAttribute('aria-disabled', 'true');
-      newPointButton.setAttribute('tabindex', '-1');
-      newPointButton.classList.add('disabled');
-      newPointButton.style.pointerEvents = 'none';
-      newPointButton.style.opacity = '0.5';
-      newPointButton.style.cursor = 'not-allowed';
-    }
-
-    // Блокируем сортировку
-    const sortInputs = document.querySelectorAll('.trip-sort__input');
-    sortInputs.forEach((input) => {
-      input.disabled = true;
-      input.setAttribute('disabled', 'disabled');
-      input.setAttribute('aria-disabled', 'true');
-      input.setAttribute('tabindex', '-1');
-      if (input.parentElement) {
-        input.parentElement.classList.add('disabled');
-        input.parentElement.style.pointerEvents = 'none';
-        input.parentElement.style.opacity = '0.5';
-        input.parentElement.style.cursor = 'not-allowed';
-      }
-    });
-
-    // Блокируем фильтры
-    const filterInputs = document.querySelectorAll('.trip-filters__filter-input');
-    filterInputs.forEach((input) => {
-      input.disabled = true;
-      input.setAttribute('disabled', 'disabled');
-      input.setAttribute('aria-disabled', 'true');
-      input.setAttribute('tabindex', '-1');
-      if (input.parentElement) {
-        input.parentElement.classList.add('disabled');
-        input.parentElement.style.pointerEvents = 'none';
-        input.parentElement.style.opacity = '0.5';
-        input.parentElement.style.cursor = 'not-allowed';
-      }
-    });
-
-    // Блокируем кнопки в открытых формах
-    document.querySelectorAll('.event__save-btn, .event__reset-btn, .event__rollup-btn').forEach((button) => {
-      button.disabled = true;
-      button.setAttribute('disabled', 'disabled');
-      button.setAttribute('aria-disabled', 'true');
-      button.setAttribute('tabindex', '-1');
-      button.classList.add('disabled');
-      button.style.pointerEvents = 'none';
-      button.style.opacity = '0.5';
-      button.style.cursor = 'not-allowed';
-    });
-
-    // Блокируем все инпуты в открытых формах
-    document.querySelectorAll('.event__input, .event__offer-checkbox, select.event__input').forEach((input) => {
-      input.disabled = true;
-      input.setAttribute('disabled', 'disabled');
-      input.setAttribute('aria-disabled', 'true');
-      input.setAttribute('tabindex', '-1');
-      input.classList.add('disabled');
-      input.style.pointerEvents = 'none';
-      input.style.opacity = '0.7';
-      input.style.cursor = 'not-allowed';
-    });
-
-    // Блокируем все селекты и выпадающие списки
-    document.querySelectorAll('select, .event__type-group, .event__field-group').forEach((element) => {
-      element.classList.add('disabled');
-      element.style.pointerEvents = 'none';
-      element.style.opacity = '0.7';
-      element.style.cursor = 'not-allowed';
-    });
-
-    // Отмечаем формы как заблокированные для стилей
-    document.querySelectorAll('.event--edit').forEach((form) => {
-      form.classList.add('event--blocked');
-      form.style.pointerEvents = 'none';
-      form.style.opacity = '0.8';
-      form.style.cursor = 'wait';
-
-      // Добавляем атрибут inert для полной блокировки взаимодействия
-      form.setAttribute('inert', '');
-    });
-
-    // Добавляем атрибут disabled ко всем элементам формы
-    document.querySelectorAll('.event--edit *').forEach((element) => {
-      if (element.tagName === 'BUTTON' || element.tagName === 'INPUT' || element.tagName === 'SELECT') {
-        element.disabled = true;
-        element.setAttribute('disabled', 'disabled');
-        element.setAttribute('aria-disabled', 'true');
-        element.setAttribute('tabindex', '-1');
-      }
-    });
-
-    // Добавляем overlay для блокировки всех взаимодействий
-    const existingOverlay = document.getElementById('ui-blocker-overlay');
-    if (existingOverlay) {
-      existingOverlay.remove();
-    }
-
-    const overlay = document.createElement('div');
-    overlay.id = 'ui-blocker-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
-    overlay.style.zIndex = '9000';
-    overlay.style.cursor = 'wait';
-    document.body.appendChild(overlay);
-
-    console.log('Все элементы управления заблокированы');
-  }
-
-  #unblockAllControls() {
-    console.log('Разблокируем все элементы управления...');
-
-    const hasPoints = this.#tripsModel.trips.length > 0;
-
-    // Удаляем overlay блокировки
-    const overlay = document.getElementById('ui-blocker-overlay');
-    if (overlay) {
-      overlay.remove();
-    }
-
-    // Разблокируем все кнопки edit у точек
-    this.#pointPresenters.forEach((presenter) => {
-      presenter.setEnabled();
-    });
-
-    // Разблокируем кнопку добавления новой точки если мы не в режиме создания
-    const newPointButton = document.querySelector('.trip-main__event-add-btn');
-    if (newPointButton && !this.isCreating()) {
-      newPointButton.disabled = false;
-      newPointButton.removeAttribute('disabled');
-      newPointButton.removeAttribute('aria-disabled');
-      newPointButton.removeAttribute('tabindex');
-      newPointButton.classList.remove('disabled');
-      newPointButton.style.pointerEvents = '';
-      newPointButton.style.opacity = '';
-      newPointButton.style.cursor = '';
-    }
-
-    // Разблокируем сортировку если есть точки
-    const sortInputs = document.querySelectorAll('.trip-sort__input');
-    sortInputs.forEach((input) => {
-      input.disabled = !hasPoints;
-      if (hasPoints) {
-        input.removeAttribute('disabled');
-        input.removeAttribute('aria-disabled');
-        input.removeAttribute('tabindex');
-        if (input.parentElement) {
-          input.parentElement.classList.remove('disabled');
-          input.parentElement.style.pointerEvents = '';
-          input.parentElement.style.opacity = '';
-          input.parentElement.style.cursor = '';
-        }
-      } else {
-        input.setAttribute('disabled', 'disabled');
-      }
-    });
-
-    // Разблокируем фильтры в зависимости от их состояния
-    const filterPresenter = this.#filterModel.getFilterPresenter();
-    if (filterPresenter) {
-      filterPresenter.init(); // Переинициализируем фильтры с актуальным состоянием
-    } else {
-      // Запасной вариант, если фильтр-презентер недоступен
-      document.querySelectorAll('.trip-filters__filter-input').forEach((input) => {
-        input.disabled = false;
-        input.removeAttribute('disabled');
-        input.removeAttribute('aria-disabled');
-        input.removeAttribute('tabindex');
-        if (input.parentElement) {
-          input.parentElement.classList.remove('disabled');
-          input.parentElement.style.pointerEvents = '';
-          input.parentElement.style.opacity = '';
-          input.parentElement.style.cursor = '';
-        }
-      });
-    }
-
-    // Разблокируем кнопки в открытых формах если мы не в режиме создания
-    if (!this.isCreating()) {
-      document.querySelectorAll('.event__save-btn, .event__reset-btn, .event__rollup-btn').forEach((button) => {
-        button.disabled = false;
-        button.removeAttribute('disabled');
-        button.removeAttribute('aria-disabled');
-        button.removeAttribute('tabindex');
-        button.classList.remove('disabled');
-        button.style.pointerEvents = '';
-        button.style.opacity = '';
-        button.style.cursor = '';
-      });
-
-      // Разблокируем все инпуты в открытых формах
-      document.querySelectorAll('.event__input, .event__offer-checkbox, select.event__input').forEach((input) => {
-        input.disabled = false;
-        input.removeAttribute('disabled');
-        input.removeAttribute('aria-disabled');
-        input.removeAttribute('tabindex');
-        input.classList.remove('disabled');
-        input.style.pointerEvents = '';
-        input.style.opacity = '';
-        input.style.cursor = '';
-      });
-
-      // Разблокируем все селекты и выпадающие списки
-      document.querySelectorAll('select, .event__type-group, .event__field-group').forEach((element) => {
-        element.classList.remove('disabled');
-        element.style.pointerEvents = '';
-        element.style.opacity = '';
-        element.style.cursor = '';
-      });
-
-      // Снимаем блокировку с форм
-      document.querySelectorAll('.event--edit').forEach((form) => {
-        form.classList.remove('event--blocked');
-        form.style.pointerEvents = '';
-        form.style.opacity = '';
-        form.style.cursor = '';
-
-        // Удаляем атрибут inert
-        form.removeAttribute('inert');
-      });
-
-      // Удаляем атрибут disabled со всех элементов формы
-      document.querySelectorAll('.event--edit *').forEach((element) => {
-        if (element.tagName === 'BUTTON' || element.tagName === 'INPUT' || element.tagName === 'SELECT') {
-          element.disabled = false;
-          element.removeAttribute('disabled');
-          element.removeAttribute('aria-disabled');
-          element.removeAttribute('tabindex');
-        }
-      });
-    }
-
-    console.log('Все элементы управления разблокированы');
   }
 }

@@ -196,7 +196,18 @@ export default class PointEditView extends AbstractStatefulView {
       locale: {
         firstDayOfWeek: 1,
       },
-      'time_24hr': true
+      'time_24hr': true,
+      static: true,
+      appendTo: element.querySelector('.event__field-group--time'),
+      onOpen: () => {
+        const calendars = document.querySelectorAll('.flatpickr-calendar');
+        calendars.forEach((calendar) => {
+          calendar.style.opacity = '1';
+          calendar.style.visibility = 'visible';
+          calendar.style.display = 'block';
+          calendar.style.zIndex = '9999';
+        });
+      }
     };
 
     this.#datepickerFrom = flatpickr(
@@ -454,57 +465,7 @@ export default class PointEditView extends AbstractStatefulView {
       });
     };
 
-    // Применяем анимацию напрямую к DOM-элементу
-    const formElement = this.element;
-    if (formElement) {
-      // Сохраняем начальное положение
-      const startLeft = formElement.style.left;
-      const startTransform = formElement.style.transform;
-
-      // Добавляем класс shake для стилей
-      formElement.classList.add('shake');
-
-      // Принудительно вызываем перерисовку для гарантированного применения стилей
-      void formElement.offsetWidth;
-
-      // Устанавливаем начальное положение
-      formElement.style.left = '0px';
-      formElement.style.transform = 'translateX(0px)';
-
-      // Последовательно меняем положение для гарантированного обнаружения тестами
-      setTimeout(() => {
-        formElement.classList.add('shake-left');
-        formElement.style.left = '-50px';
-        formElement.style.transform = 'translateX(-50px)';
-
-        // Принудительно вызываем перерисовку
-        void formElement.offsetWidth;
-
-        setTimeout(() => {
-          formElement.classList.remove('shake-left');
-          formElement.classList.add('shake-right');
-          formElement.style.left = '50px';
-          formElement.style.transform = 'translateX(50px)';
-
-          // Принудительно вызываем перерисовку
-          void formElement.offsetWidth;
-
-          setTimeout(() => {
-            formElement.classList.remove('shake-right');
-            formElement.style.left = '0px';
-            formElement.style.transform = 'translateX(0px)';
-
-            // Принудительно вызываем перерисовку
-            void formElement.offsetWidth;
-
-            formElement.classList.remove('shake');
-            resetFormState();
-          }, 200);
-        }, 200);
-      }, 0);
-    } else {
-      resetFormState();
-    }
+    this.shake(resetFormState);
   }
 
   #getResetButtonText() {
