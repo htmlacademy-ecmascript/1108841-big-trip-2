@@ -1,9 +1,10 @@
-import { adaptToClient, adaptToServer } from '../api/adapter.js';
 import Observable from '../framework/observable.js';
+import { UpdateType } from '../const.js';
 
 export default class TripsModel extends Observable {
   #trips = [];
   #apiService = null;
+  #hasError = false;
 
   constructor(apiService) {
     super();
@@ -12,11 +13,15 @@ export default class TripsModel extends Observable {
 
   async init() {
     try {
-      const points = await this.#apiService.getPoints();
-      this.#trips = adaptToClient.points(points);
+      const points = await this.#apiService.points;
+      this.#trips = points;
+      this.#hasError = false;
+      this._notify(UpdateType.INIT);
     } catch (err) {
       this.#trips = [];
-      throw new Error('Не удалось загрузить точки маршрута');
+      this.#hasError = true;
+      this._notify(UpdateType.ERROR);
+      throw new Error('Failed to load latest route information');
     }
   }
 
@@ -24,60 +29,78 @@ export default class TripsModel extends Observable {
     return this.#trips;
   }
 
+  get hasError() {
+    return this.#hasError;
+  }
+
+  async updatePoint(updateType, updatedPoint) {
+    try {
+      const updatedServerPoint = await this.#apiService.updatePoint(updatedPoint);
+      this.#updatePointInModel(updatedServerPoint, updateType);
+      return updatedServerPoint;
+    } catch (err) {
+      this.#handleApiError('Failed to update point. Please try again.');
+    }
+  }
+
   async updateTrip(updateType, updatedPoint) {
     try {
-      const response = await this.#apiService.updatePoint(adaptToServer.point(updatedPoint));
-      const updatedServerPoint = adaptToClient.point(response);
-
+      const updatedServerPoint = await this.#apiService.updatePoint(updatedPoint);
       const index = this.#trips.findIndex((trip) => trip.id === updatedPoint.id);
-
       if (index === -1) {
-        throw new Error('Не удалось обновить несуществующую точку маршрута');
+        throw new Error('Failed to update point. Please try again.');
       }
-
       this.#trips = [
         ...this.#trips.slice(0, index),
         updatedServerPoint,
         ...this.#trips.slice(index + 1)
       ];
-
       this._notify(updateType, updatedServerPoint);
       return updatedServerPoint;
     } catch (err) {
-      throw new Error('Не удалось обновить точку маршрута');
+      throw new Error('Failed to update point. Please try again.');
     }
   }
 
-  async addTrip(updateType, trip) {
+  async addPoint(updateType, point) {
     try {
-      const response = await this.#apiService.addPoint(adaptToServer.point(trip));
-      const newTrip = adaptToClient.point(response);
-
-      this.#trips = [newTrip, ...this.#trips];
-
-      this._notify(updateType, newTrip);
-      return newTrip;
+      const newPoint = await this.#apiService.addPoint(point);
+      this.#trips = [newPoint, ...this.#trips];
+      this._notify(updateType, newPoint);
+      return newPoint;
     } catch (err) {
-      throw new Error('Не удалось добавить точку маршрута');
+      this.#handleApiError('Failed to add point. Please try again.');
     }
   }
 
-  async deleteTrip(updateType, id) {
+  async deletePoint(updateType, point) {
     try {
-      await this.#apiService.deletePoint(id);
-
-      const index = this.#trips.findIndex((trip) => trip.id === id);
-
-      if (index === -1) {
-        throw new Error('Не удалось удалить несуществующую точку маршрута');
-      }
-
-      this.#trips = [...this.#trips.slice(0, index), ...this.#trips.slice(index + 1)];
-
+      await this.#apiService.deletePoint(point.id);
+      this.#trips = this.#trips.filter((trip) => trip.id !== point.id);
       this._notify(updateType);
-      return true;
     } catch (err) {
-      throw new Error('Не удалось удалить точку маршрута');
+      this.#handleApiError('Failed to delete point. Please try again.');
     }
+  }
+
+  #updatePointInModel(updatedPoint, updateType) {
+    const index = this.#trips.findIndex((trip) => trip.id === updatedPoint.id);
+    if (index === -1) {
+      this.#handleApiError('Failed to update point. Please try again.');
+      return;
+    }
+
+    this.#trips = [
+      ...this.#trips.slice(0, index),
+      updatedPoint,
+      ...this.#trips.slice(index + 1)
+    ];
+
+    this._notify(updateType, updatedPoint);
+  }
+
+  #handleApiError(message) {
+    this.#hasError = true;
+    throw new Error(message);
   }
 }

@@ -1,28 +1,15 @@
-import { adaptToClient } from '../api/adapter.js';
+import BaseDataModel from './base-data-model.js';
 
-export default class OffersModel {
-  #offers = [];
-  #apiService = null;
-
+export default class OffersModel extends BaseDataModel {
   constructor(apiService) {
-    this.#apiService = apiService;
-  }
-
-  async init() {
-    try {
-      const offers = await this.#apiService.getOffers();
-      this.#offers = adaptToClient.offers(offers);
-    } catch (err) {
-      this.#offers = [];
-      throw new Error('Не удалось загрузить предложения');
-    }
+    super(apiService, 'offers');
   }
 
   get offers() {
-    return this.#offers;
+    return this.data;
   }
 
   getOffersByType(type) {
-    return this.#offers.find((offer) => offer.type === type)?.offers;
+    return this.offers.find((offer) => offer.type === type)?.offers;
   }
 }

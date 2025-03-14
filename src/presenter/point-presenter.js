@@ -1,18 +1,26 @@
 import PointView from '../view/point-view.js';
+import { render, replace, remove } from '../utils/render-utils.js';
 import PointEditView from '../view/point-edit-view.js';
-import { render, replace, remove } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
+import {
+  isEscapeKey,
+  addKeydownHandler,
+  removeKeydownHandler,
+  setComponentSaving,
+  setComponentDeleting,
+  setComponentAborting
+} from '../utils/common.js';
 
 export default class PointPresenter {
   #pointComponent = null;
   #pointEditComponent = null;
-  #point = null;
-  #container = null;
+  #pointsListContainer = null;
   #destinations = null;
   #offers = null;
   #handleDataChange = null;
   #handleModeChange = null;
-
+  #point = null;
+  #isEditFormOpen = false;
   constructor({
     container,
     destinations,
@@ -20,7 +28,7 @@ export default class PointPresenter {
     onDataChange,
     onModeChange
   }) {
-    this.#container = container;
+    this.#pointsListContainer = container;
     this.#destinations = destinations;
     this.#offers = offers;
     this.#handleDataChange = onDataChange;
@@ -29,131 +37,149 @@ export default class PointPresenter {
 
   init(point) {
     this.#point = point;
-
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
-
     this.#pointComponent = new PointView({
       point: this.#point,
       destinations: this.#destinations,
       offers: this.#offers,
-      onClick: this.#handlePointClick,
+      onRollupClick: this.#handleEditClick,
       onFavoriteClick: this.#handleFavoriteClick
     });
-
     this.#pointEditComponent = new PointEditView({
       point: this.#point,
       destinations: this.#destinations,
       offers: this.#offers,
       onSubmit: this.#handleFormSubmit,
-      onRollupClick: this.#handleFormRollupClick,
+      onRollupClick: this.#handleFormClose,
       onDeleteClick: this.#handleDeleteClick
     });
-
     if (prevPointComponent === null || prevPointEditComponent === null) {
-      render(this.#pointComponent, this.#container);
-      this.#pointComponent.setEventListeners();
+      render(this.#pointComponent, this.#pointsListContainer);
       return;
     }
-
-    if (this.#container.contains(prevPointComponent.element)) {
-      replace(this.#pointComponent, prevPointComponent);
-      this.#pointComponent.setEventListeners();
-    }
-
-    if (this.#container.contains(prevPointEditComponent.element)) {
+    if (this.#isEditFormOpen) {
       replace(this.#pointEditComponent, prevPointEditComponent);
+    } else {
+      replace(this.#pointComponent, prevPointComponent);
+      remove(prevPointEditComponent);
     }
-
-    remove(prevPointComponent);
-    remove(prevPointEditComponent);
   }
 
   destroy() {
     remove(this.#pointComponent);
     remove(this.#pointEditComponent);
+    removeKeydownHandler(this.#escKeyDownHandler);
+  }
+
+  isEditing() {
+    return this.#isEditFormOpen;
   }
 
   resetView() {
-    if (this.#pointEditComponent && this.#pointEditComponent.element &&
-        this.#pointEditComponent.element.parentElement) {
-
-      const prevPointComponent = this.#pointComponent;
-
-      this.#pointComponent = new PointView({
-        point: this.#point,
-        destinations: this.#destinations,
-        offers: this.#offers,
-        onClick: this.#handlePointClick,
-        onFavoriteClick: this.#handleFavoriteClick
-      });
-
-      replace(this.#pointComponent, this.#pointEditComponent);
-      this.#pointComponent.setEventListeners();
-
-      if (prevPointComponent) {
-        remove(prevPointComponent);
-      }
-
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
+    if (this.#isEditFormOpen) {
+      this.#pointEditComponent.reset(this.#point);
+      this.#replaceFormToPoint();
     }
+  }
 
-    if (this.#pointComponent && !this.#pointComponent.element.parentElement &&
-        this.#point) {
-      render(this.#pointComponent, this.#container);
-      this.#pointComponent.setEventListeners();
+  setSaving() {
+    setComponentSaving(this.#pointEditComponent);
+  }
+
+  setDeleting() {
+    setComponentDeleting(this.#pointEditComponent);
+  }
+
+  setAborting() {
+    if (this.#isEditFormOpen) {
+      setComponentAborting(this.#pointEditComponent);
+    } else {
+      const resetState = () => {
+        if (this.#pointComponent) {
+          this.#pointComponent.updateElement({
+            isFavorite: this.#point.isFavorite
+          });
+        }
+      };
+
+      if (this.#pointComponent) {
+        this.#pointComponent.shake(resetState);
+      }
+    }
+  }
+
+  setDeletingFailed() {
+    setComponentAborting(this.#pointEditComponent);
+  }
+
+  setDisabled() {
+    if (this.#pointComponent) {
+      const rollupButton = this.#pointComponent.element.querySelector('.event__rollup-btn');
+      const favoriteButton = this.#pointComponent.element.querySelector('.event__favorite-btn');
+      if (rollupButton) {
+        rollupButton.setAttribute('aria-disabled', 'true');
+        rollupButton.style.opacity = '0.5';
+      }
+      if (favoriteButton) {
+        favoriteButton.setAttribute('aria-disabled', 'true');
+        favoriteButton.style.opacity = '0.5';
+      }
+      this.#pointComponent.element.classList.add('disabled');
+    }
+  }
+
+  setEnabled() {
+    if (this.#pointComponent) {
+      const rollupButton = this.#pointComponent.element.querySelector('.event__rollup-btn');
+      const favoriteButton = this.#pointComponent.element.querySelector('.event__favorite-btn');
+      if (rollupButton) {
+        rollupButton.removeAttribute('aria-disabled');
+        rollupButton.style.opacity = '1';
+      }
+      if (favoriteButton) {
+        favoriteButton.removeAttribute('aria-disabled');
+        favoriteButton.style.opacity = '1';
+      }
+      this.#pointComponent.element.classList.remove('disabled');
     }
   }
 
   #replacePointToForm() {
     replace(this.#pointEditComponent, this.#pointComponent);
-    this.#pointEditComponent.setEventListeners();
-    document.addEventListener('keydown', this.#escKeyDownHandler);
-
+    addKeydownHandler(this.#escKeyDownHandler);
     this.#handleModeChange(this.#point.id);
+    this.#isEditFormOpen = true;
   }
 
-  #handleFormRollupClick = () => {
+  #replaceFormToPoint() {
     replace(this.#pointComponent, this.#pointEditComponent);
-    this.#pointComponent.setEventListeners();
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
-
-    this.#handleDataChange(
-      UserAction.UPDATE_POINT,
-      UpdateType.MINOR,
-      this.#point
-    );
-  };
+    removeKeydownHandler(this.#escKeyDownHandler);
+    this.#isEditFormOpen = false;
+  }
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
-      replace(this.#pointComponent, this.#pointEditComponent);
-      this.#pointComponent.setEventListeners();
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
-
-      this.#handleDataChange(
-        UserAction.UPDATE_POINT,
-        UpdateType.MINOR,
-        this.#point
-      );
+      this.#pointEditComponent.reset(this.#point);
+      this.#replaceFormToPoint();
     }
   };
 
-  #handlePointClick = () => {
+  #handleEditClick = () => {
     this.#replacePointToForm();
   };
 
-  #handleFavoriteClick = () => {
-    const updatedPoint = {
-      ...this.#point,
-      isFavorite: !this.#point.isFavorite
-    };
+  #handleFormClose = () => {
+    this.#pointEditComponent.reset(this.#point);
+    this.#replaceFormToPoint();
+  };
 
+  #handleFavoriteClick = () => {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
-      UpdateType.MINOR,
-      updatedPoint
+      UpdateType.PATCH,
+      {...this.#point, isFavorite: !this.#point.isFavorite}
     );
   };
 
@@ -172,52 +198,4 @@ export default class PointPresenter {
       point
     );
   };
-
-  setSaving() {
-    if (this.#pointEditComponent) {
-      if (this.#pointEditComponent.element.parentElement) {
-        this.#pointEditComponent.updateElement({
-          isSaving: true,
-          isDisabled: true
-        });
-      } else {
-        throw new Error('Form is not in DOM');
-      }
-    }
-  }
-
-  setDeleting() {
-    if (this.#pointEditComponent) {
-      if (this.#pointEditComponent.element.parentElement) {
-        this.#pointEditComponent.updateElement({
-          isDeleting: true,
-          isDisabled: true
-        });
-      } else {
-        throw new Error('Form is not in DOM');
-      }
-    }
-  }
-
-  setAborting() {
-    const resetFormState = () => {
-      if (this.#pointEditComponent) {
-        if (this.#pointEditComponent.element.parentElement) {
-          this.#pointEditComponent.updateElement({
-            isDisabled: false,
-            isSaving: false,
-            isDeleting: false
-          });
-        }
-      } else if (this.#pointComponent) {
-        this.#pointComponent.shake();
-      }
-    };
-
-    if (this.#pointEditComponent && this.#pointEditComponent.element.parentElement) {
-      this.#pointEditComponent.shake(resetFormState);
-    } else {
-      this.#pointComponent.shake(resetFormState);
-    }
-  }
 }

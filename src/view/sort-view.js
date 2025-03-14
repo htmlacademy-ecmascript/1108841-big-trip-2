@@ -1,18 +1,15 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { SortType, SortLabel } from '../const.js';
-
 export default class SortView extends AbstractView {
   #sortTypes = null;
   #currentSortType = null;
   #handleSortTypeChange = null;
-
   constructor({sortTypes, currentSortType, onSortTypeChange}) {
     super();
     this.#sortTypes = sortTypes;
     this.#currentSortType = currentSortType;
     this.#handleSortTypeChange = onSortTypeChange;
-
-    this.element.addEventListener('change', this.#sortTypeChangeHandler);
+    this.element.addEventListener('change', this.#onSortTypeChange);
   }
 
   get template() {
@@ -24,7 +21,6 @@ export default class SortView extends AbstractView {
   #createSortItemTemplate(sortType, isEnabled) {
     const checked = sortType === this.#currentSortType ? 'checked' : '';
     const disabled = isEnabled ? '' : 'disabled';
-
     return `<div class="trip-sort__item  trip-sort__item--${sortType}">
       <input id="sort-${sortType}"
         class="trip-sort__input  visually-hidden"
@@ -39,27 +35,21 @@ export default class SortView extends AbstractView {
   }
 
   #getSortLabel(sortType) {
-    switch (sortType) {
-      case SortType.DAY:
-        return SortLabel.DAY;
-      case SortType.EVENT:
-        return SortLabel.EVENT;
-      case SortType.TIME:
-        return SortLabel.TIME;
-      case SortType.PRICE:
-        return SortLabel.PRICE;
-      case SortType.OFFER:
-        return SortLabel.OFFER;
-      default:
-        return sortType;
-    }
+    const sortLabels = {
+      [SortType.DAY]: SortLabel.DAY,
+      [SortType.EVENT]: SortLabel.EVENT,
+      [SortType.TIME]: SortLabel.TIME,
+      [SortType.PRICE]: SortLabel.PRICE,
+      [SortType.OFFER]: SortLabel.OFFER
+    };
+
+    return sortLabels[sortType] || sortType;
   }
 
-  #sortTypeChangeHandler = (evt) => {
+  #onSortTypeChange = (evt) => {
     if (evt.target.tagName !== 'INPUT') {
       return;
     }
-
     evt.preventDefault();
     this.#handleSortTypeChange(evt.target.getAttribute('data-sort-type'));
   };

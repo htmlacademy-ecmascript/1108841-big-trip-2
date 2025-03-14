@@ -1,28 +1,15 @@
-import { adaptToClient } from '../api/adapter.js';
+import BaseDataModel from './base-data-model.js';
 
-export default class DestinationsModel {
-  #destinations = [];
-  #apiService = null;
-
+export default class DestinationsModel extends BaseDataModel {
   constructor(apiService) {
-    this.#apiService = apiService;
-  }
-
-  async init() {
-    try {
-      const destinations = await this.#apiService.getDestinations();
-      this.#destinations = adaptToClient.destinations(destinations);
-    } catch (err) {
-      this.#destinations = [];
-      throw new Error('Не удалось загрузить пункты назначения');
-    }
+    super(apiService, 'destinations');
   }
 
   get destinations() {
-    return this.#destinations;
+    return this.data;
   }
 
   getById(id) {
-    return this.#destinations.find((destination) => destination.id === id);
+    return this.destinations.find((destination) => destination.id === id);
   }
 }
