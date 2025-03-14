@@ -58,7 +58,14 @@ export default class FilterView extends AbstractView {
       return;
     }
     const filterType = evt.target.value;
+
+    // Устанавливаем checked для выбранного фильтра
+    evt.target.checked = true;
+
+    // Обновляем фильтр в представлении
     this.updateFilter(filterType);
+
+    // Вызываем обработчик изменения фильтра
     this.#handleFilterTypeChange(filterType);
   };
 }

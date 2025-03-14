@@ -1,14 +1,16 @@
-import ApiService from '../framework/api-service.js';
+import BaseApiService from './base-api-service.js';
 
-export default class DestinationsApiService extends ApiService {
+export default class DestinationsApiService extends BaseApiService {
   constructor(endPoint, authorization) {
-    super(endPoint, authorization);
+    super(endPoint, authorization, 'destinations');
   }
 
   get destinations() {
-    return this._load({ url: 'destinations' })
-      .then(ApiService.parseResponse)
-      .then((destinations) => destinations.map((destination) => this.#adaptDestinationToClient(destination)));
+    return this.data;
+  }
+
+  adaptDataToClient(destinations) {
+    return destinations.map((destination) => this.#adaptDestinationToClient(destination));
   }
 
   #adaptDestinationToClient(destination) {

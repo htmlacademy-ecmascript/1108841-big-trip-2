@@ -41,7 +41,6 @@ export default class NewPointPresenter {
     }
 
     if (!this.#pointsListContainer) {
-      console.error('Container is not set for NewPointPresenter');
       return;
     }
 

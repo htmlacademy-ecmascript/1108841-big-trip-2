@@ -1,14 +1,16 @@
-import ApiService from '../framework/api-service.js';
+import BaseApiService from './base-api-service.js';
 
-export default class OffersApiService extends ApiService {
+export default class OffersApiService extends BaseApiService {
   constructor(endPoint, authorization) {
-    super(endPoint, authorization);
+    super(endPoint, authorization, 'offers');
   }
 
   get offers() {
-    return this._load({ url: 'offers' })
-      .then(ApiService.parseResponse)
-      .then((offers) => offers.map((offerGroup) => this.#adaptOfferGroupToClient(offerGroup)));
+    return this.data;
+  }
+
+  adaptDataToClient(offers) {
+    return offers.map((offerGroup) => this.#adaptOfferGroupToClient(offerGroup));
   }
 
   #adaptOfferGroupToClient(offerGroup) {

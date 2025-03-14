@@ -7,9 +7,9 @@ import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import { render, remove } from '../utils/render-utils.js';
 import { isPointFuture, isPointPresent, isPointPast } from '../utils/filter.js';
-import { SortType, SortTypeEnabled, UserAction, UpdateType, FilterType, DEFAULT_POINT } from '../const.js';
-import dayjs from 'dayjs';
+import { SortType, SortTypeEnabled, UserAction, UpdateType, FilterType } from '../const.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+import SortUtils from '../utils/sort-utils.js';
 
 const TimeLimit = {
   LOWER_LIMIT: 350,
@@ -168,7 +168,6 @@ export default class BoardPresenter {
           throw new Error(`Unknown action type: ${actionType}`);
       }
     } catch (err) {
-      console.error(err);
       switch (actionType) {
         case UserAction.UPDATE_POINT:
           if (pointPresenter) {
@@ -193,10 +192,15 @@ export default class BoardPresenter {
     const currentFilterType = this.#filterModel.filterType;
     const filteredPoints = this.#filterPoints(this.#tripsModel.trips, currentFilterType);
     if (filteredPoints.length === 0) {
-      this.#clearBoard();
-      this.#renderSort();
+      this.#clearPointsList();
       this.#ensureBoardExists();
       this.#renderEmptyList();
+
+      // Обновляем фильтр в DOM
+      const filterPresenter = this.#filterModel.getFilterPresenter();
+      if (filterPresenter) {
+        filterPresenter.updateFilterInDOM();
+      }
     }
   }
 
@@ -241,36 +245,11 @@ export default class BoardPresenter {
   }
 
   #calculateEventDuration(point) {
-    if (!point || !point.dateFrom || !point.dateTo) {
-      return 0;
-    }
-    return dayjs(point.dateTo).diff(dayjs(point.dateFrom));
+    return SortUtils.calculateEventDuration(point);
   }
 
   #sortPoints(points, sortType) {
-    if (!points || !points.length) {
-      return [];
-    }
-
-    const validPoints = points.filter((point) =>
-      point && point.dateFrom && point.dateTo
-    );
-
-    const sortHandlers = {
-      [SortType.DAY]: () => validPoints.sort((pointA, pointB) =>
-        dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom))
-      ),
-      [SortType.TIME]: () => validPoints.sort((pointA, pointB) => {
-        const durationA = this.#calculateEventDuration(pointA);
-        const durationB = this.#calculateEventDuration(pointB);
-        return durationB - durationA || dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
-      }),
-      [SortType.PRICE]: () => validPoints.sort((pointA, pointB) =>
-        pointB.basePrice - pointA.basePrice
-      )
-    };
-
-    return (sortHandlers[sortType] || sortHandlers[SortType.DAY])();
+    return SortUtils.sortPoints(points, sortType);
   }
 
   #renderEmptyList() {

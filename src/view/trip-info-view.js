@@ -1,6 +1,8 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { formatDate } from '../utils/date-format.js';
 import { DateFormat } from '../const.js';
+import SortUtils from '../utils/sort-utils.js';
+
 function createTripRouteTemplate(destinations) {
   if (!destinations || destinations.length === 0) {
     return '';
@@ -16,13 +18,16 @@ function createTripRouteTemplate(destinations) {
   }
   return `${destinations[0].name} &mdash; ... &mdash; ${destinations[destinations.length - 1].name}`;
 }
+
 function createTripDatesTemplate(dateFrom, dateTo) {
   return `${formatDate(dateFrom, DateFormat.TRIP_INFO)} &mdash; ${formatDate(dateTo, DateFormat.TRIP_INFO)}`;
 }
+
 export default class TripInfoView extends AbstractView {
   #points = null;
   #destinations = null;
   #offers = null;
+
   constructor({points, destinations, offers}) {
     super();
     this.#points = points;
@@ -34,7 +39,7 @@ export default class TripInfoView extends AbstractView {
     if (!this.#points || this.#points.length === 0) {
       return '<div class="trip-info"></div>';
     }
-    const sortedPoints = [...this.#points].sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+    const sortedPoints = [...this.#points].sort(SortUtils.sortByDay);
     const tripDestinations = sortedPoints.map((point) =>
       this.#destinations.find((dest) => dest.id === point.destination)
     ).filter(Boolean);
