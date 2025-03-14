@@ -35,7 +35,6 @@ export default class BoardPresenter {
   #canCreatePoint = true;
   #isCreating = false;
   #uiBlocker = null;
-  #updateCurrentFilterType = null;
 
   constructor({ container, destinationsModel, offersModel, tripsModel, filterModel, sortModel }) {
     this.#container = container;
@@ -98,12 +97,10 @@ export default class BoardPresenter {
     this.#renderBoard(this.getPoints());
   }
 
-  #setAbortingForPresenter(pointId) {
-    const pointPresenter = this.#pointPresenters.get(pointId);
-    if (pointPresenter) {
-      pointPresenter.setAborting();
-    }
-  }
+  #handleModeChange = () => {
+    this.#newPointPresenter.destroy();
+    this.#pointPresenters.forEach((presenter) => presenter.resetView());
+  };
 
   #handleViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
@@ -183,30 +180,6 @@ export default class BoardPresenter {
       this.#renderEmptyList();
     }
   }
-
-  #handleModeChange = (pointId) => {
-    // Закрываем форму создания новой точки, если она открыта
-    if (this.#isCreating) {
-      this.#newPointPresenter.destroy();
-      this.#isCreating = false;
-    }
-
-    if (pointId && this.#pointPresenters.get(pointId)?.isEditing()) {
-      this.#filterModel.setFilterType(FilterType.EVERYTHING, true);
-    }
-    if (!pointId) {
-      this.#pointPresenters.forEach((presenter) => {
-        presenter.resetView();
-      });
-      return;
-    }
-    const activePointPresenter = this.#pointPresenters.get(pointId);
-    this.#pointPresenters.forEach((presenter) => {
-      if (presenter !== activePointPresenter) {
-        presenter.resetView();
-      }
-    });
-  };
 
   #onSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
@@ -422,12 +395,6 @@ export default class BoardPresenter {
       this.#errorComponent = new ErrorView();
     }
     render(this.#errorComponent, this.#container);
-  }
-
-  #initNewPointForm() {
-    if (this.#isCreating && this.#canCreatePoint) {
-      this.createPoint();
-    }
   }
 
   init() {
