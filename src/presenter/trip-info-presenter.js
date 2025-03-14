@@ -13,6 +13,7 @@ export default class TripInfoPresenter {
     this.#offersModel = offersModel;
     this.#tripsModel.addObserver(this.#handleModelEvent);
   }
+
   init() {
     const prevTripInfoComponent = this.#tripInfoComponent;
     this.#tripInfoComponent = new TripInfoView({
@@ -27,6 +28,7 @@ export default class TripInfoPresenter {
     replace(this.#tripInfoComponent, prevTripInfoComponent);
     remove(prevTripInfoComponent);
   }
+
   #handleModelEvent = () => {
     this.init();
   };

@@ -10,12 +10,14 @@ export default class FilterView extends AbstractView {
     this.#handleFilterTypeChange = onFilterTypeChange;
     this._restoreHandlers();
   }
+
   get template() {
     return `<form class="trip-filters" action="#" method="get">
       ${this.#createFiltersTemplate()}
       <button class="visually-hidden" type="submit">Accept filter</button>
     </form>`;
   }
+
   updateFilter(filterType) {
     this.#currentFilterType = filterType;
     const filterInputs = this.element.querySelectorAll('.trip-filters__filter-input');
@@ -27,9 +29,11 @@ export default class FilterView extends AbstractView {
       activeFilter.checked = true;
     }
   }
+
   _restoreHandlers() {
     this.element.addEventListener('change', this.#onFilterTypeChange);
   }
+
   #createFiltersTemplate() {
     return this.#filters.map(({ type, name, disabled }) => `
       <div class="trip-filters__filter">
@@ -48,6 +52,7 @@ export default class FilterView extends AbstractView {
         >${name}</label>
       </div>`).join('');
   }
+
   #onFilterTypeChange = (evt) => {
     if (evt.target.tagName !== 'INPUT') {
       return;

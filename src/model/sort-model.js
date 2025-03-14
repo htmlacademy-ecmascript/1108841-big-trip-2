@@ -5,6 +5,7 @@ export default class SortModel extends Observable {
   get sortType() {
     return this.#sortType;
   }
+
   setSortType(sortType, silentUpdate = false) {
     this.#sortType = sortType;
     if (!silentUpdate) {

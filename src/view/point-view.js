@@ -18,12 +18,15 @@ export default class PointView extends AbstractView {
     this.#handleFavoriteClick = onFavoriteClick;
     this._restoreHandlers();
   }
+
   _restoreHandlers() {
     this.setEventListeners();
   }
+
   get point() {
     return this.#point;
   }
+
   get template() {
     const destination = this.#destinations.find((dest) => dest.id === this.#point.destination);
     const pointTypeOffers = this.#offers.find((offer) => offer.type === this.#point.type)?.offers || [];
@@ -73,6 +76,7 @@ export default class PointView extends AbstractView {
       </li>
     `;
   }
+
   setEventListeners() {
     const element = this.element;
     const rollupBtn = element.querySelector('.event__rollup-btn');
@@ -80,6 +84,7 @@ export default class PointView extends AbstractView {
     rollupBtn.addEventListener('click', this.#onRollupButtonClick);
     favoriteBtn.addEventListener('click', this.#onFavoriteButtonClick);
   }
+
   setDisabled(isDisabled) {
     this.#isDisabled = isDisabled;
     const rollupButton = this.element.querySelector('.event__rollup-btn');
@@ -91,6 +96,7 @@ export default class PointView extends AbstractView {
       favoriteButton.disabled = isDisabled;
     }
   }
+
   shake(callback) {
     this.element.classList.add('shake');
     setTimeout(() => {
@@ -100,6 +106,7 @@ export default class PointView extends AbstractView {
       }
     }, 600);
   }
+
   updateElement(update) {
     if (!update) {
       return;
@@ -114,10 +121,12 @@ export default class PointView extends AbstractView {
     }
     this._restoreHandlers();
   }
+
   #onRollupButtonClick = (evt) => {
     evt.preventDefault();
     this.#handleRollupButtonClick();
   };
+
   #onFavoriteButtonClick = (evt) => {
     evt.preventDefault();
     this.#handleFavoriteClick();

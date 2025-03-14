@@ -9,6 +9,7 @@ export default class TripsModel extends Observable {
     super();
     this.#apiService = apiService;
   }
+
   async init() {
     try {
       const points = await this.#apiService.points;
@@ -22,15 +23,19 @@ export default class TripsModel extends Observable {
       throw new Error('Failed to load latest route information');
     }
   }
+
   get trips() {
     return this.#trips;
   }
+
   get hasError() {
     return this.#hasError;
   }
+
   async updatePoint(updateType, updatedPoint) {
     return this.updateTrip(updateType, updatedPoint);
   }
+
   async updateTrip(updateType, updatedPoint) {
     try {
       const response = await this.#apiService.updatePoint(ToServerAdapter.convertPoint(updatedPoint));
@@ -50,9 +55,11 @@ export default class TripsModel extends Observable {
       throw new Error('Failed to update point. Please try again.');
     }
   }
+
   async addPoint(updateType, trip) {
     return this.addTrip(updateType, trip);
   }
+
   async addTrip(updateType, trip) {
     try {
       const response = await this.#apiService.addPoint(ToServerAdapter.convertPoint(trip));
@@ -64,10 +71,12 @@ export default class TripsModel extends Observable {
       throw new Error('Failed to create point. Please try again.');
     }
   }
+
   async deletePoint(updateType, point) {
     const pointId = point?.id || point;
     return this.deleteTrip(updateType, pointId);
   }
+
   async deleteTrip(updateType, id) {
     try {
       await this.#apiService.deletePoint(id);

@@ -4,6 +4,7 @@ import { formatDate } from '../utils/date-format.js';
 import he from 'he';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+
 export default class PointEditView extends AbstractStatefulView {
   #destinations = null;
   #offers = null;
@@ -13,6 +14,7 @@ export default class PointEditView extends AbstractStatefulView {
   #datepickerFrom = null;
   #datepickerTo = null;
   #escKeyDownHandler = null;
+
   constructor({ point, destinations, offers, onSubmit, onRollupClick, onDeleteClick }) {
     super();
     this.#destinations = destinations;
@@ -23,6 +25,7 @@ export default class PointEditView extends AbstractStatefulView {
     this._state = this.#parsePointToState(point);
     this._restoreHandlers();
   }
+
   get template() {
     const pointTypes = PointTypes.ITEMS.map((pointType) => `
       <div class="event__type-item">
@@ -99,6 +102,7 @@ export default class PointEditView extends AbstractStatefulView {
         </form>
       </li>`;
   }
+
   _restoreHandlers() {
     const element = this.element;
     const typeList = element.querySelector('.event__type-list');
@@ -122,6 +126,7 @@ export default class PointEditView extends AbstractStatefulView {
     form.addEventListener('submit', this.#onFormSubmit);
     this.#setDatepickers();
   }
+
   removeElement() {
     super.removeElement();
     if (this.#datepickerFrom) {
@@ -133,12 +138,15 @@ export default class PointEditView extends AbstractStatefulView {
       this.#datepickerTo = null;
     }
   }
+
   setEventListeners() {
     this._restoreHandlers();
   }
+
   reset(point) {
     this.updateElement(this.#parsePointToState(point));
   }
+
   #parsePointToState(point) {
     return {
       ...point,
@@ -148,6 +156,7 @@ export default class PointEditView extends AbstractStatefulView {
       isError: false
     };
   }
+
   #parseStateToPoint() {
     const point = {...this._state};
     delete point.isDisabled;
@@ -155,6 +164,7 @@ export default class PointEditView extends AbstractStatefulView {
     delete point.isDeleting;
     return point;
   }
+
   #setDatepickers() {
     const element = this.element;
     const dateFromElement = element.querySelector('#event-start-time-1');
@@ -197,6 +207,7 @@ export default class PointEditView extends AbstractStatefulView {
       }
     );
   }
+
   #generateDestinationTemplate() {
     const { destination } = this._state;
     const destinations = this.#destinations.map((item) => item.name);
@@ -210,10 +221,12 @@ export default class PointEditView extends AbstractStatefulView {
       </datalist>
     </div>`;
   }
+
   #getDestinationName(destinationId) {
     const destination = this.#destinations.find((item) => item.id === destinationId);
     return destination ? destination.name : '';
   }
+
   #generateBaseDetailsTemplate() {
     const { destination, type } = this._state;
     const destinationData = this.#destinations.find((item) => item.id === destination);
@@ -246,6 +259,7 @@ export default class PointEditView extends AbstractStatefulView {
       ${destinationSectionMarkup}
     </section>`;
   }
+
   #generateOffersTemplate(eventType) {
     const allOffersByType = this.#offers.find((offer) => offer.type === eventType);
     if (!allOffersByType?.offers?.length) {
@@ -259,6 +273,7 @@ export default class PointEditView extends AbstractStatefulView {
       </div>
     </section>`;
   }
+
   #generateOfferTemplate(offer) {
     const { id, title, price } = offer;
     const checked = this._state.offers.includes(id) ? 'checked' : '';
@@ -272,6 +287,7 @@ export default class PointEditView extends AbstractStatefulView {
       </label>
     </div>`;
   }
+
   #onDateFromChange = ([userDate]) => {
     if (!userDate) {
       return;
@@ -280,6 +296,7 @@ export default class PointEditView extends AbstractStatefulView {
       dateFrom: userDate.toISOString(),
     });
   };
+
   #onDateToChange = ([userDate]) => {
     if (!userDate) {
       return;
@@ -288,6 +305,7 @@ export default class PointEditView extends AbstractStatefulView {
       dateTo: userDate.toISOString(),
     });
   };
+
   #onEventTypeChange = (evt) => {
     evt.preventDefault();
     if (!evt.target.classList.contains('event__type-input')) {
@@ -302,6 +320,7 @@ export default class PointEditView extends AbstractStatefulView {
       });
     }
   };
+
   #onDestinationChange = (evt) => {
     evt.preventDefault();
     const destinationName = evt.target.value;
@@ -320,6 +339,7 @@ export default class PointEditView extends AbstractStatefulView {
       destination: selectedDestination.id
     });
   };
+
   #onOffersChange = (evt) => {
     evt.preventDefault();
     if (!evt.target.classList.contains('event__offer-checkbox')) {
@@ -341,6 +361,7 @@ export default class PointEditView extends AbstractStatefulView {
       offers: currentOffers
     });
   };
+
   #onBasePriceChange = (evt) => {
     evt.preventDefault();
     const price = parseInt(evt.target.value, 10);
@@ -350,30 +371,36 @@ export default class PointEditView extends AbstractStatefulView {
       });
     }
   };
+
   #onRollupButtonClick = (evt) => {
     evt.preventDefault();
     this.#handleRollupButtonClick();
   };
+
   #onDeleteClick = (evt) => {
     evt.preventDefault();
     this.#handleDeleteClick(this.#parseStateToPoint());
   };
+
   #onFormSubmit = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(this.#parseStateToPoint());
   };
+
   setSaving() {
     this.updateElement({
       isSaving: true,
       isDisabled: true
     });
   }
+
   setDeleting() {
     this.updateElement({
       isDeleting: true,
       isDisabled: true
     });
   }
+
   setAborting() {
     const resetFormState = () => {
       this.updateElement({
@@ -384,12 +411,14 @@ export default class PointEditView extends AbstractStatefulView {
     };
     this.shake(resetFormState);
   }
+
   #getResetButtonText() {
     if (!this._state.id) {
       return 'Cancel';
     }
     return this._state.isDeleting ? ButtonText.DELETING : ButtonText.DELETE;
   }
+
   updateElement(update) {
     super.updateElement(update);
     if (this._state.isDisabled) {

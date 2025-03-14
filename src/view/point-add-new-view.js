@@ -9,6 +9,7 @@ export default class PointAddNewView extends AbstractView {
     this.#destinations = destinations;
     this.#offers = offers;
   }
+
   get template() {
     const destinations = this.#destinations.map((dest) => `
       <option value="${he.encode(dest.name)}"></option>

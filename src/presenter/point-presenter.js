@@ -25,6 +25,7 @@ export default class PointPresenter {
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
   }
+
   init(point) {
     this.#point = point;
     const prevPointComponent = this.#pointComponent;
@@ -55,35 +56,51 @@ export default class PointPresenter {
       remove(prevPointEditComponent);
     }
   }
+
   destroy() {
     remove(this.#pointComponent);
     remove(this.#pointEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
+
   isEditing() {
     return this.#isEditFormOpen;
   }
+
   resetView() {
     if (this.#isEditFormOpen) {
       this.#pointEditComponent.reset(this.#point);
       this.#replaceFormToPoint();
     }
   }
+
   setSaving() {
     if (this.#pointEditComponent) {
       this.#pointEditComponent.setSaving();
     }
   }
+
   setDeleting() {
     if (this.#pointEditComponent) {
       this.#pointEditComponent.setDeleting();
     }
   }
+
   setAborting() {
-    if (this.#pointEditComponent) {
-      this.#pointEditComponent.setAborting();
+    if (this.#isEditFormOpen) {
+      if (this.#pointEditComponent) {
+        this.#pointEditComponent.setAborting();
+      }
+    } else {
+      const resetState = () => {
+        this.#pointComponent.updateElement({
+          isFavorite: !this.#point.isFavorite
+        });
+      };
+      this.#pointComponent.shake(resetState);
     }
   }
+
   setDeletingFailed() {
     const resetFormState = () => {
       this.#pointEditComponent.updateElement({
@@ -94,6 +111,7 @@ export default class PointPresenter {
     };
     this.#pointEditComponent.shake(resetFormState);
   }
+
   setDisabled() {
     if (this.#pointComponent) {
       const rollupButton = this.#pointComponent.element.querySelector('.event__rollup-btn');
@@ -109,6 +127,7 @@ export default class PointPresenter {
       this.#pointComponent.element.classList.add('disabled');
     }
   }
+
   setEnabled() {
     if (this.#pointComponent) {
       const rollupButton = this.#pointComponent.element.querySelector('.event__rollup-btn');
@@ -124,17 +143,20 @@ export default class PointPresenter {
       this.#pointComponent.element.classList.remove('disabled');
     }
   }
+
   #replacePointToForm() {
     replace(this.#pointEditComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange(this.#point.id);
     this.#isEditFormOpen = true;
   }
+
   #replaceFormToPoint() {
     replace(this.#pointComponent, this.#pointEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#isEditFormOpen = false;
   }
+
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
@@ -142,13 +164,16 @@ export default class PointPresenter {
       this.#replaceFormToPoint();
     }
   };
+
   #handleEditClick = () => {
     this.#replacePointToForm();
   };
+
   #handleFormClose = () => {
     this.#pointEditComponent.reset(this.#point);
     this.#replaceFormToPoint();
   };
+
   #handleFavoriteClick = () => {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
@@ -156,6 +181,7 @@ export default class PointPresenter {
       {...this.#point, isFavorite: !this.#point.isFavorite}
     );
   };
+
   #handleFormSubmit = (update) => {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
@@ -163,6 +189,7 @@ export default class PointPresenter {
       update
     );
   };
+
   #handleDeleteClick = (point) => {
     this.#handleDataChange(
       UserAction.DELETE_POINT,
@@ -170,12 +197,13 @@ export default class PointPresenter {
       point
     );
   };
-  setFavoriteAborting() {
-    const resetState = () => {
-      this.#pointComponent.updateElement({
-        isFavorite: !this.#point.isFavorite
-      });
-    };
-    this.#pointComponent.shake(resetState);
-  }
+
+  #onFavoriteClick = (evt) => {
+    evt.preventDefault();
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.PATCH,
+      {...this.#point, isFavorite: !this.#point.isFavorite}
+    );
+  };
 }

@@ -29,6 +29,7 @@ export default class TripInfoView extends AbstractView {
     this.#destinations = destinations;
     this.#offers = offers;
   }
+
   get template() {
     if (!this.#points || this.#points.length === 0) {
       return '<div class="trip-info"></div>';
@@ -55,6 +56,7 @@ export default class TripInfoView extends AbstractView {
       </section>
     `;
   }
+
   #calculateTotalPrice() {
     if (!this.#points || this.#points.length === 0) {
       return 0;

@@ -9,6 +9,7 @@ export default class OffersModel extends Observable {
     super();
     this.#apiService = apiService;
   }
+
   async init() {
     try {
       const offers = await this.#apiService.offers;
@@ -22,12 +23,15 @@ export default class OffersModel extends Observable {
       throw new Error('Failed to load latest route information');
     }
   }
+
   get offers() {
     return this.#offers;
   }
+
   get hasError() {
     return this.#hasError;
   }
+
   getOffersByType(type) {
     return this.#offers.find((offer) => offer.type === type)?.offers;
   }

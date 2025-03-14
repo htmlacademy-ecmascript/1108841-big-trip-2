@@ -9,6 +9,7 @@ export default class DestinationsModel extends Observable {
     super();
     this.#apiService = apiService;
   }
+
   async init() {
     try {
       const destinations = await this.#apiService.destinations;
@@ -22,12 +23,15 @@ export default class DestinationsModel extends Observable {
       throw new Error('Failed to load latest route information');
     }
   }
+
   get destinations() {
     return this.#destinations;
   }
+
   get hasError() {
     return this.#hasError;
   }
+
   getById(id) {
     return this.#destinations.find((destination) => destination.id === id);
   }

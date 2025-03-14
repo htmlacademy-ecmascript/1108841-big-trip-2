@@ -16,6 +16,7 @@ export default class FilterPresenter {
     this.#tripsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
+
   get filters() {
     const points = this.#tripsModel.trips;
     const hasFuturePoints = points.some(isPointFuture);
@@ -25,25 +26,26 @@ export default class FilterPresenter {
       {
         type: FilterType.EVERYTHING,
         name: 'Everything',
-        disabled: points.length === 0 
+        disabled: points.length === 0
       },
       {
         type: FilterType.FUTURE,
         name: 'Future',
-        disabled: !hasFuturePoints 
+        disabled: !hasFuturePoints
       },
       {
         type: FilterType.PRESENT,
         name: 'Present',
-        disabled: !hasPresentPoints 
+        disabled: !hasPresentPoints
       },
       {
         type: FilterType.PAST,
         name: 'Past',
-        disabled: !hasPastPoints 
+        disabled: !hasPastPoints
       },
     ];
   }
+
   init() {
     const filters = this.filters;
     const prevFilterComponent = this.#filterComponent;
@@ -59,6 +61,7 @@ export default class FilterPresenter {
     replace(this.#filterComponent, prevFilterComponent);
     remove(prevFilterComponent);
   }
+
   updateFilterInDOM() {
     if (this.#filterComponent) {
       this.#filterComponent.updateFilter(this.#filterModel.filterType);
@@ -69,6 +72,7 @@ export default class FilterPresenter {
       }
     }
   }
+
   #handleFilterTypeChange = (filterType) => {
     if (this.#filterModel.filterType === filterType) {
       return;
@@ -78,10 +82,11 @@ export default class FilterPresenter {
     }
     this.#filterModel.setFilterType(filterType);
     if (this.#boardPresenter) {
-      this.#boardPresenter.resetSortType(false); 
+      this.#boardPresenter.resetSortType(false);
     }
     this.updateFilterInDOM();
   };
+
   #handleModelEvent = () => {
     this.init();
     this.updateFilterInDOM();

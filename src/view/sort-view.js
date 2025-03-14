@@ -11,11 +11,13 @@ export default class SortView extends AbstractView {
     this.#handleSortTypeChange = onSortTypeChange;
     this.element.addEventListener('change', this.#onSortTypeChange);
   }
+
   get template() {
     return `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
       ${Object.entries(this.#sortTypes).map(([sortType, isEnabled]) => this.#createSortItemTemplate(sortType, isEnabled)).join('')}
     </form>`;
   }
+
   #createSortItemTemplate(sortType, isEnabled) {
     const checked = sortType === this.#currentSortType ? 'checked' : '';
     const disabled = isEnabled ? '' : 'disabled';
@@ -31,6 +33,7 @@ export default class SortView extends AbstractView {
       <label class="trip-sort__btn" for="sort-${sortType}" data-sort-type="${sortType}">${this.#getSortLabel(sortType)}</label>
     </div>`;
   }
+
   #getSortLabel(sortType) {
     switch (sortType) {
       case SortType.DAY:
@@ -47,6 +50,7 @@ export default class SortView extends AbstractView {
         return sortType;
     }
   }
+
   #onSortTypeChange = (evt) => {
     if (evt.target.tagName !== 'INPUT') {
       return;
