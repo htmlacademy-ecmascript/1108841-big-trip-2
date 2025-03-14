@@ -70,6 +70,10 @@ export default class PointPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
+  isEditing() {
+    return this.#isEditFormOpen;
+  }
+
   resetView() {
     if (this.#isEditFormOpen) {
       this.#pointEditComponent.reset(this.#point);

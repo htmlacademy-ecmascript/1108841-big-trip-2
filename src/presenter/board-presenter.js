@@ -158,7 +158,22 @@ export default class BoardPresenter {
         }
 
         try {
+          // Сохраняем текущий тип фильтра перед удалением
+          const currentFilterType = this.#filterModel.filterType;
+
           await this.#tripsModel.deletePoint(updateType, update);
+
+          // После удаления проверяем, остались ли точки для текущего фильтра
+          const filteredPoints = this.#filterPoints(this.#tripsModel.trips, currentFilterType);
+
+          // Если точек не осталось, но мы не переключаем фильтр, а показываем сообщение
+          if (filteredPoints.length === 0) {
+            // Очищаем доску и рендерим сообщение для текущего фильтра
+            this.#clearBoard();
+            this.#renderSort();
+            this.#ensureBoardExists();
+            this.#renderEmptyList();
+          }
         } catch(err) {
           if (pointPresenter) {
             pointPresenter.setAborting();
@@ -177,7 +192,10 @@ export default class BoardPresenter {
       this.#handleNewPointFormClose();
     }
 
-    this.#filterModel.setFilterType(FilterType.EVERYTHING, true);
+    // Переключаем фильтр только при редактировании точки, но не при удалении
+    if (pointId && this.#pointPresenters.get(pointId)?.isEditing()) {
+      this.#filterModel.setFilterType(FilterType.EVERYTHING, true);
+    }
 
     // Если pointId не передан, закрываем все открытые формы
     if (!pointId) {
