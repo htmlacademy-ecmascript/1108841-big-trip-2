@@ -11,7 +11,7 @@ export default class OffersModel extends Observable {
   }
   async init() {
     try {
-      const offers = await this.#apiService.getOffers();
+      const offers = await this.#apiService.offers;
       this.#offers = ToClientAdapter.convertOffers(offers);
       this.#hasError = false;
       this._notify(UpdateType.INIT);

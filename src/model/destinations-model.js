@@ -11,7 +11,7 @@ export default class DestinationsModel extends Observable {
   }
   async init() {
     try {
-      const destinations = await this.#apiService.getDestinations();
+      const destinations = await this.#apiService.destinations;
       this.#destinations = ToClientAdapter.convertDestinations(destinations);
       this.#hasError = false;
       this._notify(UpdateType.INIT);

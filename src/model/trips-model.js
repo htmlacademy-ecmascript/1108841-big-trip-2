@@ -11,7 +11,7 @@ export default class TripsModel extends Observable {
   }
   async init() {
     try {
-      const points = await this.#apiService.getPoints();
+      const points = await this.#apiService.points;
       this.#trips = ToClientAdapter.convertPoints(points);
       this.#hasError = false;
       this._notify(UpdateType.INIT);

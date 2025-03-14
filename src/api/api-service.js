@@ -1,10 +1,24 @@
 import ApiService from '../framework/api-service.js';
 import { ApiErrorMessage } from '../const.js';
+
 export default class PointsApiService extends ApiService {
   constructor(endPoint, authorization) {
     super(endPoint, authorization);
   }
-  async getPoints() {
+
+  get points() {
+    return this.#fetchPoints();
+  }
+
+  get destinations() {
+    return this.#fetchDestinations();
+  }
+
+  get offers() {
+    return this.#fetchOffers();
+  }
+
+  async #fetchPoints() {
     try {
       const response = await this._load({ url: 'points' });
       return ApiService.parseResponse(response);
@@ -12,7 +26,8 @@ export default class PointsApiService extends ApiService {
       throw new Error(ApiErrorMessage.GET);
     }
   }
-  async getDestinations() {
+
+  async #fetchDestinations() {
     try {
       const response = await this._load({ url: 'destinations' });
       return ApiService.parseResponse(response);
@@ -20,7 +35,8 @@ export default class PointsApiService extends ApiService {
       throw new Error(ApiErrorMessage.GET);
     }
   }
-  async getOffers() {
+
+  async #fetchOffers() {
     try {
       const response = await this._load({ url: 'offers' });
       return ApiService.parseResponse(response);
@@ -28,6 +44,7 @@ export default class PointsApiService extends ApiService {
       throw new Error(ApiErrorMessage.GET);
     }
   }
+
   async updatePoint(point) {
     try {
       const response = await this._load({
@@ -41,6 +58,7 @@ export default class PointsApiService extends ApiService {
       throw new Error(ApiErrorMessage.PUT);
     }
   }
+
   async addPoint(point) {
     try {
       const response = await this._load({
@@ -54,6 +72,7 @@ export default class PointsApiService extends ApiService {
       throw new Error(ApiErrorMessage.POST);
     }
   }
+
   async deletePoint(id) {
     try {
       await this._load({
