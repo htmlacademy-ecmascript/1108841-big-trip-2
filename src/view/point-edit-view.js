@@ -85,7 +85,7 @@ export default class PointEditView extends AbstractStatefulView {
                 value="${he.encode(String(this._state.basePrice ?? PriceConfig.DEFAULT))}"
               >
             </div>
-            <button class="event__save-btn" type="submit" ${this._state.isDisabled ? 'aria-disabled="true"' : ''}>
+            <button class="event__save-btn btn btn--blue" type="submit" ${this._state.isDisabled ? 'aria-disabled="true"' : ''}>
               ${this._state.isSaving ? ButtonText.SAVING : ButtonText.SAVE}
             </button>
             <button class="event__reset-btn" type="reset" ${this._state.isDisabled ? 'aria-disabled="true"' : ''}>
