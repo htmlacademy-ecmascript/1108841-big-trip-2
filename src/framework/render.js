@@ -21,33 +21,22 @@ function createElement(template) {
 }
 
 /**
- * Функция для рендеринга элемента
- * @param {AbstractView} component - компонент, который должен быть отрендерен
- * @param {HTMLElement} container - элемент в DOM, куда должен быть отрендерен компонент
- * @param {string} place - позиция компонента относительно контейнера: 'beforebegin', 'afterbegin', 'beforeend', 'afterend'
+ * Функция для отрисовки элемента
+ * @param {AbstractView} component Компонент, который должен был отрисован
+ * @param {HTMLElement} container Элемент в котором будет отрисован компонент
+ * @param {string} place Позиция компонента относительно контейнера. По умолчанию - `beforeend`
  */
-const render = (component, container, place = 'beforeend') => {
-  const element = component.element;
-
-  const renderPositions = {
-    'beforebegin': () => container.before(element),
-    'afterbegin': () => container.prepend(element),
-    'beforeend': () => container.append(element),
-    'afterend': () => container.after(element)
-  };
-
-  const renderMethod = renderPositions[place];
-  if (renderMethod) {
-    renderMethod();
+function render(component, container, place = RenderPosition.BEFOREEND) {
+  if (!(component instanceof AbstractView)) {
+    throw new Error('Can render only components');
   }
 
-  // Проверяем, успешно ли добавлен элемент
-  setTimeout(() => {
-    if (!element.isConnected) {
-      // Элемент не был подключен к DOM после рендеринга
-    }
-  }, 0);
-};
+  if (container === null) {
+    throw new Error('Container element doesn\'t exist');
+  }
+
+  container.insertAdjacentElement(place, component.element);
+}
 
 /**
  * Функция для замены одного компонента на другой
