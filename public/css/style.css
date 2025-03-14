@@ -321,9 +321,14 @@ main {
   font-size: 44px;
   line-height: 60px;
   text-align: center;
-  opacity: 0.89; }
+  opacity: 0.89;
+  padding: 20px; }
   .trip-events__msg--hidden {
     display: none; }
+  .trip-events__msg--creating {
+    background-color: #e8f5e9;
+    border-color: #c8e6c9;
+    color: #2e7d32; }
 
 .trip-events__list {
   padding: 0;
@@ -831,3 +836,18 @@ main {
     padding-right: 20px; }
   .event__photo:not(:last-child) {
     margin-right: 5px; }
+
+/* Стили для блокировки элементов */
+.disabled {
+  opacity: 0.7; }
+
+[aria-disabled="true"] {
+  opacity: 0.7;
+  cursor: not-allowed; }
+
+.disabled button,
+.disabled input,
+.disabled select,
+.disabled label {
+  cursor: not-allowed !important;
+  opacity: 0.7 !important; }

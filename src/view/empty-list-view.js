@@ -1,6 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { FilterType, EmptyListTexts } from '../const.js';
-import './empty-list-view.css';
 
 function createEmptyListTemplate(filterType, isCreating) {
   const noPointsTextValue = EmptyListTexts[filterType];
@@ -26,6 +25,13 @@ export default class EmptyListView extends AbstractView {
 
   setCreating(isCreating) {
     this.#isCreating = isCreating;
-    this.element.textContent = isCreating ? 'Creating a new point...' : EmptyListTexts[this.#filterType];
+
+    if (isCreating) {
+      this.element.classList.add('trip-events__msg--creating');
+      this.element.textContent = 'Creating a new point...';
+    } else {
+      this.element.classList.remove('trip-events__msg--creating');
+      this.element.textContent = EmptyListTexts[this.#filterType];
+    }
   }
 }
