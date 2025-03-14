@@ -7,6 +7,18 @@ export default class DestinationsApiService extends ApiService {
 
   get destinations() {
     return this._load({ url: 'destinations' })
-      .then(ApiService.parseResponse);
+      .then(ApiService.parseResponse)
+      .then((destinations) => destinations.map((destination) => this.#adaptDestinationToClient(destination)));
+  }
+
+  #adaptDestinationToClient(destination) {
+    const adaptedDestination = {
+      id: destination.id,
+      description: destination.description,
+      name: destination.name,
+      pictures: destination.pictures
+    };
+
+    return adaptedDestination;
   }
 }

@@ -1,5 +1,4 @@
 import Observable from '../framework/observable.js';
-import { ToClientAdapter } from '../api/adapter.js';
 import { UpdateType } from '../const.js';
 
 export default class DestinationsModel extends Observable {
@@ -15,7 +14,7 @@ export default class DestinationsModel extends Observable {
   async init() {
     try {
       const destinations = await this.#apiService.destinations;
-      this.#destinations = ToClientAdapter.convertDestinations(destinations);
+      this.#destinations = destinations;
       this.#hasError = false;
       this._notify(UpdateType.INIT);
     } catch (err) {

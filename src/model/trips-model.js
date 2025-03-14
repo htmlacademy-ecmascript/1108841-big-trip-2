@@ -1,4 +1,3 @@
-import { ToClientAdapter, ToServerAdapter } from '../api/adapter.js';
 import Observable from '../framework/observable.js';
 import { UpdateType } from '../const.js';
 
@@ -15,7 +14,7 @@ export default class TripsModel extends Observable {
   async init() {
     try {
       const points = await this.#apiService.points;
-      this.#trips = ToClientAdapter.convertPoints(points);
+      this.#trips = points;
       this.#hasError = false;
       this._notify(UpdateType.INIT);
     } catch (err) {
@@ -40,8 +39,7 @@ export default class TripsModel extends Observable {
 
   async updateTrip(updateType, updatedPoint) {
     try {
-      const response = await this.#apiService.updatePoint(ToServerAdapter.convertPoint(updatedPoint));
-      const updatedServerPoint = ToClientAdapter.convertPoint(response);
+      const updatedServerPoint = await this.#apiService.updatePoint(updatedPoint);
       const index = this.#trips.findIndex((trip) => trip.id === updatedPoint.id);
       if (index === -1) {
         throw new Error('Failed to update point. Please try again.');
@@ -60,8 +58,7 @@ export default class TripsModel extends Observable {
 
   async addPoint(updateType, point) {
     try {
-      const response = await this.#apiService.addPoint(ToServerAdapter.convertPoint(point));
-      const newPoint = ToClientAdapter.convertPoint(response);
+      const newPoint = await this.#apiService.addPoint(point);
       this.#trips = [newPoint, ...this.#trips];
       this._notify(updateType, newPoint);
       return newPoint;
