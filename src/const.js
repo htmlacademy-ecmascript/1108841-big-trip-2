@@ -48,7 +48,7 @@ const PointIconSize = {
 };
 const DEFAULT_ERROR_MESSAGE = 'Failed to load latest route information';
 const ApiConfig = {
-  BASE_URL: 'https://23.objects.htmlacademy.pro/big-trip',
+  BASE_URL: 'https://22.objects.htmlacademy.pro/big-trip',
   ENDPOINTS: {
     POINTS: 'points',
     DESTINATIONS: 'destinations',
