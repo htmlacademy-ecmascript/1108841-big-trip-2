@@ -98,13 +98,7 @@ export default class PointView extends AbstractView {
   }
 
   shake(callback) {
-    this.element.classList.add('shake');
-    setTimeout(() => {
-      this.element.classList.remove('shake');
-      if (callback) {
-        callback();
-      }
-    }, 600);
+    super.shake(callback);
   }
 
   updateElement(update) {

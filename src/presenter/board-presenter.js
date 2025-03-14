@@ -67,16 +67,12 @@ export default class BoardPresenter {
   #handleModelEvent = (updateType, data) => {
     const updateHandlers = {
       [UpdateType.PATCH]: () => {
-        this.#pointPresenters.get(data.id)?.init(data);
+        if (data && data.id) {
+          this.#pointPresenters.get(data.id)?.init(data);
+        }
       },
-      [UpdateType.MINOR]: () => {
-        this.#clearBoard();
-        this.#renderBoard(this.getPoints());
-      },
-      [UpdateType.MAJOR]: () => {
-        this.#clearBoard();
-        this.#renderBoard(this.getPoints());
-      },
+      [UpdateType.MINOR]: () => this.#refreshBoard(),
+      [UpdateType.MAJOR]: () => this.#refreshBoard(),
       [UpdateType.INIT]: () => {
         this.#isLoading = false;
         remove(this.#loadingComponent);
@@ -121,23 +117,20 @@ export default class BoardPresenter {
     try {
       switch (actionType) {
         case UserAction.UPDATE_POINT:
+          pointPresenter = this.#pointPresenters.get(update.id);
+
           if (isFavoriteUpdate) {
-            pointPresenter = this.#pointPresenters.get(update.id);
             if (pointPresenter) {
               pointPresenter.setDisabled();
             }
-            try {
-              await this.#tripsModel.updatePoint(updateType, update);
-              if (pointPresenter) {
-                pointPresenter.setEnabled();
-              }
-            } catch(err) {
-              if (pointPresenter) {
-                pointPresenter.setAborting();
-              }
+            await this.#tripsModel.updatePoint(updateType, update);
+            if (pointPresenter) {
+              pointPresenter.setEnabled();
             }
           } else {
-            this.#pointPresenters.get(update.id).setSaving();
+            if (pointPresenter) {
+              pointPresenter.setSaving();
+            }
             await this.#tripsModel.updatePoint(updateType, update);
           }
           break;
@@ -153,14 +146,7 @@ export default class BoardPresenter {
             pointPresenter.setDeleting();
           }
           await this.#tripsModel.deletePoint(updateType, update);
-          const currentFilterType = this.#filterModel.filterType;
-          const filteredPoints = this.#filterPoints(this.#tripsModel.trips, currentFilterType);
-          if (filteredPoints.length === 0) {
-            this.#clearBoard();
-            this.#renderSort();
-            this.#ensureBoardExists();
-            this.#renderEmptyList();
-          }
+          this.#checkEmptyList();
           break;
         default:
           throw new Error(`Unknown action type: ${actionType}`);
@@ -169,8 +155,8 @@ export default class BoardPresenter {
       console.error(err);
       switch (actionType) {
         case UserAction.UPDATE_POINT:
-          if (!isFavoriteUpdate && this.#pointPresenters.get(update.id)) {
-            this.#pointPresenters.get(update.id).setAborting();
+          if (pointPresenter) {
+            pointPresenter.setAborting();
           }
           break;
         case UserAction.ADD_POINT:
@@ -178,7 +164,7 @@ export default class BoardPresenter {
           break;
         case UserAction.DELETE_POINT:
           if (pointPresenter) {
-            pointPresenter.setAborting();
+            pointPresenter.setDeletingFailed();
           }
           break;
       }
@@ -186,6 +172,17 @@ export default class BoardPresenter {
       this.#uiBlocker.unblock();
     }
   };
+
+  #checkEmptyList() {
+    const currentFilterType = this.#filterModel.filterType;
+    const filteredPoints = this.#filterPoints(this.#tripsModel.trips, currentFilterType);
+    if (filteredPoints.length === 0) {
+      this.#clearBoard();
+      this.#renderSort();
+      this.#ensureBoardExists();
+      this.#renderEmptyList();
+    }
+  }
 
   #handleModeChange = (pointId) => {
     // Закрываем форму создания новой точки, если она открыта
@@ -233,15 +230,19 @@ export default class BoardPresenter {
   }
 
   #filterPoints(trips, filterType) {
+    if (!trips || !trips.length) {
+      return [];
+    }
+
     const validPoints = trips.filter((point) =>
       point && point.dateFrom && point.dateTo
     );
 
     const filterHandlers = {
       [FilterType.EVERYTHING]: () => validPoints,
-      [FilterType.FUTURE]: () => validPoints.filter((point) => isPointFuture(point)),
-      [FilterType.PRESENT]: () => validPoints.filter((point) => isPointPresent(point)),
-      [FilterType.PAST]: () => validPoints.filter((point) => isPointPast(point))
+      [FilterType.FUTURE]: () => validPoints.filter(isPointFuture),
+      [FilterType.PRESENT]: () => validPoints.filter(isPointPresent),
+      [FilterType.PAST]: () => validPoints.filter(isPointPast)
     };
 
     return (filterHandlers[filterType] || filterHandlers[FilterType.EVERYTHING])();
@@ -255,6 +256,10 @@ export default class BoardPresenter {
   }
 
   #sortPoints(points, sortType) {
+    if (!points || !points.length) {
+      return [];
+    }
+
     const validPoints = points.filter((point) =>
       point && point.dateFrom && point.dateTo
     );
@@ -266,28 +271,26 @@ export default class BoardPresenter {
       [SortType.TIME]: () => validPoints.sort((pointA, pointB) => {
         const durationA = this.#calculateEventDuration(pointA);
         const durationB = this.#calculateEventDuration(pointB);
-        if (durationA === durationB) {
-          return dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
-        }
-        return durationB - durationA;
+        return durationB - durationA || dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
       }),
       [SortType.PRICE]: () => validPoints.sort((pointA, pointB) =>
         pointB.basePrice - pointA.basePrice
       )
     };
 
-    return (sortHandlers[sortType] || (() => validPoints))();
+    return (sortHandlers[sortType] || sortHandlers[SortType.DAY])();
   }
 
   #renderEmptyList() {
     if (this.#emptyComponent) {
       remove(this.#emptyComponent);
-      this.#emptyComponent = null;
     }
+
     this.#emptyComponent = new EmptyListView({
       filterType: this.#filterModel.filterType,
       isCreatingNewPoint: this.#isCreating
     });
+
     if (this.#boardComponent) {
       render(this.#emptyComponent, this.#boardComponent.element);
     }
@@ -312,11 +315,16 @@ export default class BoardPresenter {
   }
 
   #renderSort() {
+    if (this.#sortComponent) {
+      remove(this.#sortComponent);
+    }
+
     this.#sortComponent = new SortView({
       sortTypes: SortTypeEnabled,
       currentSortType: this.#sortModel.sortType,
       onSortTypeChange: this.#onSortTypeChange
     });
+
     render(this.#sortComponent, this.#container);
   }
 
@@ -331,14 +339,13 @@ export default class BoardPresenter {
 
   #renderBoard(points) {
     this.#renderSort();
-    const isNewBoard = this.#ensureBoardExists();
-    if (!isNewBoard) {
-      render(this.#boardComponent, this.#container);
-    }
+    this.#ensureBoardExists();
+
     if (!points || points.length === 0) {
       this.#renderEmptyList();
       return;
     }
+
     this.#renderPoints(points);
   }
 
@@ -349,47 +356,41 @@ export default class BoardPresenter {
 
   #clearBoard() {
     this.#clearPointsList();
-    if (this.#sortComponent) {
-      remove(this.#sortComponent);
-      this.#sortComponent = null;
-    }
-    if (this.#emptyComponent) {
-      remove(this.#emptyComponent);
-      this.#emptyComponent = null;
-    }
-    remove(this.#boardComponent);
+    this.#clearComponents();
+  }
+
+  #clearComponents() {
+    [
+      this.#sortComponent,
+      this.#emptyComponent,
+      this.#boardComponent,
+      this.#loadingComponent,
+      this.#errorComponent
+    ].forEach((component) => {
+      if (component) {
+        remove(component);
+      }
+    });
+
+    this.#sortComponent = null;
+    this.#emptyComponent = null;
     this.#boardComponent = null;
-    if (this.#loadingComponent) {
-      remove(this.#loadingComponent);
-      this.#loadingComponent = null;
-    }
-    if (this.#errorComponent) {
-      remove(this.#errorComponent);
-      this.#errorComponent = null;
-    }
+    this.#loadingComponent = null;
+    this.#errorComponent = null;
   }
 
   #handleNewPointFormClose = () => {
     this.#isCreating = false;
 
-    // Если список пуст, показываем стандартное сообщение о пустом списке
-    if (this.#tripsModel.trips.length === 0) {
-      if (this.#emptyComponent) {
-        remove(this.#emptyComponent);
-      }
-      this.#emptyComponent = new EmptyListView({
-        filterType: this.#filterModel.filterType,
-        isCreatingNewPoint: false
-      });
-      if (this.#boardComponent && this.#boardComponent.element) {
-        render(this.#emptyComponent, this.#boardComponent.element);
-      }
-    }
-
     // Разблокируем кнопку создания новой точки
     const newPointButtonElement = document.querySelector('.trip-main__event-add-btn');
     if (newPointButtonElement) {
       newPointButtonElement.disabled = false;
+    }
+
+    // Если список пуст, показываем стандартное сообщение о пустом списке
+    if (this.#tripsModel.trips.length === 0) {
+      this.#renderEmptyList();
     }
   };
 
@@ -431,21 +432,29 @@ export default class BoardPresenter {
 
   init() {
     this.#clearBoard();
+
     if (this.#isLoading) {
       this.#renderLoading();
       return;
     }
-    if (this.#destinationsModel.destinations.length === 0 || this.#offersModel.offers.length === 0) {
+
+    if (this.#hasInitError()) {
       this.#renderError();
       return;
     }
-    if (this.#tripsModel.hasError) {
-      this.#renderError();
-      return;
-    }
+
     const points = this.getPoints();
     this.#renderBoard(points);
-    this.#initNewPointForm();
+
+    if (this.#isCreating && this.#canCreatePoint) {
+      this.createPoint();
+    }
+  }
+
+  #hasInitError() {
+    return this.#destinationsModel.destinations.length === 0 ||
+           this.#offersModel.offers.length === 0 ||
+           this.#tripsModel.hasError;
   }
 
   setIsLoading(isLoading) {
@@ -463,6 +472,31 @@ export default class BoardPresenter {
     }
 
     // Подготовка к созданию новой точки
+    this.#prepareForNewPoint();
+
+    // Закрытие всех открытых форм редактирования
+    this.#pointPresenters.forEach((presenter) => {
+      presenter.resetView();
+    });
+
+    // Очистка и перерисовка доски
+    this.#clearBoard();
+    this.#renderSort();
+    this.#renderPointsOrEmpty();
+
+    // Убедимся, что доска существует
+    this.#ensureBoardExists();
+
+    // Устанавливаем флаг создания и инициализируем презентер новой точки
+    this.#isCreating = true;
+
+    // Устанавливаем контейнер для NewPointPresenter
+    this.#newPointPresenter.setContainer(this.#boardComponent.element);
+    this.#newPointPresenter.init();
+  }
+
+  #prepareForNewPoint() {
+    // Установка фильтра и сортировки
     this.#filterModel.setFilterType(FilterType.EVERYTHING, true);
     this.#sortModel.setSortType(SortType.DAY, true);
     this.#currentSortType = SortType.DAY;
@@ -476,19 +510,10 @@ export default class BoardPresenter {
     if (sortInput) {
       sortInput.checked = true;
     }
+  }
 
-    // Закрытие всех открытых форм редактирования
-    this.#pointPresenters.forEach((presenter) => {
-      presenter.resetView();
-    });
-
-    // Очистка и перерисовка доски
-    this.#clearBoard();
+  #renderPointsOrEmpty() {
     const points = this.getPoints();
-    this.#renderSort();
-    if (points.length > 0) {
-      this.#renderBoard(points);
-    }
 
     // Удаление сообщения о пустом списке, если оно есть
     if (this.#emptyComponent) {
@@ -496,8 +521,9 @@ export default class BoardPresenter {
       this.#emptyComponent = null;
     }
 
-    // Если список пуст, показываем специальное сообщение
-    if (this.#tripsModel.trips.length === 0) {
+    if (points.length > 0) {
+      this.#renderBoard(points);
+    } else if (this.#tripsModel.trips.length === 0) {
       this.#emptyComponent = new EmptyListView({
         filterType: this.#filterModel.filterType,
         isCreatingNewPoint: true
@@ -506,15 +532,5 @@ export default class BoardPresenter {
         render(this.#emptyComponent, this.#boardComponent.element);
       }
     }
-
-    // Убедимся, что доска существует
-    this.#ensureBoardExists();
-
-    // Устанавливаем флаг создания и инициализируем презентер новой точки
-    this.#isCreating = true;
-
-    // Устанавливаем контейнер для NewPointPresenter
-    this.#newPointPresenter.setContainer(this.#boardComponent.element);
-    this.#newPointPresenter.init();
   }
 }

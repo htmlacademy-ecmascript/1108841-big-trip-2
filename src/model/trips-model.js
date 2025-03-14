@@ -34,7 +34,13 @@ export default class TripsModel extends Observable {
   }
 
   async updatePoint(updateType, updatedPoint) {
-    return this.updateTrip(updateType, updatedPoint);
+    try {
+      const updatedServerPoint = await this.#apiService.updatePoint(updatedPoint);
+      this.#updatePointInModel(updatedServerPoint, updateType);
+      return updatedServerPoint;
+    } catch (err) {
+      this.#handleApiError('Failed to update point. Please try again.');
+    }
   }
 
   async updateTrip(updateType, updatedPoint) {
@@ -63,7 +69,7 @@ export default class TripsModel extends Observable {
       this._notify(updateType, newPoint);
       return newPoint;
     } catch (err) {
-      throw new Error('Failed to add point. Please try again.');
+      this.#handleApiError('Failed to add point. Please try again.');
     }
   }
 
@@ -73,7 +79,28 @@ export default class TripsModel extends Observable {
       this.#trips = this.#trips.filter((trip) => trip.id !== point.id);
       this._notify(updateType);
     } catch (err) {
-      throw new Error('Failed to delete point. Please try again.');
+      this.#handleApiError('Failed to delete point. Please try again.');
     }
+  }
+
+  #updatePointInModel(updatedPoint, updateType) {
+    const index = this.#trips.findIndex((trip) => trip.id === updatedPoint.id);
+    if (index === -1) {
+      this.#handleApiError('Failed to update point. Please try again.');
+      return;
+    }
+
+    this.#trips = [
+      ...this.#trips.slice(0, index),
+      updatedPoint,
+      ...this.#trips.slice(index + 1)
+    ];
+
+    this._notify(updateType, updatedPoint);
+  }
+
+  #handleApiError(message) {
+    this.#hasError = true;
+    throw new Error(message);
   }
 }

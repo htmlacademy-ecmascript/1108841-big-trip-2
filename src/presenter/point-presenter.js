@@ -93,11 +93,16 @@ export default class PointPresenter {
       }
     } else {
       const resetState = () => {
-        this.#pointComponent.updateElement({
-          isFavorite: !this.#point.isFavorite
-        });
+        if (this.#pointComponent) {
+          this.#pointComponent.updateElement({
+            isFavorite: this.#point.isFavorite
+          });
+        }
       };
-      this.#pointComponent.shake(resetState);
+
+      if (this.#pointComponent) {
+        this.#pointComponent.shake(resetState);
+      }
     }
   }
 

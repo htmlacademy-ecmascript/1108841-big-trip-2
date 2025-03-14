@@ -43,32 +43,51 @@ export default class PointsApiService extends ApiService {
   }
 
   #adaptPointToClient(point) {
-    const adaptedPoint = {
-      id: point.id,
-      basePrice: point.base_price,
-      dateFrom: point.date_from,
-      dateTo: point.date_to,
-      destination: point.destination,
-      isFavorite: point.is_favorite,
-      offers: point.offers,
-      type: point.type
-    };
+    const {
+      id,
+      base_price: basePrice,
+      date_from: dateFrom,
+      date_to: dateTo,
+      destination,
+      is_favorite: isFavorite,
+      offers,
+      type
+    } = point;
 
-    return adaptedPoint;
+    return {
+      id,
+      basePrice,
+      dateFrom,
+      dateTo,
+      destination,
+      isFavorite,
+      offers,
+      type
+    };
   }
 
   #adaptPointToServer(point) {
-    const adaptedPoint = {
-      id: point.id,
-      'date_from': point.dateFrom,
-      'date_to': point.dateTo,
-      destination: point.destination,
-      'is_favorite': point.isFavorite,
-      offers: point.offers || [],
-      type: point.type,
-      'base_price': isNaN(point.basePrice) || point.basePrice < 0 ? 0 : point.basePrice
-    };
+    const {
+      id,
+      dateFrom,
+      dateTo,
+      destination,
+      isFavorite,
+      type
+    } = point;
 
-    return adaptedPoint;
+    const basePrice = isNaN(point.basePrice) || point.basePrice < 0 ? 0 : point.basePrice;
+    const offers = point.offers || [];
+
+    return {
+      id,
+      'date_from': dateFrom,
+      'date_to': dateTo,
+      destination,
+      'is_favorite': isFavorite,
+      offers,
+      type,
+      'base_price': basePrice
+    };
   }
 }
