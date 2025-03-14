@@ -97,9 +97,28 @@ export default class BoardPresenter {
     this.#renderBoard(this.getPoints());
   }
 
-  #handleModeChange = () => {
-    this.#newPointPresenter.destroy();
-    this.#pointPresenters.forEach((presenter) => presenter.resetView());
+  #handleModeChange = (pointId) => {
+    // Закрываем форму создания новой точки, если она открыта
+    if (this.#isCreating) {
+      this.#newPointPresenter.destroy();
+      this.#isCreating = false;
+    }
+
+    if (pointId && this.#pointPresenters.get(pointId)?.isEditing()) {
+      this.#filterModel.setFilterType(FilterType.EVERYTHING, true);
+    }
+    if (!pointId) {
+      this.#pointPresenters.forEach((presenter) => {
+        presenter.resetView();
+      });
+      return;
+    }
+    const activePointPresenter = this.#pointPresenters.get(pointId);
+    this.#pointPresenters.forEach((presenter) => {
+      if (presenter !== activePointPresenter) {
+        presenter.resetView();
+      }
+    });
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
