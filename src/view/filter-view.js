@@ -35,8 +35,6 @@ export default class FilterView extends AbstractView {
     if (activeFilter) {
       activeFilter.checked = true;
     }
-
-    console.log(`Фильтр обновлен на: ${filterType}`);
   }
 
   _restoreHandlers() {

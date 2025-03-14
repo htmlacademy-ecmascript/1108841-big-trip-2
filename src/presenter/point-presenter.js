@@ -78,33 +78,21 @@ export default class PointPresenter {
   }
 
   setSaving() {
-    if (this.#isEditFormOpen) {
-      this.#pointEditComponent.updateElement({
-        isSaving: true,
-        isDisabled: true
-      });
+    if (this.#pointEditComponent) {
+      this.#pointEditComponent.setSaving();
     }
   }
 
   setDeleting() {
-    if (this.#isEditFormOpen) {
-      this.#pointEditComponent.updateElement({
-        isDeleting: true,
-        isDisabled: true
-      });
+    if (this.#pointEditComponent) {
+      this.#pointEditComponent.setDeleting();
     }
   }
 
   setAborting() {
-    const resetFormState = () => {
-      this.#pointEditComponent.updateElement({
-        isDisabled: false,
-        isSaving: false,
-        isDeleting: false
-      });
-    };
-
-    this.#pointEditComponent.shake(resetFormState);
+    if (this.#pointEditComponent) {
+      this.#pointEditComponent.setAborting();
+    }
   }
 
   setDeletingFailed() {
@@ -120,52 +108,40 @@ export default class PointPresenter {
   }
 
   setDisabled() {
-    if (this.#isEditFormOpen) {
-      this.#pointEditComponent.updateElement({
-        isDisabled: true
-      });
+    if (this.#pointComponent) {
+      const rollupButton = this.#pointComponent.element.querySelector('.event__rollup-btn');
+      const favoriteButton = this.#pointComponent.element.querySelector('.event__favorite-btn');
 
-      // Явно устанавливаем атрибут disabled для всех элементов формы
-      const form = document.querySelector('.event.event--edit');
-      if (form) {
-        const buttons = form.querySelectorAll('button');
-        const inputs = form.querySelectorAll('input');
-
-        buttons.forEach((button) => {
-          button.disabled = true;
-        });
-
-        inputs.forEach((input) => {
-          input.disabled = true;
-        });
+      if (rollupButton) {
+        rollupButton.disabled = true;
+        rollupButton.style.pointerEvents = 'none';
+        rollupButton.style.opacity = '0.5';
       }
-    } else {
-      this.#pointComponent.setDisabled(true);
+
+      if (favoriteButton) {
+        favoriteButton.disabled = true;
+        favoriteButton.style.pointerEvents = 'none';
+        favoriteButton.style.opacity = '0.5';
+      }
     }
   }
 
   setEnabled() {
-    if (this.#isEditFormOpen) {
-      this.#pointEditComponent.updateElement({
-        isDisabled: false
-      });
+    if (this.#pointComponent) {
+      const rollupButton = this.#pointComponent.element.querySelector('.event__rollup-btn');
+      const favoriteButton = this.#pointComponent.element.querySelector('.event__favorite-btn');
 
-      // Явно убираем атрибут disabled для всех элементов формы
-      const form = document.querySelector('.event.event--edit');
-      if (form) {
-        const buttons = form.querySelectorAll('button');
-        const inputs = form.querySelectorAll('input');
-
-        buttons.forEach((button) => {
-          button.disabled = false;
-        });
-
-        inputs.forEach((input) => {
-          input.disabled = false;
-        });
+      if (rollupButton) {
+        rollupButton.disabled = false;
+        rollupButton.style.pointerEvents = 'auto';
+        rollupButton.style.opacity = '1';
       }
-    } else {
-      this.#pointComponent.setDisabled(false);
+
+      if (favoriteButton) {
+        favoriteButton.disabled = false;
+        favoriteButton.style.pointerEvents = 'auto';
+        favoriteButton.style.opacity = '1';
+      }
     }
   }
 

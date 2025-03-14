@@ -447,6 +447,36 @@ export default class PointEditView extends AbstractStatefulView {
       isSaving: true,
       isDisabled: true
     });
+
+    // Дополнительно блокируем все интерактивные элементы
+    const form = this.element.querySelector('form');
+    if (form) {
+      form.classList.add('disabled');
+
+      const buttons = form.querySelectorAll('button');
+      const inputs = form.querySelectorAll('input');
+      const selects = form.querySelectorAll('select');
+      const labels = form.querySelectorAll('label');
+
+      buttons.forEach((button) => {
+        button.disabled = true;
+        button.style.pointerEvents = 'none';
+      });
+
+      inputs.forEach((input) => {
+        input.disabled = true;
+        input.style.pointerEvents = 'none';
+      });
+
+      selects.forEach((select) => {
+        select.disabled = true;
+        select.style.pointerEvents = 'none';
+      });
+
+      labels.forEach((label) => {
+        label.style.pointerEvents = 'none';
+      });
+    }
   }
 
   setDeleting() {
@@ -454,6 +484,36 @@ export default class PointEditView extends AbstractStatefulView {
       isDeleting: true,
       isDisabled: true
     });
+
+    // Дополнительно блокируем все интерактивные элементы
+    const form = this.element.querySelector('form');
+    if (form) {
+      form.classList.add('disabled');
+
+      const buttons = form.querySelectorAll('button');
+      const inputs = form.querySelectorAll('input');
+      const selects = form.querySelectorAll('select');
+      const labels = form.querySelectorAll('label');
+
+      buttons.forEach((button) => {
+        button.disabled = true;
+        button.style.pointerEvents = 'none';
+      });
+
+      inputs.forEach((input) => {
+        input.disabled = true;
+        input.style.pointerEvents = 'none';
+      });
+
+      selects.forEach((select) => {
+        select.disabled = true;
+        select.style.pointerEvents = 'none';
+      });
+
+      labels.forEach((label) => {
+        label.style.pointerEvents = 'none';
+      });
+    }
   }
 
   setAborting() {
@@ -474,5 +534,64 @@ export default class PointEditView extends AbstractStatefulView {
     }
 
     return this._state.isDeleting ? ButtonText.DELETING : ButtonText.DELETE;
+  }
+
+  updateElement(update) {
+    super.updateElement(update);
+
+    // Если форма заблокирована, явно устанавливаем атрибут disabled для всех элементов формы
+    if (this._state.isDisabled) {
+      const form = this.element.querySelector('form');
+      if (form) {
+        form.classList.add('disabled');
+
+        const buttons = form.querySelectorAll('button');
+        const inputs = form.querySelectorAll('input');
+        const selects = form.querySelectorAll('select');
+        const labels = form.querySelectorAll('label');
+
+        buttons.forEach((button) => {
+          button.disabled = true;
+        });
+
+        inputs.forEach((input) => {
+          input.disabled = true;
+        });
+
+        selects.forEach((select) => {
+          select.disabled = true;
+        });
+
+        labels.forEach((label) => {
+          label.style.pointerEvents = 'none';
+        });
+      }
+    } else {
+      const form = this.element.querySelector('form');
+      if (form) {
+        form.classList.remove('disabled');
+
+        const buttons = form.querySelectorAll('button');
+        const inputs = form.querySelectorAll('input');
+        const selects = form.querySelectorAll('select');
+        const labels = form.querySelectorAll('label');
+
+        buttons.forEach((button) => {
+          button.disabled = false;
+        });
+
+        inputs.forEach((input) => {
+          input.disabled = false;
+        });
+
+        selects.forEach((select) => {
+          select.disabled = false;
+        });
+
+        labels.forEach((label) => {
+          label.style.pointerEvents = 'auto';
+        });
+      }
+    }
   }
 }

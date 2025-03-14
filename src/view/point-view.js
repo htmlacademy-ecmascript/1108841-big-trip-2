@@ -95,8 +95,26 @@ export default class PointView extends AbstractView {
 
   setDisabled(isDisabled) {
     this.#isDisabled = isDisabled;
-    this.element.querySelector('.event__rollup-btn').disabled = isDisabled;
-    this.element.querySelector('.event__favorite-btn').disabled = isDisabled;
+    const rollupButton = this.element.querySelector('.event__rollup-btn');
+    const favoriteButton = this.element.querySelector('.event__favorite-btn');
+
+    if (rollupButton) {
+      rollupButton.disabled = isDisabled;
+    }
+
+    if (favoriteButton) {
+      favoriteButton.disabled = isDisabled;
+    }
+  }
+
+  shake(callback) {
+    this.element.classList.add('shake');
+    setTimeout(() => {
+      this.element.classList.remove('shake');
+      if (callback) {
+        callback();
+      }
+    }, 600);
   }
 
   updateElement(update) {

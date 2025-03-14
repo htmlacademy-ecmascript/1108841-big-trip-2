@@ -103,8 +103,6 @@ export default class FilterPresenter {
 
     // Обновляем отображение фильтров в DOM
     this.updateFilterInDOM();
-
-    console.log(`Фильтр изменен на: ${filterType}, сортировка сброшена на 'day'`);
   };
 
   #handleModelEvent = () => {
