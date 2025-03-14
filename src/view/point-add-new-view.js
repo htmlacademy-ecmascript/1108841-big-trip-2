@@ -1,22 +1,18 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { PointTypes } from '../const.js';
 import he from 'he';
-
 export default class PointAddNewView extends AbstractView {
   #destinations = null;
   #offers = null;
-
   constructor(destinations, offers) {
     super();
     this.#destinations = destinations;
     this.#offers = offers;
   }
-
   get template() {
     const destinations = this.#destinations.map((dest) => `
       <option value="${he.encode(dest.name)}"></option>
     `).join('');
-
     const pointTypes = PointTypes.ITEMS.map((type) => `
       <div class="event__type-item">
         <input
@@ -34,7 +30,6 @@ export default class PointAddNewView extends AbstractView {
         </label>
       </div>
     `).join('');
-
     return `
       <li class="trip-events__item">
         <form class="event event--edit" action="#" method="post">
@@ -52,7 +47,6 @@ export default class PointAddNewView extends AbstractView {
                 </fieldset>
               </div>
             </div>
-
             <div class="event__field-group event__field-group--destination">
               <label class="event__label event__type-output" for="event-destination-1">
                 Flight
@@ -69,7 +63,6 @@ export default class PointAddNewView extends AbstractView {
                 ${destinations}
               </datalist>
             </div>
-
             <div class="event__field-group event__field-group--time">
               <label class="visually-hidden" for="event-start-time-1">From</label>
               <input
@@ -89,7 +82,6 @@ export default class PointAddNewView extends AbstractView {
                 value=""
               >
             </div>
-
             <div class="event__field-group event__field-group--price">
               <label class="event__label" for="event-price-1">
                 <span class="visually-hidden">Price</span>
@@ -103,7 +95,6 @@ export default class PointAddNewView extends AbstractView {
                 value=""
               >
             </div>
-
             <button class="event__save-btn btn btn--blue" type="submit">Save</button>
             <button class="event__reset-btn" type="reset">Cancel</button>
           </header>

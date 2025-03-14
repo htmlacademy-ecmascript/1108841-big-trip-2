@@ -11,23 +11,19 @@ const PointTypes = {
     'restaurant',
   ]
 };
-
 const TimeConfig = {
   MINUTES_IN_HOUR: 60,
   MINUTES_IN_DAY: 60 * 24,
   HOURS_IN_DAY: 24
 };
-
 const IdConfig = {
   RADIX: 36,
   LENGTH: 2
 };
-
 const PriceConfig = {
   DEFAULT: 0,
   MIN: 1
 };
-
 const DateFormat = {
   MONTH: 'MONTH',
   DAY: 'DAY',
@@ -37,25 +33,20 @@ const DateFormat = {
   DATE_DISPLAY: 'DD/MM/YY HH:mm',
   TRIP_INFO: 'DD MMM',
 };
-
 const DurationLabel = {
   DAY: 'D',
   HOUR: 'H',
   MINUTE: 'M',
 };
-
 const TimeUnit = {
   MINUTE: 'minute',
 };
-
 const PointIconSize = {
   SMALL: 17,
   MEDIUM: 28,
   LARGE: 42,
 };
-
 const DEFAULT_ERROR_MESSAGE = 'Failed to load latest route information';
-
 const ApiConfig = {
   BASE_URL: 'https://23.objects.htmlacademy.pro/big-trip',
   ENDPOINTS: {
@@ -68,14 +59,12 @@ const ApiConfig = {
   ADDING_POINT: 'Не удалось добавить точку маршрута',
   DELETING_POINT: 'Не удалось удалить точку маршрута'
 };
-
 const ApiErrorMessage = {
   DELETE: 'Failed to delete point. Please try again.',
   PUT: 'Failed to update point. Please try again.',
   POST: 'Failed to create point. Please try again.',
   GET: 'Failed to load latest route information'
 };
-
 const SortLabel = {
   DAY: 'Day',
   EVENT: 'Event',
@@ -83,14 +72,12 @@ const SortLabel = {
   PRICE: 'Price',
   OFFER: 'Offers',
 };
-
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
 };
-
 const SortType = {
   DAY: 'day',
   EVENT: 'event',
@@ -98,7 +85,6 @@ const SortType = {
   PRICE: 'price',
   OFFER: 'offer'
 };
-
 const SortTypeEnabled = {
   [SortType.DAY]: true,
   [SortType.EVENT]: false,
@@ -106,27 +92,23 @@ const SortTypeEnabled = {
   [SortType.PRICE]: true,
   [SortType.OFFER]: false
 };
-
 const EmptyListTexts = {
   [FilterType.EVERYTHING]: 'Click New Event to create your first point',
   [FilterType.PAST]: 'There are no past events now',
   [FilterType.PRESENT]: 'There are no present events now',
   [FilterType.FUTURE]: 'There are no future events now',
 };
-
 const UserAction = {
   UPDATE_POINT: 'UPDATE_POINT',
   ADD_POINT: 'ADD_POINT',
   DELETE_POINT: 'DELETE_POINT',
 };
-
 const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
   FORCE: 'FORCE',
 };
-
 const ButtonText = {
   SAVE: 'Save',
   SAVING: 'Saving...',
@@ -134,18 +116,15 @@ const ButtonText = {
   DELETING: 'Deleting...',
   LOADING: 'Loading...'
 };
-
 const ArrayConfig = {
   EMPTY_LENGTH: 0,
   FIRST_INDEX: 0,
   SECOND_INDEX: 1
 };
-
 const TokenConfig = {
   CHARACTERS: 'abcdefghijklmnopqrstuvwxyz0123456789',
   LENGTH: 12
 };
-
 const DEFAULT_POINT = {
   id: null,
   basePrice: 0,
@@ -156,7 +135,6 @@ const DEFAULT_POINT = {
   offers: [],
   type: 'flight'
 };
-
 export {
   PointTypes,
   DateFormat,

@@ -1,7 +1,6 @@
 import PointEditView from '../view/point-edit-view.js';
 import { render, remove } from '../utils/render-utils.js';
 import { UserAction, UpdateType } from '../const.js';
-
 export default class NewPointPresenter {
   #pointEditComponent = null;
   #pointsListContainer = null;
@@ -9,7 +8,6 @@ export default class NewPointPresenter {
   #offers = null;
   #handleDataChange = null;
   #handleDestroy = null;
-
   constructor({
     container,
     destinations,
@@ -23,12 +21,10 @@ export default class NewPointPresenter {
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
   }
-
   init(point) {
     if (this.#pointEditComponent !== null) {
       return;
     }
-
     this.#pointEditComponent = new PointEditView({
       point,
       destinations: this.#destinations,
@@ -37,24 +33,18 @@ export default class NewPointPresenter {
       onRollupClick: this.#handleFormClose,
       onDeleteClick: this.#handleFormClose
     });
-
     render(this.#pointEditComponent, this.#pointsListContainer, 'afterbegin');
     document.addEventListener('keydown', this.#escKeyDownHandler);
   }
-
   destroy() {
     if (this.#pointEditComponent === null) {
       return;
     }
-
     this.#handleDestroy();
-
     remove(this.#pointEditComponent);
     this.#pointEditComponent = null;
-
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
-
   setSaving() {
     if (this.#pointEditComponent) {
       this.#pointEditComponent.updateElement({
@@ -63,7 +53,6 @@ export default class NewPointPresenter {
       });
     }
   }
-
   setAborting() {
     const resetFormState = () => {
       this.#pointEditComponent.updateElement({
@@ -72,11 +61,8 @@ export default class NewPointPresenter {
         isDeleting: false
       });
     };
-
-    // Добавляем анимацию "качания головой" для формы
     this.#pointEditComponent.shake(resetFormState);
   }
-
   setDisabled() {
     if (this.#pointEditComponent) {
       this.#pointEditComponent.updateElement({
@@ -84,7 +70,6 @@ export default class NewPointPresenter {
       });
     }
   }
-
   setEnabled() {
     if (this.#pointEditComponent) {
       this.#pointEditComponent.updateElement({
@@ -92,7 +77,6 @@ export default class NewPointPresenter {
       });
     }
   }
-
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.ADD_POINT,
@@ -100,11 +84,9 @@ export default class NewPointPresenter {
       point,
     );
   };
-
   #handleFormClose = () => {
     this.destroy();
   };
-
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();

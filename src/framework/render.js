@@ -29,11 +29,6 @@ function createElement(template) {
 const render = (component, container, place = 'beforeend') => {
   const element = component.element;
 
-  console.log('Render component:', component.constructor.name);
-  console.log('Container:', container);
-  console.log('Place:', place);
-  console.log('Element to render:', element);
-
   switch (place) {
     case 'beforebegin':
       container.before(element);
@@ -51,10 +46,8 @@ const render = (component, container, place = 'beforeend') => {
 
   // Проверяем, успешно ли добавлен элемент
   setTimeout(() => {
-    if (element.isConnected) {
-      console.log('Element successfully rendered:', element.outerHTML);
-    } else {
-      console.warn('Element was not connected to DOM after render!');
+    if (!element.isConnected) {
+      // Элемент не был подключен к DOM после рендеринга
     }
   }, 0);
 };

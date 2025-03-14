@@ -11,28 +11,23 @@ import NewPointButtonView from './view/new-point-button-view.js';
 import { render } from './utils/render-utils.js';
 import { ApiConfig } from './const.js';
 import { generateAuthToken } from './utils/common.js';
-
 const tripMainElement = document.querySelector('.trip-main');
 const tripEventsElement = document.querySelector('.trip-events');
 const filterElement = document.querySelector('.trip-controls__filters');
 const newPointButtonElement = document.querySelector('.trip-main');
-
 const authorization = generateAuthToken();
 const apiService = new PointsApiService(ApiConfig.BASE_URL, authorization);
-
 const destinationsModel = new DestinationsModel(apiService);
 const offersModel = new OffersModel(apiService);
 const tripsModel = new TripsModel(apiService);
 const filterModel = new FilterModel();
 const sortModel = new SortModel();
-
 const tripInfoPresenter = new TripInfoPresenter({
   container: tripMainElement,
   tripsModel,
   destinationsModel,
   offersModel
 });
-
 const boardPresenter = new BoardPresenter({
   container: tripEventsElement,
   destinationsModel,
@@ -41,42 +36,33 @@ const boardPresenter = new BoardPresenter({
   filterModel,
   sortModel
 });
-
 const filterPresenter = new FilterPresenter({
   container: filterElement,
   filterModel,
   tripsModel,
   boardPresenter
 });
-
-// Устанавливаем ссылку на filterPresenter в filterModel
 filterModel.setFilterPresenter(filterPresenter);
-
 let newPointButtonComponent = null;
-
 const handleNewPointButtonClick = () => {
   boardPresenter.createPoint();
   newPointButtonComponent.element.disabled = true;
 };
-
 const renderNewPointButton = () => {
   newPointButtonComponent = new NewPointButtonView({
     onClick: handleNewPointButtonClick
   });
   render(newPointButtonComponent, newPointButtonElement);
 };
-
 (async () => {
   boardPresenter.init();
   filterPresenter.init();
-
   try {
     await Promise.all([
       destinationsModel.init(),
       offersModel.init(),
       tripsModel.init()
     ]);
-
     boardPresenter.setIsLoading(false);
     boardPresenter.init();
     tripInfoPresenter.init();

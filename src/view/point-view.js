@@ -2,7 +2,6 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { formatDate, calculateDuration } from '../utils/date-format.js';
 import { DateFormat, PointIconSize } from '../const.js';
 import he from 'he';
-
 export default class PointView extends AbstractView {
   #point = null;
   #destinations = null;
@@ -10,7 +9,6 @@ export default class PointView extends AbstractView {
   #handleRollupButtonClick = null;
   #handleFavoriteClick = null;
   #isDisabled = false;
-
   constructor({ point, destinations, offers, onRollupClick, onFavoriteClick }) {
     super();
     this.#point = point;
@@ -18,24 +16,18 @@ export default class PointView extends AbstractView {
     this.#offers = offers;
     this.#handleRollupButtonClick = onRollupClick;
     this.#handleFavoriteClick = onFavoriteClick;
-
     this._restoreHandlers();
   }
-
   _restoreHandlers() {
     this.setEventListeners();
   }
-
-  // Геттеры
   get point() {
     return this.#point;
   }
-
   get template() {
     const destination = this.#destinations.find((dest) => dest.id === this.#point.destination);
     const pointTypeOffers = this.#offers.find((offer) => offer.type === this.#point.type)?.offers || [];
     const selectedOffers = pointTypeOffers.filter((offer) => this.#point.offers.includes(offer.id));
-
     const offersMarkup = selectedOffers.map((offer) => `
       <li class="event__offer">
         <span class="event__offer-title">${he.encode(offer.title)}</span>
@@ -43,7 +35,6 @@ export default class PointView extends AbstractView {
         <span class="event__offer-price">${he.encode(String(offer.price))}</span>
       </li>
     `).join('');
-
     return `
       <li class="trip-events__item">
         <div class="event" data-id="${he.encode(this.#point.id)}">
@@ -82,31 +73,24 @@ export default class PointView extends AbstractView {
       </li>
     `;
   }
-
-  // Методы класса
   setEventListeners() {
     const element = this.element;
     const rollupBtn = element.querySelector('.event__rollup-btn');
     const favoriteBtn = element.querySelector('.event__favorite-btn');
-
     rollupBtn.addEventListener('click', this.#onRollupButtonClick);
     favoriteBtn.addEventListener('click', this.#onFavoriteButtonClick);
   }
-
   setDisabled(isDisabled) {
     this.#isDisabled = isDisabled;
     const rollupButton = this.element.querySelector('.event__rollup-btn');
     const favoriteButton = this.element.querySelector('.event__favorite-btn');
-
     if (rollupButton) {
       rollupButton.disabled = isDisabled;
     }
-
     if (favoriteButton) {
       favoriteButton.disabled = isDisabled;
     }
   }
-
   shake(callback) {
     this.element.classList.add('shake');
     setTimeout(() => {
@@ -116,42 +100,24 @@ export default class PointView extends AbstractView {
       }
     }, 600);
   }
-
   updateElement(update) {
     if (!update) {
       return;
     }
-
-    // Обновляем данные точки
     this.#point = {...this.#point, ...update};
-
-    // Сохраняем ссылку на старый элемент
     const oldElement = this.element;
-
-    // Удаляем ссылку на элемент, чтобы при следующем обращении к this.element
-    // был создан новый элемент с обновленными данными
     this.removeElement();
-
-    // Получаем новый элемент с обновленными данными
     const newElement = this.element;
-
-    // Обновляем DOM
     const parent = oldElement.parentElement;
     if (parent) {
-      // Заменяем старый элемент новым
       parent.replaceChild(newElement, oldElement);
     }
-
-    // Восстанавливаем обработчики событий
     this._restoreHandlers();
   }
-
-  // Обработчики событий
   #onRollupButtonClick = (evt) => {
     evt.preventDefault();
     this.#handleRollupButtonClick();
   };
-
   #onFavoriteButtonClick = (evt) => {
     evt.preventDefault();
     this.#handleFavoriteClick();

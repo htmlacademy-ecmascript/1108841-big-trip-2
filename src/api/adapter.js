@@ -9,34 +9,27 @@ const ToClientAdapter = {
     offers: point.offers,
     type: point.type
   }),
-
   convertPoints: (points) => points.map(ToClientAdapter.convertPoint),
-
   convertDestination: (destination) => ({
     id: destination.id,
     description: destination.description,
     name: destination.name,
     pictures: destination.pictures
   }),
-
   convertDestinations: (destinations) => destinations.map(ToClientAdapter.convertDestination),
-
   convertOffer: (offer) => ({
     id: offer.id,
     title: offer.title,
     price: offer.price
   }),
-
   convertOffers: (offers) => offers.map((offerGroup) => ({
     type: offerGroup.type,
     offers: offerGroup.offers.map(ToClientAdapter.convertOffer)
   }))
 };
-
 const ToServerAdapter = {
   convertPoint: (point) => {
     const adaptedPoint = {};
-
     adaptedPoint.id = point.id;
     adaptedPoint['date_from'] = point.dateFrom;
     adaptedPoint['date_to'] = point.dateTo;
@@ -44,11 +37,8 @@ const ToServerAdapter = {
     adaptedPoint['is_favorite'] = point.isFavorite;
     adaptedPoint.offers = point.offers || [];
     adaptedPoint.type = point.type;
-
     adaptedPoint['base_price'] = isNaN(point.basePrice) || point.basePrice < 0 ? 0 : point.basePrice;
-
     return adaptedPoint;
   }
 };
-
 export { ToClientAdapter, ToServerAdapter };
