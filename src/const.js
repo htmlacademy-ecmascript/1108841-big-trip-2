@@ -1,18 +1,29 @@
-const POINT_TYPES = [
-  'taxi',
-  'bus',
-  'train',
-  'ship',
-  'drive',
-  'flight',
-  'check-in',
-  'sightseeing',
-  'restaurant',
-];
-const MINUTES_IN_HOUR = 60;
-const MINUTES_IN_DAY = MINUTES_IN_HOUR * 24;
-const HOURS_IN_DAY = 24;
-
+const PointTypes = {
+  ITEMS: [
+    'taxi',
+    'bus',
+    'train',
+    'ship',
+    'drive',
+    'flight',
+    'check-in',
+    'sightseeing',
+    'restaurant',
+  ]
+};
+const TimeConfig = {
+  MINUTES_IN_HOUR: 60,
+  MINUTES_IN_DAY: 60 * 24,
+  HOURS_IN_DAY: 24
+};
+const IdConfig = {
+  RADIX: 36,
+  LENGTH: 2
+};
+const PriceConfig = {
+  DEFAULT: 0,
+  MIN: 1
+};
 const DateFormat = {
   MONTH: 'MONTH',
   DAY: 'DAY',
@@ -22,44 +33,38 @@ const DateFormat = {
   DATE_DISPLAY: 'DD/MM/YY HH:mm',
   TRIP_INFO: 'DD MMM',
 };
-
 const DurationLabel = {
   DAY: 'D',
   HOUR: 'H',
   MINUTE: 'M',
 };
-
 const TimeUnit = {
   MINUTE: 'minute',
 };
-
-const RADIX = 36;
-const ID_LENGTH = 2;
-
-const POINT_ICON_SIZE = {
+const PointIconSize = {
   SMALL: 17,
   MEDIUM: 28,
   LARGE: 42,
 };
-
-const DEFAULT_PRICE = 0;
-const MIN_PRICE = 1;
-
-const DEFAULT_ERROR_MESSAGE = 'Something went wrong...';
-
-const API_CONFIG = {
-  END_POINT: 'https://22.objects.htmlacademy.pro/big-trip',
-};
-
-const ApiErrorMessage = {
-  LOADING_POINTS: 'Не удалось загрузить точки маршрута',
-  LOADING_OFFERS: 'Не удалось загрузить предложения',
-  LOADING_DESTINATIONS: 'Не удалось загрузить пункты назначения',
+const DEFAULT_ERROR_MESSAGE = 'Failed to load latest route information';
+const ApiConfig = {
+  BASE_URL: 'https://23.objects.htmlacademy.pro/big-trip',
+  ENDPOINTS: {
+    POINTS: 'points',
+    DESTINATIONS: 'destinations',
+    OFFERS: 'offers'
+  },
+  CONTENT_TYPE: 'application/json',
   UPDATING_POINT: 'Не удалось обновить точку маршрута',
   ADDING_POINT: 'Не удалось добавить точку маршрута',
   DELETING_POINT: 'Не удалось удалить точку маршрута'
 };
-
+const ApiErrorMessage = {
+  DELETE: 'Failed to delete point. Please try again.',
+  PUT: 'Failed to update point. Please try again.',
+  POST: 'Failed to create point. Please try again.',
+  GET: 'Failed to load latest route information'
+};
 const SortLabel = {
   DAY: 'Day',
   EVENT: 'Event',
@@ -67,14 +72,12 @@ const SortLabel = {
   PRICE: 'Price',
   OFFER: 'Offers',
 };
-
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
 };
-
 const SortType = {
   DAY: 'day',
   EVENT: 'event',
@@ -82,7 +85,6 @@ const SortType = {
   PRICE: 'price',
   OFFER: 'offer'
 };
-
 const SortTypeEnabled = {
   [SortType.DAY]: true,
   [SortType.EVENT]: false,
@@ -90,48 +92,72 @@ const SortTypeEnabled = {
   [SortType.PRICE]: true,
   [SortType.OFFER]: false
 };
-
-const EmptyListMessage = {
+const EmptyListTexts = {
   [FilterType.EVERYTHING]: 'Click New Event to create your first point',
   [FilterType.PAST]: 'There are no past events now',
   [FilterType.PRESENT]: 'There are no present events now',
   [FilterType.FUTURE]: 'There are no future events now',
 };
-
 const UserAction = {
   UPDATE_POINT: 'UPDATE_POINT',
   ADD_POINT: 'ADD_POINT',
   DELETE_POINT: 'DELETE_POINT',
 };
-
 const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
   FORCE: 'FORCE',
+  INIT: 'INIT',
+  ERROR: 'ERROR',
 };
-
+const ButtonText = {
+  SAVE: 'Save',
+  SAVING: 'Saving...',
+  DELETE: 'Delete',
+  DELETING: 'Deleting...',
+  LOADING: 'Loading...'
+};
+const ArrayConfig = {
+  EMPTY_LENGTH: 0,
+  FIRST_INDEX: 0,
+  SECOND_INDEX: 1
+};
+const TokenConfig = {
+  CHARACTERS: 'abcdefghijklmnopqrstuvwxyz0123456789',
+  LENGTH: 12
+};
+const DEFAULT_POINT = {
+  id: null,
+  basePrice: 0,
+  dateFrom: null,
+  dateTo: null,
+  destination: '',
+  isFavorite: false,
+  offers: [],
+  type: 'flight'
+};
 export {
-  POINT_TYPES,
+  PointTypes,
   DateFormat,
   DurationLabel,
   TimeUnit,
-  MINUTES_IN_HOUR,
-  MINUTES_IN_DAY,
-  HOURS_IN_DAY,
+  TimeConfig,
   FilterType,
-  EmptyListMessage,
+  EmptyListTexts,
   SortType,
   SortTypeEnabled,
   UserAction,
   UpdateType,
-  RADIX,
-  ID_LENGTH,
-  POINT_ICON_SIZE,
-  DEFAULT_PRICE,
-  MIN_PRICE,
+  IdConfig,
+  PointIconSize,
+  PriceConfig,
   DEFAULT_ERROR_MESSAGE,
   SortLabel,
-  API_CONFIG,
-  ApiErrorMessage
+  ApiConfig,
+  ApiErrorMessage,
+  ButtonText,
+  ArrayConfig,
+  TokenConfig,
+  DEFAULT_POINT
 };

@@ -1,13 +1,10 @@
 import AbstractView from '../framework/view/abstract-view.js';
-
 export default class NewPointButtonView extends AbstractView {
   #handleClick = null;
-
   constructor({onClick}) {
     super();
     this.#handleClick = onClick;
-
-    this.element.addEventListener('click', this.#clickHandler);
+    this.element.addEventListener('click', this.#onButtonClick);
   }
 
   get template() {
@@ -18,7 +15,7 @@ export default class NewPointButtonView extends AbstractView {
     this.element.disabled = isDisabled;
   }
 
-  #clickHandler = (evt) => {
+  #onButtonClick = (evt) => {
     evt.preventDefault();
     this.#handleClick();
   };

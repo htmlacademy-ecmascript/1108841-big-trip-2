@@ -1,23 +1,56 @@
-const FIRST_CHAR_INDEX = 0;
-const SECOND_CHAR_INDEX = 1;
+import { TokenConfig } from '../const.js';
 
-function getRandomArrayElement(items) {
-  return items[Math.floor(Math.random() * items.length)];
-}
+const generateAuthToken = () => `Basic ${Array.from({length: TokenConfig.LENGTH}, () =>
+  TokenConfig.CHARACTERS[Math.floor(Math.random() * TokenConfig.CHARACTERS.length)]
+).join('')}`;
 
-function capitalizeFirstLetter(word) {
-  if (!word) {
-    return '';
-  }
-  return word[FIRST_CHAR_INDEX].toUpperCase() + word.slice(SECOND_CHAR_INDEX);
-}
+const isEscapeKey = (evt) => evt.key === 'Escape' || evt.key === 'Esc';
 
-export const generateAuthToken = () => {
-  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  const length = 12;
-  return 'Basic ' + Array.from({length}, () =>
-    characters[Math.floor(Math.random() * characters.length)]
-  ).join('');
+const addKeydownHandler = (handler) => {
+  document.addEventListener('keydown', handler);
 };
 
-export { getRandomArrayElement, capitalizeFirstLetter };
+const removeKeydownHandler = (handler) => {
+  document.removeEventListener('keydown', handler);
+};
+
+const setComponentSaving = (component) => {
+  if (component) {
+    component.updateElement({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+};
+
+const setComponentDeleting = (component) => {
+  if (component) {
+    component.updateElement({
+      isDisabled: true,
+      isDeleting: true
+    });
+  }
+};
+
+const setComponentAborting = (component) => {
+  if (component) {
+    const resetFormState = () => {
+      component.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+    component.shake(resetFormState);
+  }
+};
+
+export {
+  generateAuthToken,
+  isEscapeKey,
+  addKeydownHandler,
+  removeKeydownHandler,
+  setComponentSaving,
+  setComponentDeleting,
+  setComponentAborting
+};
