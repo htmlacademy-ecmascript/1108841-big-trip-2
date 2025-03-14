@@ -2,6 +2,15 @@ import PointView from '../view/point-view.js';
 import { render, replace, remove } from '../utils/render-utils.js';
 import PointEditView from '../view/point-edit-view.js';
 import { UserAction, UpdateType } from '../const.js';
+import {
+  isEscapeKey,
+  addKeydownHandler,
+  removeKeydownHandler,
+  setComponentSaving,
+  setComponentDeleting,
+  setComponentAborting
+} from '../utils/common.js';
+
 export default class PointPresenter {
   #pointComponent = null;
   #pointEditComponent = null;
@@ -60,7 +69,7 @@ export default class PointPresenter {
   destroy() {
     remove(this.#pointComponent);
     remove(this.#pointEditComponent);
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    removeKeydownHandler(this.#escKeyDownHandler);
   }
 
   isEditing() {
@@ -75,22 +84,16 @@ export default class PointPresenter {
   }
 
   setSaving() {
-    if (this.#pointEditComponent) {
-      this.#pointEditComponent.setSaving();
-    }
+    setComponentSaving(this.#pointEditComponent);
   }
 
   setDeleting() {
-    if (this.#pointEditComponent) {
-      this.#pointEditComponent.setDeleting();
-    }
+    setComponentDeleting(this.#pointEditComponent);
   }
 
   setAborting() {
     if (this.#isEditFormOpen) {
-      if (this.#pointEditComponent) {
-        this.#pointEditComponent.setAborting();
-      }
+      setComponentAborting(this.#pointEditComponent);
     } else {
       const resetState = () => {
         if (this.#pointComponent) {
@@ -107,14 +110,7 @@ export default class PointPresenter {
   }
 
   setDeletingFailed() {
-    const resetFormState = () => {
-      this.#pointEditComponent.updateElement({
-        isDisabled: false,
-        isSaving: false,
-        isDeleting: false
-      });
-    };
-    this.#pointEditComponent.shake(resetFormState);
+    setComponentAborting(this.#pointEditComponent);
   }
 
   setDisabled() {
@@ -151,19 +147,19 @@ export default class PointPresenter {
 
   #replacePointToForm() {
     replace(this.#pointEditComponent, this.#pointComponent);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
+    addKeydownHandler(this.#escKeyDownHandler);
     this.#handleModeChange(this.#point.id);
     this.#isEditFormOpen = true;
   }
 
   #replaceFormToPoint() {
     replace(this.#pointComponent, this.#pointEditComponent);
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    removeKeydownHandler(this.#escKeyDownHandler);
     this.#isEditFormOpen = false;
   }
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.#pointEditComponent.reset(this.#point);
       this.#replaceFormToPoint();

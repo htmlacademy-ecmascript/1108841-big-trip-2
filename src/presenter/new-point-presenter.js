@@ -1,6 +1,13 @@
 import PointEditView from '../view/point-edit-view.js';
 import { render, remove } from '../utils/render-utils.js';
 import { UserAction, UpdateType, DEFAULT_POINT } from '../const.js';
+import {
+  isEscapeKey,
+  addKeydownHandler,
+  removeKeydownHandler,
+  setComponentSaving,
+  setComponentAborting
+} from '../utils/common.js';
 
 export default class NewPointPresenter {
   #pointEditComponent = null;
@@ -48,7 +55,7 @@ export default class NewPointPresenter {
     });
 
     render(this.#pointEditComponent, this.#pointsListContainer, 'afterbegin');
-    document.addEventListener('keydown', this.#escKeyDownHandler);
+    addKeydownHandler(this.#escKeyDownHandler);
   }
 
   destroy() {
@@ -59,26 +66,15 @@ export default class NewPointPresenter {
     this.#handleDestroy();
     remove(this.#pointEditComponent);
     this.#pointEditComponent = null;
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    removeKeydownHandler(this.#escKeyDownHandler);
   }
 
   setSaving() {
-    this.#pointEditComponent.updateElement({
-      isDisabled: true,
-      isSaving: true
-    });
+    setComponentSaving(this.#pointEditComponent);
   }
 
   setAborting() {
-    const resetFormState = () => {
-      this.#pointEditComponent.updateElement({
-        isDisabled: false,
-        isSaving: false,
-        isDeleting: false
-      });
-    };
-
-    this.#pointEditComponent.shake(resetFormState);
+    setComponentAborting(this.#pointEditComponent);
   }
 
   reset() {
@@ -100,7 +96,7 @@ export default class NewPointPresenter {
   };
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.destroy();
     }
