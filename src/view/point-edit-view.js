@@ -88,10 +88,10 @@ export default class PointEditView extends AbstractStatefulView {
                 value="${he.encode(String(this._state.basePrice ?? PriceConfig.DEFAULT))}"
               >
             </div>
-            <button class="event__save-btn btn btn--blue" type="submit" ${this._state.isDisabled ? 'aria-disabled="true"' : ''}>
+            <button class="event__save-btn btn btn--blue" type="button" ${this._state.isDisabled ? 'aria-disabled="true"' : ''}>
               ${this._state.isSaving ? ButtonText.SAVING : ButtonText.SAVE}
             </button>
-            <button class="event__reset-btn" type="reset" ${this._state.isDisabled ? 'aria-disabled="true"' : ''}>
+            <button class="event__reset-btn" type="button" ${this._state.isDisabled ? 'aria-disabled="true"' : ''}>
               ${this.#getResetButtonText()}
             </button>
             <button class="event__rollup-btn" type="button" ${this._state.isDisabled ? 'aria-disabled="true"' : ''}>
@@ -111,7 +111,8 @@ export default class PointEditView extends AbstractStatefulView {
     const availableOffers = element.querySelector('.event__available-offers');
     const rollupBtn = element.querySelector('.event__rollup-btn');
     const resetBtn = element.querySelector('.event__reset-btn');
-    const form = element.querySelector('form');
+    const saveBtn = element.querySelector('.event__save-btn');
+
     typeList.addEventListener('change', this.#onEventTypeChange);
     destinationInput.addEventListener('change', this.#onDestinationChange);
     priceInput.addEventListener('input', this.#onBasePriceChange);
@@ -123,7 +124,7 @@ export default class PointEditView extends AbstractStatefulView {
     }
     rollupBtn.addEventListener('click', this.#onRollupButtonClick);
     resetBtn.addEventListener('click', this.#onDeleteClick);
-    form.addEventListener('submit', this.#onFormSubmit);
+    saveBtn.addEventListener('click', this.#onSaveButtonClick);
     this.#setDatepickers();
   }
 
@@ -176,16 +177,14 @@ export default class PointEditView extends AbstractStatefulView {
         firstDayOfWeek: 1,
       },
       'time_24hr': true,
-      static: true,
-      appendTo: element.querySelector('.event__field-group--time'),
-      onOpen: () => {
-        const calendars = document.querySelectorAll('.flatpickr-calendar');
-        calendars.forEach((calendar) => {
+      onOpen: (selectedDates, dateStr, instance) => {
+        const calendar = instance.calendarContainer;
+        if (calendar) {
           calendar.style.opacity = '1';
           calendar.style.visibility = 'visible';
           calendar.style.display = 'block';
           calendar.style.zIndex = '9999';
-        });
+        }
       }
     };
     this.#datepickerFrom = flatpickr(
@@ -382,7 +381,7 @@ export default class PointEditView extends AbstractStatefulView {
     this.#handleDeleteClick(this.#parseStateToPoint());
   };
 
-  #onFormSubmit = (evt) => {
+  #onSaveButtonClick = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(this.#parseStateToPoint());
   };
