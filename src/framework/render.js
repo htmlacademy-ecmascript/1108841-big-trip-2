@@ -29,19 +29,16 @@ function createElement(template) {
 const render = (component, container, place = 'beforeend') => {
   const element = component.element;
 
-  switch (place) {
-    case 'beforebegin':
-      container.before(element);
-      break;
-    case 'afterbegin':
-      container.prepend(element);
-      break;
-    case 'beforeend':
-      container.append(element);
-      break;
-    case 'afterend':
-      container.after(element);
-      break;
+  const renderPositions = {
+    'beforebegin': () => container.before(element),
+    'afterbegin': () => container.prepend(element),
+    'beforeend': () => container.append(element),
+    'afterend': () => container.after(element)
+  };
+
+  const renderMethod = renderPositions[place];
+  if (renderMethod) {
+    renderMethod();
   }
 
   // Проверяем, успешно ли добавлен элемент

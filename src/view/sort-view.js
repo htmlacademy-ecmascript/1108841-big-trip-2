@@ -35,20 +35,15 @@ export default class SortView extends AbstractView {
   }
 
   #getSortLabel(sortType) {
-    switch (sortType) {
-      case SortType.DAY:
-        return SortLabel.DAY;
-      case SortType.EVENT:
-        return SortLabel.EVENT;
-      case SortType.TIME:
-        return SortLabel.TIME;
-      case SortType.PRICE:
-        return SortLabel.PRICE;
-      case SortType.OFFER:
-        return SortLabel.OFFER;
-      default:
-        return sortType;
-    }
+    const sortLabels = {
+      [SortType.DAY]: SortLabel.DAY,
+      [SortType.EVENT]: SortLabel.EVENT,
+      [SortType.TIME]: SortLabel.TIME,
+      [SortType.PRICE]: SortLabel.PRICE,
+      [SortType.OFFER]: SortLabel.OFFER
+    };
+
+    return sortLabels[sortType] || sortType;
   }
 
   #onSortTypeChange = (evt) => {

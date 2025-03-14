@@ -56,27 +56,35 @@ export default class BoardPresenter {
   }
 
   #handleModelEvent = (updateType, data) => {
-    switch (updateType) {
-      case UpdateType.PATCH:
+    const updateHandlers = {
+      [UpdateType.PATCH]: () => {
         this.#pointPresenters.get(data.id)?.init(data);
-        break;
-      case UpdateType.MINOR:
-      case UpdateType.MAJOR:
+      },
+      [UpdateType.MINOR]: () => {
         this.#clearBoard();
         this.#renderBoard(this.getPoints());
-        break;
-      case UpdateType.INIT:
+      },
+      [UpdateType.MAJOR]: () => {
+        this.#clearBoard();
+        this.#renderBoard(this.getPoints());
+      },
+      [UpdateType.INIT]: () => {
         this.#isLoading = false;
         remove(this.#loadingComponent);
         this.init();
-        break;
-      case UpdateType.ERROR:
+      },
+      [UpdateType.ERROR]: () => {
         this.#isLoading = false;
         remove(this.#loadingComponent);
         this.#renderError();
-        break;
-      default:
-        throw new Error(`Unknown Update Type: ${updateType}`);
+      }
+    };
+
+    const handler = updateHandlers[updateType];
+    if (handler) {
+      handler();
+    } else {
+      throw new Error(`Unknown Update Type: ${updateType}`);
     }
   };
 
@@ -101,8 +109,8 @@ export default class BoardPresenter {
       Object.keys(update).length === Object.keys(trip).length
     );
 
-    switch (actionType) {
-      case UserAction.UPDATE_POINT:
+    const actionHandlers = {
+      [UserAction.UPDATE_POINT]: async () => {
         if (isFavoriteUpdate) {
           pointPresenter = this.#pointPresenters.get(update.id);
           if (pointPresenter) {
@@ -126,8 +134,8 @@ export default class BoardPresenter {
             this.#pointPresenters.get(update.id).setAborting();
           }
         }
-        break;
-      case UserAction.ADD_POINT:
+      },
+      [UserAction.ADD_POINT]: async () => {
         this.#newPointComponent.setSaving();
         try {
           await this.#tripsModel.addPoint(updateType, update);
@@ -137,8 +145,8 @@ export default class BoardPresenter {
         } catch(err) {
           this.#newPointComponent.setAborting();
         }
-        break;
-      case UserAction.DELETE_POINT:
+      },
+      [UserAction.DELETE_POINT]: async () => {
         pointPresenter = this.#pointPresenters.get(update.id);
         if (pointPresenter) {
           pointPresenter.setDeleting();
@@ -158,8 +166,14 @@ export default class BoardPresenter {
             pointPresenter.setAborting();
           }
         }
-        break;
+      }
+    };
+
+    const handler = actionHandlers[actionType];
+    if (handler) {
+      await handler();
     }
+
     this.#uiBlocker.unblock();
   };
 
@@ -209,18 +223,15 @@ export default class BoardPresenter {
     const validPoints = trips.filter((point) =>
       point && point.dateFrom && point.dateTo
     );
-    switch (filterType) {
-      case FilterType.EVERYTHING:
-        return validPoints;
-      case FilterType.FUTURE:
-        return validPoints.filter((point) => isPointFuture(point));
-      case FilterType.PRESENT:
-        return validPoints.filter((point) => isPointPresent(point));
-      case FilterType.PAST:
-        return validPoints.filter((point) => isPointPast(point));
-      default:
-        return validPoints;
-    }
+
+    const filterHandlers = {
+      [FilterType.EVERYTHING]: () => validPoints,
+      [FilterType.FUTURE]: () => validPoints.filter((point) => isPointFuture(point)),
+      [FilterType.PRESENT]: () => validPoints.filter((point) => isPointPresent(point)),
+      [FilterType.PAST]: () => validPoints.filter((point) => isPointPast(point))
+    };
+
+    return (filterHandlers[filterType] || filterHandlers[FilterType.EVERYTHING])();
   }
 
   #calculateEventDuration(point) {
@@ -234,23 +245,25 @@ export default class BoardPresenter {
     const validPoints = points.filter((point) =>
       point && point.dateFrom && point.dateTo
     );
-    switch (sortType) {
-      case SortType.DAY:
-        return validPoints.sort((pointA, pointB) => dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom)));
-      case SortType.TIME:
-        return validPoints.sort((pointA, pointB) => {
-          const durationA = this.#calculateEventDuration(pointA);
-          const durationB = this.#calculateEventDuration(pointB);
-          if (durationA === durationB) {
-            return dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
-          }
-          return durationB - durationA;
-        });
-      case SortType.PRICE:
-        return validPoints.sort((pointA, pointB) => pointB.basePrice - pointA.basePrice);
-      default:
-        return validPoints;
-    }
+
+    const sortHandlers = {
+      [SortType.DAY]: () => validPoints.sort((pointA, pointB) =>
+        dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom))
+      ),
+      [SortType.TIME]: () => validPoints.sort((pointA, pointB) => {
+        const durationA = this.#calculateEventDuration(pointA);
+        const durationB = this.#calculateEventDuration(pointB);
+        if (durationA === durationB) {
+          return dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
+        }
+        return durationB - durationA;
+      }),
+      [SortType.PRICE]: () => validPoints.sort((pointA, pointB) =>
+        pointB.basePrice - pointA.basePrice
+      )
+    };
+
+    return (sortHandlers[sortType] || (() => validPoints))();
   }
 
   #renderEmptyList() {
