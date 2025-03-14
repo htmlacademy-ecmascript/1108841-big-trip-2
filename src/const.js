@@ -108,6 +108,8 @@ const UpdateType = {
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
   FORCE: 'FORCE',
+  INIT: 'INIT',
+  ERROR: 'ERROR',
 };
 const ButtonText = {
   SAVE: 'Save',
