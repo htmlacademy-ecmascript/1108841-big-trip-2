@@ -1,10 +1,12 @@
 import Observable from '../framework/observable.js';
 import { ToClientAdapter } from '../api/adapter.js';
 import { UpdateType } from '../const.js';
+
 export default class DestinationsModel extends Observable {
   #destinations = [];
   #apiService = null;
   #hasError = false;
+
   constructor(apiService) {
     super();
     this.#apiService = apiService;

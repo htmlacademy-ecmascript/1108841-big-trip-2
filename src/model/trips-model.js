@@ -1,10 +1,12 @@
 import { ToClientAdapter, ToServerAdapter } from '../api/adapter.js';
 import Observable from '../framework/observable.js';
 import { UpdateType } from '../const.js';
+
 export default class TripsModel extends Observable {
   #trips = [];
   #apiService = null;
   #hasError = false;
+
   constructor(apiService) {
     super();
     this.#apiService = apiService;
@@ -56,38 +58,23 @@ export default class TripsModel extends Observable {
     }
   }
 
-  async addPoint(updateType, trip) {
-    return this.addTrip(updateType, trip);
-  }
-
-  async addTrip(updateType, trip) {
+  async addPoint(updateType, point) {
     try {
-      const response = await this.#apiService.addPoint(ToServerAdapter.convertPoint(trip));
-      const newTrip = ToClientAdapter.convertPoint(response);
-      this.#trips = [newTrip, ...this.#trips];
-      this._notify(updateType, newTrip);
-      return newTrip;
+      const response = await this.#apiService.addPoint(ToServerAdapter.convertPoint(point));
+      const newPoint = ToClientAdapter.convertPoint(response);
+      this.#trips = [newPoint, ...this.#trips];
+      this._notify(updateType, newPoint);
+      return newPoint;
     } catch (err) {
-      throw new Error('Failed to create point. Please try again.');
+      throw new Error('Failed to add point. Please try again.');
     }
   }
 
   async deletePoint(updateType, point) {
-    const pointId = point?.id || point;
-    return this.deleteTrip(updateType, pointId);
-  }
-
-  async deleteTrip(updateType, id) {
     try {
-      await this.#apiService.deletePoint(id);
-      const index = this.#trips.findIndex((trip) => trip.id === id);
-      if (index === -1) {
-        throw new Error('Failed to delete point. Please try again.');
-      }
-      const deletedPoint = this.#trips[index];
-      this.#trips = [...this.#trips.slice(0, index), ...this.#trips.slice(index + 1)];
-      this._notify(updateType, deletedPoint);
-      return true;
+      await this.#apiService.deletePoint(point.id);
+      this.#trips = this.#trips.filter((trip) => trip.id !== point.id);
+      this._notify(updateType);
     } catch (err) {
       throw new Error('Failed to delete point. Please try again.');
     }
