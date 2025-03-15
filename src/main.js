@@ -20,12 +20,10 @@ const filterElement = document.querySelector('.trip-controls__filters');
 const newPointButtonElement = document.querySelector('.trip-main');
 const authorization = generateAuthToken();
 
-// Создаем отдельные API-сервисы для каждого типа данных
 const pointsApiService = new PointsApiService(ApiConfig.BASE_URL, authorization);
 const destinationsApiService = new DestinationsApiService(ApiConfig.BASE_URL, authorization);
 const offersApiService = new OffersApiService(ApiConfig.BASE_URL, authorization);
 
-// Инициализируем модели с соответствующими API-сервисами
 const destinationsModel = new DestinationsModel(destinationsApiService);
 const offersModel = new OffersModel(offersApiService);
 const tripsModel = new TripsModel(pointsApiService);

@@ -98,7 +98,6 @@ export default class BoardPresenter {
   }
 
   #handleModeChange = (pointId) => {
-    // Закрываем форму создания новой точки, если она открыта
     if (this.#isCreating) {
       this.#newPointPresenter.destroy();
       this.#isCreating = false;
@@ -196,7 +195,6 @@ export default class BoardPresenter {
       this.#ensureBoardExists();
       this.#renderEmptyList();
 
-      // Обновляем фильтр в DOM
       const filterPresenter = this.#filterModel.getFilterPresenter();
       if (filterPresenter) {
         filterPresenter.updateFilterInDOM();
@@ -353,13 +351,11 @@ export default class BoardPresenter {
   #handleNewPointFormClose = () => {
     this.#isCreating = false;
 
-    // Разблокируем кнопку создания новой точки
     const newPointButtonElement = document.querySelector('.trip-main__event-add-btn');
     if (newPointButtonElement) {
       newPointButtonElement.disabled = false;
     }
 
-    // Если список пуст, показываем стандартное сообщение о пустом списке
     if (this.#tripsModel.trips.length === 0) {
       this.#renderEmptyList();
     }
@@ -431,42 +427,33 @@ export default class BoardPresenter {
   }
 
   createPoint() {
-    // Если уже создается точка, не создаем новую
     if (this.#isCreating) {
       return;
     }
 
-    // Подготовка к созданию новой точки
     this.#prepareForNewPoint();
 
-    // Закрытие всех открытых форм редактирования
     this.#pointPresenters.forEach((presenter) => {
       presenter.resetView();
     });
 
-    // Очистка и перерисовка доски
     this.#clearBoard();
     this.#renderSort();
     this.#renderPointsOrEmpty();
 
-    // Убедимся, что доска существует
     this.#ensureBoardExists();
 
-    // Устанавливаем флаг создания и инициализируем презентер новой точки
     this.#isCreating = true;
 
-    // Устанавливаем контейнер для NewPointPresenter
     this.#newPointPresenter.setContainer(this.#boardComponent.element);
     this.#newPointPresenter.init();
   }
 
   #prepareForNewPoint() {
-    // Установка фильтра и сортировки
     this.#filterModel.setFilterType(FilterType.EVERYTHING, true);
     this.#sortModel.setSortType(SortType.DAY, true);
     this.#currentSortType = SortType.DAY;
 
-    // Обновление UI фильтров и сортировки
     const filterInput = document.querySelector(`#filter-${FilterType.EVERYTHING}`);
     if (filterInput) {
       filterInput.checked = true;
@@ -480,7 +467,6 @@ export default class BoardPresenter {
   #renderPointsOrEmpty() {
     const points = this.getPoints();
 
-    // Удаление сообщения о пустом списке, если оно есть
     if (this.#emptyComponent) {
       remove(this.#emptyComponent);
       this.#emptyComponent = null;

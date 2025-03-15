@@ -1,9 +1,6 @@
 import { DateFormat, TimeConfig, TimeUnit, DurationLabel } from '../const.js';
 import dayjs from 'dayjs';
 
-/**
- * Класс для работы с датами
- */
 export default class DateUtils {
   static #formatters = {
     [DateFormat.MONTH]: (date) => dayjs(date).format('MMM'),
@@ -20,12 +17,6 @@ export default class DateUtils {
     }
   };
 
-  /**
-   * Форматирует дату в соответствии с указанным форматом
-   * @param {Date|string} date - Дата для форматирования
-   * @param {string} format - Формат даты
-   * @returns {string} Отформатированная дата
-   */
   static formatDate(date, format) {
     if (!date) {
       return '';
@@ -34,12 +25,6 @@ export default class DateUtils {
     return formatter(date, format);
   }
 
-  /**
-   * Вычисляет продолжительность между двумя датами
-   * @param {Date|string} dateFrom - Начальная дата
-   * @param {Date|string} dateTo - Конечная дата
-   * @returns {string} Форматированная продолжительность
-   */
   static calculateDuration(dateFrom, dateTo) {
     const diff = dayjs(dateTo).diff(dayjs(dateFrom), TimeUnit.MINUTE);
     const minutes = diff % TimeConfig.MINUTES_IN_HOUR;
@@ -61,29 +46,14 @@ export default class DateUtils {
     return `${formattedMinutes}${DurationLabel.MINUTE}`;
   }
 
-  /**
-   * Проверяет, находится ли дата в прошлом
-   * @param {Date|string} date - Дата для проверки
-   * @returns {boolean} true, если дата в прошлом
-   */
   static isPast(date) {
     return dayjs(date).isBefore(dayjs(), 'day');
   }
 
-  /**
-   * Проверяет, находится ли дата в настоящем (сегодня)
-   * @param {Date|string} date - Дата для проверки
-   * @returns {boolean} true, если дата сегодня
-   */
   static isPresent(date) {
     return dayjs(date).isSame(dayjs(), 'day');
   }
 
-  /**
-   * Проверяет, находится ли дата в будущем
-   * @param {Date|string} date - Дата для проверки
-   * @returns {boolean} true, если дата в будущем
-   */
   static isFuture(date) {
     return dayjs(date).isAfter(dayjs(), 'day');
   }
