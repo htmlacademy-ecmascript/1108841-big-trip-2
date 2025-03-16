@@ -211,43 +211,50 @@ export default class PointEditView extends AbstractStatefulView {
 
     if (this.#datepickerFrom) {
       this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
     }
 
     if (this.#datepickerTo) {
       this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
     }
 
     const now = new Date();
     const defaultDateFrom = this._state.dateFrom ? new Date(this._state.dateFrom) : now;
     const defaultDateTo = this._state.dateTo ? new Date(this._state.dateTo) : new Date(now.getTime() + 60 * 60 * 1000);
 
-    if (!this._state.id && (!this._state.dateFrom || !this._state.dateTo)) {
+    if (this._state.id && (!this._state.dateFrom || !this._state.dateTo)) {
       this._state.dateFrom = defaultDateFrom.toISOString();
       this._state.dateTo = defaultDateTo.toISOString();
     }
 
+    const fromInput = this.element.querySelector('input[name="event-start-time"]');
+    const toInput = this.element.querySelector('input[name="event-end-time"]');
+
+    if (!this._state.id) {
+      fromInput.value = '';
+      toInput.value = '';
+    }
+
     this.#datepickerFrom = flatpickr(
-      this.element.querySelector('input[name="event-start-time"]'),
+      fromInput,
       {
         ...dateConfig,
-        defaultDate: defaultDateFrom,
+        defaultDate: this._state.id ? defaultDateFrom : null,
         onClose: this.#onDateFromChange,
         maxDate: this._state.dateTo ? new Date(this._state.dateTo) : null,
       }
     );
 
     this.#datepickerTo = flatpickr(
-      this.element.querySelector('input[name="event-end-time"]'),
+      toInput,
       {
         ...dateConfig,
-        defaultDate: defaultDateTo,
+        defaultDate: this._state.id ? defaultDateTo : null,
         onClose: this.#onDateToChange,
         minDate: this._state.dateFrom ? new Date(this._state.dateFrom) : null,
       }
     );
-
-    const fromInput = this.element.querySelector('input[name="event-start-time"]');
-    const toInput = this.element.querySelector('input[name="event-end-time"]');
 
     fromInput.addEventListener('click', () => {
       if (this.#datepickerTo && this.#datepickerTo.isOpen) {
