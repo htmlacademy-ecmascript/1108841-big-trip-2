@@ -23,6 +23,7 @@ export default class PointEditView extends AbstractStatefulView {
     this.#handleRollupButtonClick = onRollupClick;
     this.#handleDeleteClick = onDeleteClick;
     this._state = this.#parsePointToState(point);
+
     this._restoreHandlers();
   }
 
@@ -125,6 +126,29 @@ export default class PointEditView extends AbstractStatefulView {
     rollupBtn.addEventListener('click', this.#onRollupButtonClick);
     resetBtn.addEventListener('click', this.#onDeleteClick);
     saveBtn.addEventListener('click', this.#onSaveButtonClick);
+
+    document.removeEventListener('keydown', this.#escKeyDownHandler, true);
+
+    this.#escKeyDownHandler = (evt) => {
+      if (evt.key === 'Enter') {
+        const isCalendarOpen = document.querySelector('.flatpickr-calendar.open');
+        if (isCalendarOpen) {
+          evt.preventDefault();
+          evt.stopPropagation();
+
+          if (this.#datepickerFrom && this.#datepickerFrom.isOpen) {
+            this.#datepickerFrom.close();
+          }
+
+          if (this.#datepickerTo && this.#datepickerTo.isOpen) {
+            this.#datepickerTo.close();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', this.#escKeyDownHandler, true);
+
     this.#setDatepickers();
   }
 
@@ -137,6 +161,11 @@ export default class PointEditView extends AbstractStatefulView {
     if (this.#datepickerTo) {
       this.#datepickerTo.destroy();
       this.#datepickerTo = null;
+    }
+
+    if (this.#escKeyDownHandler) {
+      document.removeEventListener('keydown', this.#escKeyDownHandler, true);
+      this.#escKeyDownHandler = null;
     }
   }
 
@@ -167,9 +196,6 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   #setDatepickers() {
-    const element = this.element;
-    const dateFromElement = element.querySelector('#event-start-time-1');
-    const dateToElement = element.querySelector('#event-end-time-1');
     const dateConfig = {
       dateFormat: 'd/m/y H:i',
       enableTime: true,
@@ -177,34 +203,95 @@ export default class PointEditView extends AbstractStatefulView {
         firstDayOfWeek: 1,
       },
       'time_24hr': true,
-      onOpen: (selectedDates, dateStr, instance) => {
-        const calendar = instance.calendarContainer;
-        if (calendar) {
-          calendar.style.opacity = '1';
-          calendar.style.visibility = 'visible';
-          calendar.style.display = 'block';
-          calendar.style.zIndex = '9999';
-        }
-      }
+      allowInput: true,
+      clickOpens: true,
+      closeOnSelect: false,
+      disableMobile: true,
     };
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+
+    const now = new Date();
+    const defaultDateFrom = this._state.dateFrom ? new Date(this._state.dateFrom) : now;
+    const defaultDateTo = this._state.dateTo ? new Date(this._state.dateTo) : new Date(now.getTime() + 60 * 60 * 1000);
+
+    if (this._state.id && (!this._state.dateFrom || !this._state.dateTo)) {
+      this._state.dateFrom = defaultDateFrom.toISOString();
+      this._state.dateTo = defaultDateTo.toISOString();
+    }
+
+    const fromInput = this.element.querySelector('input[name="event-start-time"]');
+    const toInput = this.element.querySelector('input[name="event-end-time"]');
+
+    if (!this._state.id) {
+      fromInput.value = '';
+      toInput.value = '';
+    }
+
     this.#datepickerFrom = flatpickr(
-      dateFromElement,
+      fromInput,
       {
         ...dateConfig,
-        defaultDate: this._state.id ? this._state.dateFrom : null,
+        defaultDate: this._state.id ? defaultDateFrom : null,
         onClose: this.#onDateFromChange,
-        maxDate: this._state.dateTo,
+        maxDate: this._state.dateTo ? new Date(this._state.dateTo) : null,
       }
     );
+
     this.#datepickerTo = flatpickr(
-      dateToElement,
+      toInput,
       {
         ...dateConfig,
-        defaultDate: this._state.id ? this._state.dateTo : null,
+        defaultDate: this._state.id ? defaultDateTo : null,
         onClose: this.#onDateToChange,
-        minDate: this._state.dateFrom,
+        minDate: this._state.dateFrom ? new Date(this._state.dateFrom) : null,
       }
     );
+
+    fromInput.addEventListener('click', () => {
+      if (this.#datepickerTo && this.#datepickerTo.isOpen) {
+        this.#datepickerTo.close();
+      }
+    });
+
+    toInput.addEventListener('click', () => {
+      if (this.#datepickerFrom && this.#datepickerFrom.isOpen) {
+        this.#datepickerFrom.close();
+      }
+    });
+
+    this.#addDoneButtonToCalendar(this.#datepickerFrom);
+    this.#addDoneButtonToCalendar(this.#datepickerTo);
+  }
+
+  #addDoneButtonToCalendar(datepicker) {
+    if (!datepicker || !datepicker.calendarContainer) {
+      return;
+    }
+
+    if (datepicker.calendarContainer.querySelector('.flatpickr-done-button')) {
+      return;
+    }
+
+    const doneButton = document.createElement('button');
+    doneButton.textContent = 'Готово';
+    doneButton.className = 'flatpickr-done-button';
+    doneButton.type = 'button';
+    doneButton.style.cssText = 'margin: 5px auto; display: block; padding: 5px 10px; background: #3f51b5; color: white; border: none; border-radius: 4px; cursor: pointer;';
+
+    doneButton.addEventListener('click', () => {
+      datepicker.close();
+    });
+
+    datepicker.calendarContainer.appendChild(doneButton);
   }
 
   #generateDestinationTemplate() {

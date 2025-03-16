@@ -11,6 +11,14 @@ export default class TripsModel extends Observable {
     this.#apiService = apiService;
   }
 
+  get trips() {
+    return this.#trips;
+  }
+
+  get hasError() {
+    return this.#hasError;
+  }
+
   async init() {
     try {
       const points = await this.#apiService.points;
@@ -23,14 +31,6 @@ export default class TripsModel extends Observable {
       this._notify(UpdateType.ERROR);
       throw new Error('Failed to load latest route information');
     }
-  }
-
-  get trips() {
-    return this.#trips;
-  }
-
-  get hasError() {
-    return this.#hasError;
   }
 
   async updatePoint(updateType, updatedPoint) {
