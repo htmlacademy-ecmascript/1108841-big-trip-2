@@ -127,10 +127,8 @@ export default class PointEditView extends AbstractStatefulView {
     resetBtn.addEventListener('click', this.#onDeleteClick);
     saveBtn.addEventListener('click', this.#onSaveButtonClick);
 
-    // Удаляем старый обработчик Enter
     document.removeEventListener('keydown', this.#escKeyDownHandler, true);
 
-    // Создаем новый обработчик Enter
     this.#escKeyDownHandler = (evt) => {
       if (evt.key === 'Enter') {
         const isCalendarOpen = document.querySelector('.flatpickr-calendar.open');
@@ -149,7 +147,6 @@ export default class PointEditView extends AbstractStatefulView {
       }
     };
 
-    // Добавляем новый обработчик Enter
     document.addEventListener('keydown', this.#escKeyDownHandler, true);
 
     this.#setDatepickers();
@@ -166,7 +163,6 @@ export default class PointEditView extends AbstractStatefulView {
       this.#datepickerTo = null;
     }
 
-    // Удаляем глобальный обработчик
     if (this.#escKeyDownHandler) {
       document.removeEventListener('keydown', this.#escKeyDownHandler, true);
       this.#escKeyDownHandler = null;
