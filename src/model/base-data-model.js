@@ -13,6 +13,14 @@ export default class BaseDataModel extends Observable {
     this.#dataName = dataName;
   }
 
+  get data() {
+    return this.#data;
+  }
+
+  get hasError() {
+    return this.#hasError;
+  }
+
   async init() {
     try {
       const data = await this.#apiService[this.#dataName];
@@ -25,14 +33,6 @@ export default class BaseDataModel extends Observable {
       this._notify(UpdateType.ERROR);
       throw new Error('Failed to load latest route information');
     }
-  }
-
-  get data() {
-    return this.#data;
-  }
-
-  get hasError() {
-    return this.#hasError;
   }
 
   setData(data) {
