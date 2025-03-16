@@ -1,19 +1,19 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { formatDate } from '../utils/date-format.js';
-import { DateFormat } from '../const.js';
+import { DateFormat, RoutePointCount } from '../const.js';
 import SortUtils from '../utils/sort-utils.js';
 
 function createTripRouteTemplate(destinations) {
   if (!destinations || destinations.length === 0) {
     return '';
   }
-  if (destinations.length === 1) {
+  if (destinations.length === RoutePointCount.SINGLE) {
     return destinations[0].name;
   }
-  if (destinations.length === 2) {
+  if (destinations.length === RoutePointCount.DOUBLE) {
     return `${destinations[0].name} &mdash; ${destinations[1].name}`;
   }
-  if (destinations.length === 3) {
+  if (destinations.length === RoutePointCount.TRIPLE) {
     return `${destinations[0].name} &mdash; ${destinations[1].name} &mdash; ${destinations[2].name}`;
   }
   return `${destinations[0].name} &mdash; ... &mdash; ${destinations[destinations.length - 1].name}`;

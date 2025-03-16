@@ -10,6 +10,12 @@ const DEFAULT_POINT = {
   type: 'flight'
 };
 
+const RoutePointCount = {
+  SINGLE: 1,
+  DOUBLE: 2,
+  TRIPLE: 3
+};
+
 const PointTypes = {
   ITEMS: [
     'taxi',
@@ -161,5 +167,6 @@ export {
   ButtonText,
   ArrayConfig,
   TokenConfig,
-  DEFAULT_POINT
+  DEFAULT_POINT,
+  RoutePointCount
 };
