@@ -1,3 +1,15 @@
+const DEFAULT_ERROR_MESSAGE = 'Failed to load latest route information';
+const DEFAULT_POINT = {
+  id: null,
+  basePrice: 0,
+  dateFrom: null,
+  dateTo: null,
+  destination: '',
+  isFavorite: false,
+  offers: [],
+  type: 'flight'
+};
+
 const PointTypes = {
   ITEMS: [
     'taxi',
@@ -46,7 +58,6 @@ const PointIconSize = {
   MEDIUM: 28,
   LARGE: 42,
 };
-const DEFAULT_ERROR_MESSAGE = 'Failed to load latest route information';
 const ApiConfig = {
   BASE_URL: 'https://22.objects.htmlacademy.pro/big-trip',
   ENDPOINTS: {
@@ -127,16 +138,7 @@ const TokenConfig = {
   CHARACTERS: 'abcdefghijklmnopqrstuvwxyz0123456789',
   LENGTH: 12
 };
-const DEFAULT_POINT = {
-  id: null,
-  basePrice: 0,
-  dateFrom: null,
-  dateTo: null,
-  destination: '',
-  isFavorite: false,
-  offers: [],
-  type: 'flight'
-};
+
 export {
   PointTypes,
   DateFormat,
