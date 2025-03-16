@@ -217,13 +217,22 @@ export default class PointEditView extends AbstractStatefulView {
       this.#datepickerTo.destroy();
     }
 
+    const now = new Date();
+    const defaultDateFrom = this._state.dateFrom ? new Date(this._state.dateFrom) : now;
+    const defaultDateTo = this._state.dateTo ? new Date(this._state.dateTo) : new Date(now.getTime() + 60 * 60 * 1000);
+
+    if (!this._state.id && (!this._state.dateFrom || !this._state.dateTo)) {
+      this._state.dateFrom = defaultDateFrom.toISOString();
+      this._state.dateTo = defaultDateTo.toISOString();
+    }
+
     this.#datepickerFrom = flatpickr(
       this.element.querySelector('input[name="event-start-time"]'),
       {
         ...dateConfig,
-        defaultDate: this._state.id ? this._state.dateFrom : null,
+        defaultDate: defaultDateFrom,
         onClose: this.#onDateFromChange,
-        maxDate: this._state.dateTo,
+        maxDate: this._state.dateTo ? new Date(this._state.dateTo) : null,
       }
     );
 
@@ -231,9 +240,9 @@ export default class PointEditView extends AbstractStatefulView {
       this.element.querySelector('input[name="event-end-time"]'),
       {
         ...dateConfig,
-        defaultDate: this._state.id ? this._state.dateTo : null,
+        defaultDate: defaultDateTo,
         onClose: this.#onDateToChange,
-        minDate: this._state.dateFrom,
+        minDate: this._state.dateFrom ? new Date(this._state.dateFrom) : null,
       }
     );
 
