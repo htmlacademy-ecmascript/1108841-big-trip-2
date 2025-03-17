@@ -63,7 +63,7 @@ export default class PointEditView extends AbstractStatefulView {
                 id="event-start-time-1"
                 type="text"
                 name="event-start-time"
-                value="${!this._state.id ? '' : he.encode(formatDate(this._state.dateFrom, DateFormat.DATE_PICKER))}"
+                value="${this._state.dateFrom ? he.encode(formatDate(this._state.dateFrom, DateFormat.DATE_PICKER)) : ''}"
               >
               &mdash;
               <label class="visually-hidden" for="event-end-time-1">To</label>
@@ -72,7 +72,7 @@ export default class PointEditView extends AbstractStatefulView {
                 id="event-end-time-1"
                 type="text"
                 name="event-end-time"
-                value="${!this._state.id ? '' : he.encode(formatDate(this._state.dateTo, DateFormat.DATE_PICKER))}"
+                value="${this._state.dateTo ? he.encode(formatDate(this._state.dateTo, DateFormat.DATE_PICKER)) : ''}"
               >
             </div>
             <div class="event__field-group event__field-group--price">
@@ -243,6 +243,12 @@ export default class PointEditView extends AbstractStatefulView {
         defaultDate: this._state.id ? defaultDateFrom : null,
         onClose: this.#onDateFromChange,
         maxDate: this._state.dateTo ? new Date(this._state.dateTo) : null,
+        onChange: (selectedDates) => {
+          if (!this._state.id && selectedDates.length > 0) {
+            fromInput.value = this.#datepickerFrom.formatDate(selectedDates[0], 'd/m/y H:i');
+            this._state.dateFrom = selectedDates[0].toISOString();
+          }
+        }
       }
     );
 
@@ -253,6 +259,12 @@ export default class PointEditView extends AbstractStatefulView {
         defaultDate: this._state.id ? defaultDateTo : null,
         onClose: this.#onDateToChange,
         minDate: this._state.dateFrom ? new Date(this._state.dateFrom) : null,
+        onChange: (selectedDates) => {
+          if (!this._state.id && selectedDates.length > 0) {
+            toInput.value = this.#datepickerTo.formatDate(selectedDates[0], 'd/m/y H:i');
+            this._state.dateTo = selectedDates[0].toISOString();
+          }
+        }
       }
     );
 
@@ -378,6 +390,12 @@ export default class PointEditView extends AbstractStatefulView {
     if (!userDate) {
       return;
     }
+
+    if (!this._state.id) {
+      this._state.dateFrom = userDate.toISOString();
+      return;
+    }
+
     this.updateElement({
       dateFrom: userDate.toISOString(),
     });
@@ -387,6 +405,12 @@ export default class PointEditView extends AbstractStatefulView {
     if (!userDate) {
       return;
     }
+
+    if (!this._state.id) {
+      this._state.dateTo = userDate.toISOString();
+      return;
+    }
+
     this.updateElement({
       dateTo: userDate.toISOString(),
     });
@@ -400,6 +424,43 @@ export default class PointEditView extends AbstractStatefulView {
     const newType = evt.target.value;
     const currentType = this._state.type;
     if (newType !== currentType) {
+      if (!this._state.id) {
+        this._state.type = newType;
+        this._state.offers = [];
+
+        const typeIcon = this.element.querySelector('.event__type-icon');
+        if (typeIcon) {
+          typeIcon.src = `img/icons/${newType}.png`;
+        }
+
+        const typeOutput = this.element.querySelector('.event__type-output');
+        if (typeOutput) {
+          typeOutput.textContent = newType;
+        }
+
+        const detailsSection = this.element.querySelector('.event__details');
+        if (detailsSection) {
+          const offersMarkup = this.#generateOffersTemplate(newType);
+          const destinationSection = detailsSection.querySelector('.event__section--destination');
+
+          if (destinationSection) {
+            detailsSection.innerHTML = `${offersMarkup}${destinationSection.outerHTML}`;
+          } else {
+            detailsSection.innerHTML = offersMarkup;
+          }
+
+          const availableOffers = detailsSection.querySelector('.event__available-offers');
+          if (availableOffers) {
+            const offerCheckboxes = availableOffers.querySelectorAll('.event__offer-checkbox');
+            offerCheckboxes.forEach((checkbox) => {
+              checkbox.addEventListener('change', this.#onOffersChange);
+            });
+          }
+        }
+
+        return;
+      }
+
       this.updateElement({
         type: newType,
         offers: []
@@ -411,20 +472,88 @@ export default class PointEditView extends AbstractStatefulView {
     evt.preventDefault();
     const destinationName = evt.target.value;
     const selectedDestination = this.#destinations.find((destination) => destination.name === destinationName);
+
+    if (!this._state.id) {
+      if (destinationName === 'Empty destination') {
+        this._state.destination = this.#destinations.find((dest) => dest.name === 'Empty destination')?.id || null;
+
+        this.#updateDetailsSection();
+        return;
+      }
+
+      if (!selectedDestination) {
+        evt.target.value = '';
+        return;
+      }
+
+      this._state.destination = selectedDestination.id;
+
+      this.#updateDetailsSection();
+      return;
+    }
+
     if (destinationName === 'Empty destination') {
       this.updateElement({
         destination: this.#destinations.find((dest) => dest.name === 'Empty destination')?.id || null
       });
       return;
     }
+
     if (!selectedDestination) {
       evt.target.value = '';
       return;
     }
+
     this.updateElement({
       destination: selectedDestination.id
     });
   };
+
+  #updateDetailsSection() {
+    const detailsSection = this.element.querySelector('.event__details');
+    if (!detailsSection) {
+      return;
+    }
+
+    const offersMarkup = this.#generateOffersTemplate(this._state.type);
+    const destinationData = this.#destinations.find((dest) => dest.id === this._state.destination);
+
+    if (!destinationData || (destinationData.name === 'Empty destination' && !destinationData.description && (!destinationData.pictures || destinationData.pictures.length === 0))) {
+      detailsSection.innerHTML = `<section class="event__details">${offersMarkup}</section>`;
+    } else {
+      const { description, pictures } = destinationData;
+      const picturesMarkup = pictures && pictures.length > 0
+        ? `<div class="event__photos-container">
+            <div class="event__photos-tape">
+              ${pictures.map((pic) => `<img class="event__photo" src="${he.encode(pic.src)}" alt="${he.encode(pic.description)}">`).join('')}
+            </div>
+          </div>`
+        : '';
+      const descriptionMarkup = description
+        ? `<p class="event__destination-description">${he.encode(description)}</p>`
+        : '';
+      const destinationSectionMarkup = (description || (pictures && pictures.length > 0))
+        ? `<section class="event__section event__section--destination">
+            <h3 class="event__section-title event__section-title--destination">Destination</h3>
+            ${descriptionMarkup}
+            ${picturesMarkup}
+          </section>`
+        : '';
+
+      detailsSection.innerHTML = `<section class="event__details">
+        ${offersMarkup}
+        ${destinationSectionMarkup}
+      </section>`;
+    }
+
+    const availableOffers = detailsSection.querySelector('.event__available-offers');
+    if (availableOffers) {
+      const offerCheckboxes = availableOffers.querySelectorAll('.event__offer-checkbox');
+      offerCheckboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', this.#onOffersChange);
+      });
+    }
+  }
 
   #onOffersChange = (evt) => {
     evt.preventDefault();
@@ -443,6 +572,12 @@ export default class PointEditView extends AbstractStatefulView {
         currentOffers.splice(index, 1);
       }
     }
+
+    if (!this._state.id) {
+      this._state.offers = currentOffers;
+      return;
+    }
+
     this.updateElement({
       offers: currentOffers
     });
@@ -452,6 +587,11 @@ export default class PointEditView extends AbstractStatefulView {
     evt.preventDefault();
     const price = parseInt(evt.target.value, 10);
     if (!isNaN(price) && price >= PriceConfig.MIN) {
+      if (!this._state.id) {
+        this._state.basePrice = price;
+        return;
+      }
+
       this.updateElement({
         basePrice: price
       });
