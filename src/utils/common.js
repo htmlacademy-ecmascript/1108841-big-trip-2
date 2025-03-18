@@ -34,14 +34,47 @@ const setComponentDeleting = (component) => {
 
 const setComponentAborting = (component) => {
   if (component) {
-    const resetFormState = () => {
-      component.updateElement({
-        isDisabled: false,
-        isSaving: false,
-        isDeleting: false
-      });
-    };
-    component.shake(resetFormState);
+    if (typeof component.setAborting === 'function') {
+      component.setAborting();
+    } else {
+      const resetFormState = () => {
+        const { dateFrom, dateTo } = component._state;
+
+        component.updateElement({
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false,
+          dateFrom,
+          dateTo
+        });
+
+        const form = component.element.querySelector('form');
+        if (form) {
+          form.classList.remove('disabled');
+
+          const buttons = form.querySelectorAll('button');
+          const inputs = form.querySelectorAll('input');
+          const selects = form.querySelectorAll('select');
+
+          buttons.forEach((button) => {
+            button.removeAttribute('aria-disabled');
+            button.disabled = false;
+          });
+
+          inputs.forEach((input) => {
+            input.removeAttribute('aria-disabled');
+            input.disabled = false;
+          });
+
+          selects.forEach((select) => {
+            select.removeAttribute('aria-disabled');
+            select.disabled = false;
+          });
+        }
+      };
+
+      component.shake(resetFormState);
+    }
   }
 };
 
