@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { formatDate } from '../utils/date-format.js';
-import { DateFormat, RoutePointCount } from '../const.js';
+import { DateFormat, RoutePointCount, ArrayConfig } from '../const.js';
 import SortUtils from '../utils/sort-utils.js';
 
 function createTripRouteTemplate(destinations) {
@@ -8,15 +8,15 @@ function createTripRouteTemplate(destinations) {
     return '';
   }
   if (destinations.length === RoutePointCount.SINGLE) {
-    return destinations[0].name;
+    return destinations[ArrayConfig.FIRST_INDEX].name;
   }
   if (destinations.length === RoutePointCount.DOUBLE) {
-    return `${destinations[0].name} &mdash; ${destinations[1].name}`;
+    return `${destinations[ArrayConfig.FIRST_INDEX].name} &mdash; ${destinations[ArrayConfig.SECOND_INDEX].name}`;
   }
   if (destinations.length === RoutePointCount.TRIPLE) {
-    return `${destinations[0].name} &mdash; ${destinations[1].name} &mdash; ${destinations[2].name}`;
+    return `${destinations[ArrayConfig.FIRST_INDEX].name} &mdash; ${destinations[ArrayConfig.SECOND_INDEX].name} &mdash; ${destinations[ArrayConfig.THIRD_INDEX].name}`;
   }
-  return `${destinations[0].name} &mdash; ... &mdash; ${destinations[destinations.length - 1].name}`;
+  return `${destinations[ArrayConfig.FIRST_INDEX].name} &mdash; ... &mdash; ${destinations[destinations.length - 1].name}`;
 }
 
 function createTripDatesTemplate(dateFrom, dateTo) {
@@ -52,7 +52,7 @@ export default class TripInfoView extends AbstractView {
         <div class="trip-info__main">
           <h1 class="trip-info__title">${createTripRouteTemplate(tripDestinations)}</h1>
           <p class="trip-info__dates">
-            ${createTripDatesTemplate(sortedPoints[0].dateFrom, sortedPoints[sortedPoints.length - 1].dateTo)}
+            ${createTripDatesTemplate(sortedPoints[ArrayConfig.FIRST_INDEX].dateFrom, sortedPoints[sortedPoints.length - 1].dateTo)}
           </p>
         </div>
         <p class="trip-info__cost">

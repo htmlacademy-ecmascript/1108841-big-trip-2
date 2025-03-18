@@ -628,7 +628,9 @@ export default class PointEditView extends AbstractStatefulView {
       !point.basePrice
     );
 
-    if (hasEmptyRequiredFields) {
+    const isPriceInvalid = point.basePrice !== undefined && point.basePrice < PriceConfig.MIN;
+
+    if (hasEmptyRequiredFields || isPriceInvalid) {
       this.#showValidationError(point);
       return;
     }
@@ -659,7 +661,7 @@ export default class PointEditView extends AbstractStatefulView {
       destinationInput.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
     }
 
-    if (priceInput && !point.basePrice) {
+    if (priceInput && (!point.basePrice || point.basePrice < PriceConfig.MIN)) {
       priceInput.style.borderColor = 'red';
       priceInput.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
     }

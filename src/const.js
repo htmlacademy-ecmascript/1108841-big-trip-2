@@ -138,7 +138,8 @@ const ButtonText = {
 const ArrayConfig = {
   EMPTY_LENGTH: 0,
   FIRST_INDEX: 0,
-  SECOND_INDEX: 1
+  SECOND_INDEX: 1,
+  THIRD_INDEX: 2
 };
 const TokenConfig = {
   CHARACTERS: 'abcdefghijklmnopqrstuvwxyz0123456789',
