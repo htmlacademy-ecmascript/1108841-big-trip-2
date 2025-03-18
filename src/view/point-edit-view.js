@@ -183,7 +183,8 @@ export default class PointEditView extends AbstractStatefulView {
       isSaving: false,
       isDeleting: false,
       isDisabled: false,
-      isError: false
+      isError: false,
+      isNew: !point.id
     };
   }
 
@@ -192,6 +193,8 @@ export default class PointEditView extends AbstractStatefulView {
     delete point.isDisabled;
     delete point.isSaving;
     delete point.isDeleting;
+    delete point.isError;
+    delete point.isNew;
     return point;
   }
 
@@ -223,7 +226,7 @@ export default class PointEditView extends AbstractStatefulView {
     const defaultDateFrom = this._state.dateFrom ? new Date(this._state.dateFrom) : now;
     const defaultDateTo = this._state.dateTo ? new Date(this._state.dateTo) : new Date(now.getTime() + 60 * 60 * 1000);
 
-    if (this._state.id && (!this._state.dateFrom || !this._state.dateTo)) {
+    if ((this._state.id || (this._state.isSaving === false && !this._state.isNew)) && (!this._state.dateFrom || !this._state.dateTo)) {
       this._state.dateFrom = defaultDateFrom.toISOString();
       this._state.dateTo = defaultDateTo.toISOString();
     }
@@ -231,16 +234,22 @@ export default class PointEditView extends AbstractStatefulView {
     const fromInput = this.element.querySelector('input[name="event-start-time"]');
     const toInput = this.element.querySelector('input[name="event-end-time"]');
 
-    if (!this._state.id) {
+    if (!this._state.id && this._state.isNew && !this._state.dateFrom && !this._state.dateTo) {
       fromInput.value = '';
       toInput.value = '';
+    } else if (!this._state.id && this._state.dateFrom) {
+      fromInput.value = formatDate(this._state.dateFrom, DateFormat.DATE_PICKER);
+    }
+
+    if (!this._state.id && this._state.dateTo) {
+      toInput.value = formatDate(this._state.dateTo, DateFormat.DATE_PICKER);
     }
 
     this.#datepickerFrom = flatpickr(
       fromInput,
       {
         ...dateConfig,
-        defaultDate: this._state.id ? defaultDateFrom : null,
+        defaultDate: this.#getDefaultDateFrom(),
         onClose: this.#onDateFromChange,
         maxDate: this._state.dateTo ? new Date(this._state.dateTo) : null,
         onChange: (selectedDates) => {
@@ -256,7 +265,7 @@ export default class PointEditView extends AbstractStatefulView {
       toInput,
       {
         ...dateConfig,
-        defaultDate: this._state.id ? defaultDateTo : null,
+        defaultDate: this.#getDefaultDateTo(),
         onClose: this.#onDateToChange,
         minDate: this._state.dateFrom ? new Date(this._state.dateFrom) : null,
         onChange: (selectedDates) => {
@@ -610,17 +619,160 @@ export default class PointEditView extends AbstractStatefulView {
 
   #onSaveButtonClick = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(this.#parseStateToPoint());
+    const point = this.#parseStateToPoint();
+
+    const hasEmptyRequiredFields = !point.id && (
+      !point.dateFrom ||
+      !point.dateTo ||
+      !point.destination ||
+      !point.basePrice
+    );
+
+    const isPriceInvalid = point.basePrice !== undefined && point.basePrice < PriceConfig.MIN;
+
+    if (hasEmptyRequiredFields || isPriceInvalid) {
+      this.#showValidationError(point);
+      return;
+    }
+
+    this.#handleFormSubmit(point);
   };
 
-  setSaving() {
-    this.updateElement({
-      isSaving: true,
-      isDisabled: true
+  #showValidationError(point) {
+    this._state.isError = true;
+
+    const fromInput = this.element.querySelector('input[name="event-start-time"]');
+    const toInput = this.element.querySelector('input[name="event-end-time"]');
+    const destinationInput = this.element.querySelector('input[name="event-destination"]');
+    const priceInput = this.element.querySelector('input[name="event-price"]');
+
+    if (fromInput && !point.dateFrom) {
+      fromInput.style.borderColor = 'red';
+      fromInput.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+    }
+
+    if (toInput && !point.dateTo) {
+      toInput.style.borderColor = 'red';
+      toInput.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+    }
+
+    if (destinationInput && !point.destination) {
+      destinationInput.style.borderColor = 'red';
+      destinationInput.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+    }
+
+    if (priceInput && (!point.basePrice || point.basePrice < PriceConfig.MIN)) {
+      priceInput.style.borderColor = 'red';
+      priceInput.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+    }
+
+    this.shake(() => {
+      setTimeout(() => {
+        const inputs = [fromInput, toInput, destinationInput, priceInput];
+        inputs.forEach((input) => {
+          if (input) {
+            input.style.borderColor = '';
+            input.style.backgroundColor = '';
+          }
+        });
+        this._state.isError = false;
+      }, 2000);
     });
   }
 
+  setSaving() {
+    if (!this._state.id) {
+      const dateFrom = this._state.dateFrom;
+      const dateTo = this._state.dateTo;
+
+      this._state.isSaving = true;
+      this._state.isDisabled = true;
+      this._state.isNew = false;
+
+      this._state.dateFrom = dateFrom;
+      this._state.dateTo = dateTo;
+
+      const saveButton = this.element.querySelector('.event__save-btn');
+      if (saveButton) {
+        saveButton.textContent = ButtonText.SAVING;
+        saveButton.setAttribute('aria-disabled', 'true');
+        saveButton.disabled = true;
+      }
+
+      const form = this.element.querySelector('form');
+      if (form) {
+        form.classList.add('disabled');
+
+        const buttons = form.querySelectorAll('button');
+        const inputs = form.querySelectorAll('input');
+        const selects = form.querySelectorAll('select');
+        const labels = form.querySelectorAll('label');
+
+        buttons.forEach((button) => {
+          button.setAttribute('aria-disabled', 'true');
+          button.disabled = true;
+          button.style.opacity = '0.5';
+        });
+
+        inputs.forEach((input) => {
+          input.setAttribute('aria-disabled', 'true');
+          input.disabled = true;
+          input.style.opacity = '0.5';
+        });
+
+        selects.forEach((select) => {
+          select.setAttribute('aria-disabled', 'true');
+          select.disabled = true;
+          select.style.opacity = '0.5';
+        });
+
+        labels.forEach((label) => {
+          label.style.opacity = '0.5';
+        });
+      }
+    } else {
+      this.updateElement({
+        isSaving: true,
+        isDisabled: true
+      });
+    }
+  }
+
   setDeleting() {
+    const form = this.element.querySelector('form');
+    if (form) {
+      form.classList.add('disabled');
+
+      const resetBtn = form.querySelector('.event__reset-btn');
+      if (resetBtn) {
+        resetBtn.textContent = ButtonText.DELETING;
+        resetBtn.disabled = true;
+        resetBtn.setAttribute('aria-disabled', 'true');
+      }
+
+      const buttons = form.querySelectorAll('button');
+      const inputs = form.querySelectorAll('input');
+      const selects = form.querySelectorAll('select');
+
+      buttons.forEach((button) => {
+        button.setAttribute('aria-disabled', 'true');
+        button.disabled = true;
+        button.style.opacity = '0.5';
+      });
+
+      inputs.forEach((input) => {
+        input.setAttribute('aria-disabled', 'true');
+        input.disabled = true;
+        input.style.opacity = '0.5';
+      });
+
+      selects.forEach((select) => {
+        select.setAttribute('aria-disabled', 'true');
+        select.disabled = true;
+        select.style.opacity = '0.5';
+      });
+    }
+
     this.updateElement({
       isDeleting: true,
       isDisabled: true
@@ -629,11 +781,66 @@ export default class PointEditView extends AbstractStatefulView {
 
   setAborting() {
     const resetFormState = () => {
-      this.updateElement({
-        isSaving: false,
-        isDeleting: false,
-        isDisabled: false
-      });
+      const { dateFrom, dateTo } = this._state;
+
+      this._state.isSaving = false;
+      this._state.isDeleting = false;
+      this._state.isDisabled = false;
+
+      if (!this._state.id) {
+        this._state.isNew = false;
+        this._state.dateFrom = dateFrom;
+        this._state.dateTo = dateTo;
+      }
+
+      const form = this.element.querySelector('form');
+      if (form) {
+        form.classList.remove('disabled');
+
+        const buttons = form.querySelectorAll('button');
+        const inputs = form.querySelectorAll('input');
+        const selects = form.querySelectorAll('select');
+        const labels = form.querySelectorAll('label');
+
+        buttons.forEach((button) => {
+          button.removeAttribute('aria-disabled');
+          button.disabled = false;
+          button.style.opacity = '1';
+        });
+
+        inputs.forEach((input) => {
+          input.removeAttribute('aria-disabled');
+          input.disabled = false;
+          input.style.opacity = '1';
+        });
+
+        selects.forEach((select) => {
+          select.removeAttribute('aria-disabled');
+          select.disabled = false;
+          select.style.opacity = '1';
+        });
+
+        labels.forEach((label) => {
+          label.style.opacity = '1';
+        });
+
+        const saveButton = form.querySelector('.event__save-btn');
+        if (saveButton) {
+          saveButton.textContent = ButtonText.SAVE;
+        }
+      }
+
+      if (!this._state.id) {
+        this.#setDatepickers();
+      } else {
+        this.updateElement({
+          isSaving: false,
+          isDeleting: false,
+          isDisabled: false,
+          dateFrom,
+          dateTo
+        });
+      }
     };
     this.shake(resetFormState);
   }
@@ -696,5 +903,19 @@ export default class PointEditView extends AbstractStatefulView {
         });
       }
     }
+  }
+
+  #getDefaultDateFrom() {
+    if (this._state.isNew && !this._state.dateFrom) {
+      return null;
+    }
+    return this._state.dateFrom ? new Date(this._state.dateFrom) : null;
+  }
+
+  #getDefaultDateTo() {
+    if (this._state.isNew && !this._state.dateTo) {
+      return null;
+    }
+    return this._state.dateTo ? new Date(this._state.dateTo) : null;
   }
 }
