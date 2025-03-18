@@ -621,11 +621,13 @@ export default class PointEditView extends AbstractStatefulView {
     evt.preventDefault();
     const point = this.#parseStateToPoint();
 
+    const isDestinationValid = this.#destinations.some((dest) => dest.id === point.destination);
+
     const hasEmptyRequiredFields = !point.id && (
       !point.dateFrom ||
       !point.dateTo ||
-      !point.destination ||
-      !point.basePrice
+      !isDestinationValid ||
+      point.basePrice === undefined
     );
 
     const isPriceInvalid = point.basePrice !== undefined && point.basePrice < PriceConfig.MIN;

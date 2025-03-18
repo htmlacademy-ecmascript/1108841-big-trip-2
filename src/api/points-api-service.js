@@ -15,7 +15,7 @@ export default class PointsApiService extends ApiService {
     const response = await this._load({
       url: `points/${point.id}`,
       method: 'PUT',
-      body: JSON.stringify(this.#adaptPointToServer(point)),
+      body: JSON.stringify(this.#adaptPointToServer(point, true)),
       headers: new Headers({ 'Content-Type': 'application/json' })
     });
 
@@ -27,7 +27,7 @@ export default class PointsApiService extends ApiService {
     const response = await this._load({
       url: 'points',
       method: 'POST',
-      body: JSON.stringify(this.#adaptPointToServer(point)),
+      body: JSON.stringify(this.#adaptPointToServer(point, false)),
       headers: new Headers({ 'Content-Type': 'application/json' })
     });
 
@@ -66,9 +66,8 @@ export default class PointsApiService extends ApiService {
     };
   }
 
-  #adaptPointToServer(point) {
+  #adaptPointToServer(point, isExisting) {
     const {
-      id,
       dateFrom,
       dateTo,
       destination,
@@ -76,18 +75,37 @@ export default class PointsApiService extends ApiService {
       type
     } = point;
 
-    const basePrice = isNaN(point.basePrice) || point.basePrice < 0 ? 0 : point.basePrice;
-    const offers = point.offers || [];
+    let basePrice = parseInt(point.basePrice, 10);
+    if (isNaN(basePrice) || basePrice < 1) {
+      basePrice = 1;
+    }
 
-    return {
-      id,
-      'date_from': dateFrom,
-      'date_to': dateTo,
-      destination,
-      'is_favorite': isFavorite,
+    const offers = Array.isArray(point.offers) ? point.offers : [];
+
+    const normalizedDateFrom = dateFrom || new Date().toISOString();
+    let normalizedDateTo = dateTo || new Date(Date.now() + 3600000).toISOString();
+
+    const dateFromMs = new Date(normalizedDateFrom).getTime();
+    const dateToMs = new Date(normalizedDateTo).getTime();
+
+    if (dateFromMs >= dateToMs) {
+      normalizedDateTo = new Date(dateFromMs + 3600000).toISOString();
+    }
+
+    const serverData = {
+      'date_from': normalizedDateFrom,
+      'date_to': normalizedDateTo,
+      destination: destination || '',
+      'is_favorite': typeof isFavorite === 'boolean' ? isFavorite : false,
       offers,
-      type,
+      type: type || 'flight',
       'base_price': basePrice
     };
+
+    if (isExisting && point.id) {
+      serverData.id = point.id;
+    }
+
+    return serverData;
   }
 }
